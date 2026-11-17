@@ -189,6 +189,19 @@
   .pie-pagina a { text-decoration: none; }
   .pie-pagina a:hover { color: var(--blanco); }
 
+  /* ---------- modo cinemático ---------- */
+  .cine-inicio { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+  .cine-inicio span { font-size: 13px; color: rgb(245 247 250 / 0.6); }
+  .cine-control { position: fixed; z-index: 60; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); display: flex; align-items: center; gap: 12px; padding: 8px 8px 8px 16px; border-radius: 999px; background: rgb(0 0 0 / 0.72); border: 1px solid rgb(245 247 250 / 0.16); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); font-size: 13px; color: rgb(245 247 250 / 0.85); white-space: nowrap; }
+  .cine-control[hidden], .cine-reanudar[hidden] { display: none; }
+  .cine-punto { width: 8px; height: 8px; border-radius: 50%; background: var(--coral); animation: cineLatido 1.4s ease-in-out infinite; }
+  @keyframes cineLatido { 50% { opacity: 0.25; } }
+  .cine-barra { position: relative; width: 90px; height: 3px; border-radius: 3px; background: rgb(245 247 250 / 0.18); overflow: hidden; }
+  .cine-barra i { position: absolute; inset: 0; background: var(--coral); transform-origin: left; transform: scaleX(0); }
+  .cine-control button, .cine-reanudar { font: inherit; font-weight: 600; color: #000; background: var(--coral); border: 0; border-radius: 999px; padding: 7px 14px; cursor: pointer; }
+  .cine-reanudar { position: fixed; z-index: 60; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); padding: 10px 16px; box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.8); }
+  @media (max-width: 899px) { .cine-barra { display: none; } .cine-reanudar { right: 12px; } }
+
   /* ---------- QR para abrir la app en el celular ---------- */
   .qr-celular { display: flex; align-items: center; gap: 18px; padding: 12px 24px 12px 12px; border-radius: 18px; background: rgb(0 0 0 / 0.55); border: 1px solid rgb(245 247 250 / 0.16); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); text-align: left; color: var(--blanco); text-decoration: none; }
   .qr-celular img { width: 128px; height: 128px; flex-shrink: 0; background: #fff; padding: 10px; border-radius: 12px; }
@@ -228,6 +241,14 @@
 <body>
 
 <div class="progreso" aria-hidden="true"><i id="barraProgreso"></i></div>
+<!-- Modo cinemático: el recorrido avanza solo; cualquier toque, rueda o tecla lo detiene. -->
+<div class="cine-control" id="cineControl" hidden>
+  <span class="cine-punto" aria-hidden="true"></span>
+  <span id="cineEtapa">Recorrido automático</span>
+  <span class="cine-barra" aria-hidden="true"><i id="cineBarra"></i></span>
+  <button type="button" id="cineParar">Detener</button>
+</div>
+<button class="cine-reanudar" type="button" id="cineReanudar" hidden>▶ Seguir el recorrido</button>
 <header class="barra">
   <img class="logo" src="assets/marca/picasso-logo-blanco.svg" alt="Motel Picasso">
   <div class="derecha">
@@ -245,6 +266,10 @@
       <p class="ceja">Motel Picasso<span class="solo-ancho"> · Mantenimiento y limpieza</span></p>
       <h1>Revisar, documentar <em>y resolver.</em></h1>
       <p class="lead">La app de inspecciones de las seis casas Picasso: el gerente y la ama de llaves revisan cada cuarto desde el celular, cada falla queda con foto, cada gasto queda desglosado y ligado a su folio, y los dueños ven ingresos, gastos y reportes en una sola vista.</p>
+      <div class="cine-inicio">
+        <button class="boton lleno" type="button" id="cineVer">▶ Ver el recorrido completo</button>
+        <span>Avanza solo, capítulo por capítulo · toca o desliza para tomar el control</span>
+      </div>
       <ul class="casas" aria-label="Sucursales">
         <li class="nueva">Vaqueritos</li><li>Lerma</li><li>Toluca</li><li>Circuito</li><li>Churubusco</li><li>Periférico</li>
       </ul>
@@ -253,7 +278,7 @@
         <img src="assets/qr-app.svg" alt="Código QR de la app de prueba" width="128" height="128">
         <div><b>Pruébala en tu celular</b><span>Apunta la cámara al código y entra con un toque.</span><small>2.25.196.39:9630</small></div>
       </a>
-    <span class="desliza">Desliza</span>
+    <span class="desliza">Desliza · un capítulo por vez</span>
   </section>
 
   <!-- Recorrido: el celular en 3D con la app real -->
@@ -396,7 +421,7 @@
       tarjetas: ['suc-churubusco', 'suc-periferico', 'lobby'] },
     { clip: 'reportesAdmin', fondo: 'lobby', lugar: 'Lobby · Vaqueritos',
       ceja: 'Reportes', t1: 'Todo se baja', t2: 'en PDF.',
-      p: 'Cada revisión, cada folio con su foto de antes y de después, el expediente de cada cuarto y el reporte del periodo, con la marca de Picasso.',
+      p: 'Cada revisión, cada folio con su foto de antes y de después, el expediente de cada cuarto, el reporte del periodo y el de finanzas de todas las casas o de cada una, con la marca de Picasso.',
       tarjetas: ['recepcion', 'suc-churubusco', 'suc-periferico'] },
   ]
   const ETIQUETAS = { 'suc-lerma': 'Lerma', 'suc-toluca': 'Toluca', 'suc-circuito': 'Circuito', 'suc-churubusco': 'Churubusco', 'suc-periferico': 'Periférico' }
@@ -654,6 +679,129 @@
     const s = paradas(), y = scrollY
     const sig = e.key === 'ArrowRight' ? s.find((p) => p > y + 8) : [...s].reverse().find((p) => p < y - 8)
     if (sig != null) irA(sig)
+  })
+
+  // ---------- modo cinemático: el recorrido avanza solo ----------
+  // ?auto=1 lo arranca al abrir y vuelve a empezar al terminar (para dejarlo en una pantalla).
+  // Sin eso, arranca solo si nadie toca nada en 20 s desde el inicio.
+  const cine = { activo: false, token: 0 }
+  const auto = new URLSearchParams(location.search).get('auto') === '1'
+  const ctrl = $('cineControl'), etapa = $('cineEtapa'), barraCine = $('cineBarra'), reanudar = $('cineReanudar')
+  const pausa = (ms, token) => new Promise((ok) => setTimeout(() => ok(cine.token === token), ms))
+  function deslizarA(y, ms, token) {
+    if (quieto) { scrollTo(0, y); return Promise.resolve(cine.token === token) }
+    return new Promise((ok) => {
+      const y0 = scrollY, dy = y - y0, t0 = performance.now()
+      const curva = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
+      const paso = (ahora) => {
+        if (cine.token !== token) return ok(false)
+        const t = Math.min(1, (ahora - t0) / ms)
+        scrollTo(0, y0 + dy * curva(t))
+        if (t < 1) requestAnimationFrame(paso)
+        else ok(true)
+      }
+      requestAnimationFrame(paso)
+    })
+  }
+  function nombreParada(i, total) {
+    if (i === 0) return 'Inicio'
+    if (i <= N) return `${String(i).padStart(2, '0')} / ${String(N).padStart(2, '0')} · ${CAPS[i - 1].ceja}`
+    if (i <= N + 3) return 'Vaqueritos, suite por suite'
+    return ['Las seis casas', 'El video', 'Cierre'][i - N - 4] || ''
+  }
+  async function correrCine() {
+    const token = ++cine.token
+    cine.activo = true
+    ctrl.hidden = false
+    reanudar.hidden = true
+    const s = paradas()
+    let desde = s.findIndex((p) => p > scrollY + 8)
+    if (desde < 0 || scrollY < 40) desde = 1
+    for (let i = desde; i < s.length; i++) {
+      etapa.textContent = nombreParada(i, s.length)
+      barraCine.style.transform = `scaleX(${(i / (s.length - 1)).toFixed(3)})`
+      const ida = Math.min(3200, Math.max(1600, Math.abs(s[i] - scrollY) * 0.9))
+      if (!(await deslizarA(s[i], ida, token))) return
+      // en cada capítulo da tiempo a ver la toma completa del celular
+      const espera = i >= 1 && i <= N ? 8000 : i === s.length - 1 ? 6000 : i > N + 3 ? 5000 : 3600
+      if (!(await pausa(espera, token))) return
+    }
+    if (auto && cine.token === token) {
+      etapa.textContent = 'Otra vez desde el inicio'
+      if (!(await deslizarA(0, 2400, token))) return
+      if (await pausa(5000, token)) correrCine()
+      return
+    }
+    pararCine(false)
+  }
+  function pararCine(porUsuario = true) {
+    if (!cine.activo) return
+    cine.activo = false
+    cine.token++
+    ctrl.hidden = true
+    reanudar.hidden = !porUsuario
+  }
+  $('cineVer').addEventListener('click', (e) => { e.stopPropagation(); correrCine() })
+  reanudar.addEventListener('click', (e) => { e.stopPropagation(); correrCine() })
+  $('cineParar').addEventListener('click', (e) => { e.stopPropagation(); pararCine(true) })
+  // tomar el control: rueda, toque, tecla o arrastre detienen el recorrido
+  const tomarControl = (e) => {
+    tocado = true
+    if (cine.activo && !(e.target.closest && e.target.closest('#cineControl, #cineReanudar'))) pararCine(true)
+  }
+  let tocado = false
+  addEventListener('wheel', tomarControl, { passive: true })
+  addEventListener('touchstart', tomarControl, { passive: true })
+  addEventListener('pointerdown', tomarControl)
+  addEventListener('keydown', tomarControl)
+  if (auto) setTimeout(correrCine, 1500)
+  else setTimeout(() => { if (!tocado && !cine.activo && scrollY < 40) correrCine() }, 8000)
+
+  // ---------- un capítulo por gesto ----------
+  // La rueda y el trackpad mandan decenas de eventos por gesto (y siguen por inercia):
+  // sin esto el recorrido brinca varios capítulos. Del inicio al final de la galería,
+  // cada gesto avanza o regresa exactamente una parada, con su animación completa.
+  let animando = false, ultimoGesto = 0, gestoUsado = false, tocY = null
+  const finZona = () => topGal + altoGal - vh
+  const enZona = () => scrollY < finZona() - 4
+  function pasoRelativo(dir) {
+    const s = paradas()
+    let i = 0
+    s.forEach((p, k) => { if (Math.abs(p - scrollY) < Math.abs(s[i] - scrollY)) i = k })
+    // si quedó entre dos paradas y la más cercana ya está en esa dirección, va a esa
+    const adelante = dir > 0 ? s[i] > scrollY + 8 : s[i] < scrollY - 8
+    if (!adelante) i += dir
+    const destino = s[Math.max(0, Math.min(s.length - 1, i))]
+    if (destino == null || Math.abs(destino - scrollY) < 4) return
+    animando = true
+    const ms = quieto ? 0 : Math.min(1500, Math.max(900, Math.abs(destino - scrollY) * 0.8))
+    const t = ++cine.token  // un gesto también cancela el recorrido automático
+    deslizarA(destino, ms, t).then(() => { animando = false })
+  }
+  addEventListener('wheel', (e) => {
+    if (!enZona() || e.ctrlKey) return
+    e.preventDefault()
+    // Un gesto termina cuando dejan de llegar eventos por 220 ms; la inercia del
+    // trackpad llega cada ~16 ms, así que cuenta como el mismo gesto.
+    const ahora = performance.now()
+    if (ahora - ultimoGesto > 220) gestoUsado = false
+    ultimoGesto = ahora
+    if (animando || gestoUsado || Math.abs(e.deltaY) < 3) return
+    gestoUsado = true
+    pasoRelativo(e.deltaY > 0 ? 1 : -1)
+  }, { passive: false })
+  addEventListener('touchstart', (e) => { tocY = enZona() ? e.touches[0].clientY : null }, { passive: true })
+  addEventListener('touchmove', (e) => { if (tocY !== null && enZona()) e.preventDefault() }, { passive: false })
+  addEventListener('touchend', (e) => {
+    if (tocY === null) return
+    const dy = tocY - e.changedTouches[0].clientY
+    tocY = null
+    if (!animando && Math.abs(dy) > 35) pasoRelativo(dy > 0 ? 1 : -1)
+  }, { passive: true })
+  addEventListener('keydown', (e) => {
+    if (!enZona() || animando) return
+    if (['ArrowDown', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); pasoRelativo(1) }
+    else if (['ArrowUp', 'PageUp'].includes(e.key)) { e.preventDefault(); pasoRelativo(-1) }
   })
 
   // el video de inicio solo corre mientras se ve
