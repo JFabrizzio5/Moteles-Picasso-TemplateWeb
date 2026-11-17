@@ -48,6 +48,9 @@
   --na-suave: #fbf0dc;
   --pendiente: #6b6b6b;
   --pendiente-suave: #ececec;
+  /* Series de las gráficas de finanzas (validadas para daltonismo). */
+  --serie-ingresos: #2f6db5;
+  --serie-gastos: #c0392b;
   --vidrio: rgb(244 244 244 / 0.96);
   --sombra: 0 1px 2px rgb(0 0 0 / 0.04), 0 10px 28px -18px rgb(0 0 0 / 0.25);
   --radio: 14px;
@@ -87,6 +90,8 @@
   --na-suave: #2a2112;
   --pendiente: #9a9a9a;
   --pendiente-suave: #222222;
+  --serie-ingresos: #5b95dd;
+  --serie-gastos: #d65a52;
   --vidrio: rgb(10 10 10 / 0.95);
   --sombra: 0 16px 32px -20px rgb(0 0 0 / 0.9);
   --radio: 14px;

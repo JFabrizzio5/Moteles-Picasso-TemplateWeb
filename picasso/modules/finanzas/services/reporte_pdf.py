@@ -13,15 +13,90 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from decimal import Decimal
 
+from reportlab.graphics.charts.barcharts import HorizontalBarChart, VerticalBarChart
+from reportlab.graphics.charts.legends import Legend
+from reportlab.graphics.shapes import Drawing, String
+from reportlab.lib import colors
 from reportlab.platypus import Flowable, KeepTogether, Spacer
 
 from modules.inspeccion.public import pdf
 
 from ..enums import NOMBRE_CATEGORIA, NOMBRE_FORMA_PAGO, FormaPago
-from ..models import AnalisisGastos, GastoRead, ResumenFinanzas
+from ..models import AnalisisGastos, GastoRead, ResumenFinanzas, SerieFinanzas
 
 VERDE = pdf.COLOR_RESULTADO["bien"]
 ROJO = pdf.CORAL_TEXTO
+#: Los mismos colores de las gráficas de la app (validados para daltonismo).
+AZUL_INGRESOS = colors.HexColor("#2f6db5")
+VINO_GASTOS = colors.HexColor("#c0392b")
+_TRAMO = {"dia": "por día", "semana": "por semana", "mes": "por mes"}
+_MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
+
+
+def _corto(d: date) -> str:
+    return f"{d.day} {_MESES[d.month - 1]}"
+
+
+def _miles(v: float) -> str:
+    return f"${v / 1000:,.0f}k" if abs(v) >= 1000 else f"${v:,.0f}"
+
+
+def barras(
+    etiquetas: Sequence[str],
+    series: Sequence[tuple[str, colors.Color, Sequence[float]]],
+    *,
+    alto: float = 190,
+    horizontal: bool = False,
+) -> Drawing:
+    """Barras agrupadas (una o varias series) con leyenda y eje en pesos."""
+    ancho = pdf.ANCHO_UTIL
+    d = Drawing(ancho, alto)
+    g = HorizontalBarChart() if horizontal else VerticalBarChart()
+    izquierda = 110 if horizontal else 46
+    g.x, g.y = izquierda, 34 if not horizontal else 20
+    g.width = ancho - izquierda - 12
+    g.height = alto - (62 if not horizontal else 40)
+    g.data = [list(v) for _, _, v in series] or [[0]]
+    for i, (_, color, _) in enumerate(series):
+        g.bars[i].fillColor = color
+        g.bars[i].strokeColor = None
+    g.barSpacing = 1.5
+    g.groupSpacing = 6
+    g.categoryAxis.categoryNames = list(etiquetas)
+    g.categoryAxis.labels.fontName = "Helvetica"
+    g.categoryAxis.labels.fontSize = 7
+    g.categoryAxis.labels.fillColor = pdf.TEXTO_2
+    g.categoryAxis.strokeColor = pdf.LINEA
+    g.valueAxis.labels.fontName = "Helvetica"
+    g.valueAxis.labels.fontSize = 7
+    g.valueAxis.labels.fillColor = pdf.TEXTO_3
+    g.valueAxis.labelTextFormat = _miles
+    g.valueAxis.strokeColor = pdf.LINEA
+    g.valueAxis.gridStrokeColor = pdf.LINEA
+    g.valueAxis.visibleGrid = True
+    g.valueAxis.valueMin = 0
+    if not horizontal and len(etiquetas) > 12:
+        g.categoryAxis.labels.angle = 45
+        g.categoryAxis.labels.boxAnchor = "ne"
+    d.add(g)
+    if len(series) > 1:
+        ley = Legend()
+        ley.x, ley.y = izquierda, alto - 6
+        ley.alignment = "right"
+        ley.columnMaximum = 1
+        ley.fontName = "Helvetica"
+        ley.fontSize = 8
+        ley.dx = ley.dy = 8
+        ley.deltax = 90
+        ley.colorNamePairs = [(c, n) for n, c, _ in series]
+        d.add(ley)
+    return d
+
+
+def _vacia(texto: str) -> Drawing:
+    d = Drawing(pdf.ANCHO_UTIL, 30)
+    d.add(String(0, 10, texto, fontName="Helvetica", fontSize=9, fillColor=pdf.TEXTO_3))
+    return d
 
 
 def pesos(valor: Decimal | float | int) -> str:
@@ -46,6 +121,7 @@ class DatosReporte:
     resumen: ResumenFinanzas | None
     analisis: AnalisisGastos
     gastos: Sequence[GastoRead]
+    serie: SerieFinanzas | None = None
 
 
 def construir_finanzas(datos: DatosReporte, generado: datetime) -> bytes:
@@ -78,7 +154,35 @@ def construir_finanzas(datos: DatosReporte, generado: datetime) -> bytes:
             )
         h.append(pdf.tarjetas(cifras))
 
+        if datos.serie is not None and datos.serie.puntos:
+            tramo = {"dia": "por día", "semana": "por semana", "mes": "por mes"}[
+                datos.serie.agrupado
+            ]
+            h.append(pdf.seccion(f"Ingresos y gastos {tramo}"))
+            pts = datos.serie.puntos
+            h.append(
+                barras(
+                    [_corto(x.inicio) for x in pts],
+                    [
+                        ("Ingresos", AZUL_INGRESOS, [float(x.ingresos) for x in pts]),
+                        ("Gastos", VINO_GASTOS, [float(x.gastos) for x in pts]),
+                    ],
+                )
+            )
+
         if datos.resumen is not None and len(datos.resumen.sucursales) > 1:
+            h.append(pdf.seccion("Ingresos y gastos por sucursal"))
+            sucs = datos.resumen.sucursales
+            h.append(
+                barras(
+                    [x.nombre.replace("Picasso ", "") for x in sucs],
+                    [
+                        ("Ingresos", AZUL_INGRESOS, [float(x.ingresos) for x in sucs]),
+                        ("Gastos", VINO_GASTOS, [float(x.gastos) for x in sucs]),
+                    ],
+                    alto=170,
+                )
+            )
             h.append(pdf.seccion("Ingresos contra gastos por sucursal"))
             filas: list[list[object]] = [
                 ["Sucursal", "Rentas", "Cuartos", "Room service", "Ingresos", "Gastos", "Utilidad"]
@@ -108,6 +212,18 @@ def construir_finanzas(datos: DatosReporte, generado: datetime) -> bytes:
             return h
 
         h.append(pdf.seccion("En qué se gasta"))
+        cats = list(reversed(a.por_categoria))
+        h.append(
+            barras(
+                [NOMBRE_CATEGORIA[c.categoria] for c in cats],
+                [("Gastos", VINO_GASTOS, [float(c.total) for c in cats])],
+                alto=26 + 20 * max(len(cats), 1),
+                horizontal=True,
+            )
+            if cats
+            else _vacia("Sin gastos.")
+        )
+        h.append(Spacer(1, 6))
         filas = [["Categoría", "Partidas", "Total", "% del gasto", "Por sucursal"]]
         for c in a.por_categoria:
             por_suc = " · ".join(
@@ -115,7 +231,7 @@ def construir_finanzas(datos: DatosReporte, generado: datetime) -> bytes:
             )
             filas.append(
                 [
-                    NOMBRE_CATEGORIA[c.categoria],
+                    pdf.p(pdf.t(NOMBRE_CATEGORIA[c.categoria]), pdf.CELDA),
                     str(c.partidas),
                     pesos(c.total),
                     f"{(c.total / a.total * 100) if a.total else 0:.1f} %",

@@ -4,6 +4,7 @@ import api from '@/services/api.js'
 const datos = (promesa) => promesa.then((r) => r.data)
 
 export const resumen = (params) => datos(api.get('/finanzas/resumen', { params }))
+export const serie = (params) => datos(api.get('/finanzas/serie', { params }))
 export const ingresos = (params) => datos(api.get('/finanzas/ingresos', { params }))
 export const tarifas = (params) => datos(api.get('/finanzas/tarifas', { params }))
 export const fuentes = () => datos(api.get('/finanzas/fuentes'))
@@ -11,6 +12,11 @@ export const importar = (cuerpo) => datos(api.post('/finanzas/importar', cuerpo)
 
 export const gastos = (params) => datos(api.get('/gastos', { params }))
 export const analisisGastos = (params) => datos(api.get('/gastos/analisis', { params }))
+/** Una página de gastos con el total del filtro (encabezados X-Total-*). */
+export async function gastosPagina(params) {
+  const r = await api.get('/gastos', { params })
+  return { lista: r.data, total: Number(r.headers['x-total-count'] || r.data.length), importe: Number(r.headers['x-total-importe'] || 0) }
+}
 export const gasto = (id) => datos(api.get(`/gastos/${id}`))
 export const crearGasto = (cuerpo) => datos(api.post('/gastos', cuerpo))
 export const actualizarGasto = (id, cuerpo) => datos(api.patch(`/gastos/${id}`, cuerpo))

@@ -85,6 +85,23 @@ class ResumenFinanzas(BaseModel):
     utilidad: Decimal
 
 
+class PuntoSerie(BaseModel):
+    """Un tramo de la gráfica: un día, una semana (empieza en lunes) o un mes."""
+
+    inicio: date
+    fin: date
+    ingresos: Decimal
+    gastos: Decimal
+
+
+class SerieFinanzas(BaseModel):
+    desde: date
+    hasta: date
+    #: dia hasta 62 días, semana hasta 200, mes después.
+    agrupado: str
+    puntos: list[PuntoSerie]
+
+
 class FuenteRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

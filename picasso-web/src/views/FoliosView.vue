@@ -47,6 +47,7 @@ const PERIODOS = [
   { valor: '1', texto: 'Ayer y hoy' },
   { valor: '6', texto: 'Últimos 7 días' },
   { valor: '29', texto: 'Últimos 30 días' },
+  { valor: 'rango', texto: 'Fechas específicas…' },
 ]
 
 const filtros = computed(() => ({
@@ -54,13 +55,28 @@ const filtros = computed(() => ({
   prioridad: PRIORIDAD[ruta.query.prioridad] ? ruta.query.prioridad : '',
   sucursal: ruta.query.sucursal || '',
   dias: ruta.query.dias ?? '',
+  // Con «Fechas específicas»: del día `desde` al día `hasta` (reportados en ese rango).
+  desde: ruta.query.desde || hoyISO(6),
+  hasta: ruta.query.hasta || hoyISO(),
   buscar: ruta.query.buscar || '',
 }))
 
 // El conteo no depende del estado ni de la prioridad elegidos: es la tabla completa.
 const filtrosConteo = computed(() => {
-  const { sucursal, dias, buscar } = filtros.value
-  return { sucursal, dias, buscar }
+  const { sucursal, dias, desde, hasta, buscar } = filtros.value
+  return { sucursal, dias, desde, hasta, buscar }
+})
+
+const LARGA = new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })
+const aFecha = (iso) => {
+  const [y, m, d] = iso.split('-').map(Number)
+  return new Date(y, m - 1, d)
+}
+const textoRango = computed(() => {
+  const a = aFecha(filtros.value.desde)
+  const b = aFecha(filtros.value.hasta)
+  const n = Math.round((b - a) / 86400000) + 1
+  return `Del ${LARGA.format(a)} al ${LARGA.format(b)} · ${n} ${n === 1 ? 'día' : 'días'}`
 })
 
 function cambiar(cambios) {
@@ -70,7 +86,8 @@ function cambiar(cambios) {
 function parametros(f) {
   return {
     sucursal_id: f.sucursal || undefined,
-    desde: f.dias !== '' ? hoyISO(Number(f.dias)) : undefined,
+    desde: f.dias === 'rango' ? f.desde : f.dias !== '' ? hoyISO(Number(f.dias)) : undefined,
+    hasta: f.dias === 'rango' ? f.hasta : undefined,
     buscar: f.buscar || undefined,
   }
 }
@@ -186,9 +203,21 @@ onMounted(async () => {
           <option value="">Todas las sucursales</option>
           <option v-for="s in perfil.sucursales" :key="s.id" :value="s.id">{{ s.nombre }}</option>
         </select>
-        <select class="campo" :value="filtros.dias" @change="cambiar({ dias: $event.target.value || undefined })">
+        <select class="campo" :value="filtros.dias" @change="cambiar({ dias: $event.target.value || undefined, desde: undefined, hasta: undefined })">
           <option v-for="p in PERIODOS" :key="p.valor" :value="p.valor">{{ p.texto }}</option>
         </select>
+      </div>
+      <!-- Fechas específicas: dos calendarios y el rango escrito, para no adivinar. -->
+      <div v-if="filtros.dias === 'rango'" class="tarjeta flex flex-wrap items-end gap-3 p-4">
+        <label class="text-[13px] font-semibold text-[var(--texto-2)]">
+          Reportados desde
+          <input type="date" class="campo mt-1" :value="filtros.desde" :max="filtros.hasta" @change="$event.target.value && cambiar({ desde: $event.target.value })" />
+        </label>
+        <label class="text-[13px] font-semibold text-[var(--texto-2)]">
+          Hasta
+          <input type="date" class="campo mt-1" :value="filtros.hasta" :min="filtros.desde" :max="hoyISO()" @change="$event.target.value && cambiar({ hasta: $event.target.value })" />
+        </label>
+        <p class="pb-3 text-sm text-[var(--texto-2)]">{{ textoRango }}</p>
       </div>
     </div>
 

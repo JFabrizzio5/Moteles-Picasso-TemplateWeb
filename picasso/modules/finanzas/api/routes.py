@@ -29,6 +29,7 @@ from ..models import (
     ImportarIngresos,
     IngresoDiaRead,
     ResumenFinanzas,
+    SerieFinanzas,
     TarifaRead,
 )
 from ..repositories import FinanzasRepository
@@ -111,6 +112,20 @@ async def resumen(
     return await service.resumen(actor, desde=inicio, hasta=fin, sucursal_id=sucursal_id)
 
 
+@router.get(
+    "/finanzas/serie", response_model=SerieFinanzas, summary="Ingresos y gastos en el tiempo"
+)
+async def serie(
+    desde: date | None = Query(None),
+    hasta: date | None = Query(None),
+    sucursal_id: int | None = Query(None),
+    actor: Actor = Depends(get_actor),
+    service: IngresosService = Depends(ingresos),
+) -> SerieFinanzas:
+    inicio, fin = _periodo(desde, hasta)
+    return await service.serie(actor, desde=inicio, hasta=fin, sucursal_id=sucursal_id)
+
+
 @router.get("/finanzas/ingresos", response_model=list[IngresoDiaRead], summary="Ingresos por día")
 async def ingresos_por_dia(
     desde: date | None = Query(None),
@@ -148,7 +163,8 @@ async def reporte_pdf(
     inicio, fin = _periodo(desde, hasta)
     resumen = await ingresos_srv.resumen(actor, desde=inicio, hasta=fin, sucursal_id=sucursal_id)
     analisis = await gastos_srv.analisis(actor, desde=inicio, hasta=fin, sucursal_id=sucursal_id)
-    lista = await gastos_srv.listar(
+    serie = await ingresos_srv.serie(actor, desde=inicio, hasta=fin, sucursal_id=sucursal_id)
+    lista, _, _ = await gastos_srv.listar(
         actor,
         sucursal_id=sucursal_id,
         desde=inicio,
@@ -162,7 +178,7 @@ async def reporte_pdf(
     alcance = resumen.sucursales[0].nombre if len(resumen.sucursales) == 1 else "Seis sucursales"
     contenido = await asyncio.to_thread(
         construir_finanzas,
-        DatosReporte(inicio, fin, alcance, resumen, analisis, lista),
+        DatosReporte(inicio, fin, alcance, resumen, analisis, lista, serie),
         ahora(),
     )
     nombre = f"Finanzas-Picasso-{inicio.isoformat()}-a-{fin.isoformat()}.pdf"
@@ -239,11 +255,17 @@ async def listar_gastos(
     categoria: str | None = Query(None, max_length=20),
     buscar: str | None = Query(None, max_length=60),
     incluir_anulados: bool = Query(False),
+    pagina: int | None = Query(None, ge=1, description="Sin ella, hasta 500 gastos"),
+    por_pagina: int = Query(20, ge=1, le=100),
+    *,
+    response: Response,
     actor: Actor = Depends(get_actor),
     service: GastosService = Depends(gastos),
 ) -> list[GastoRead]:
-    return await service.listar(
+    lista, total, suma = await service.listar(
         actor,
+        pagina=pagina,
+        por_pagina=por_pagina,
         sucursal_id=sucursal_id,
         desde=desde,
         hasta=hasta,
@@ -253,6 +275,10 @@ async def listar_gastos(
         buscar=buscar,
         incluir_anulados=incluir_anulados,
     )
+    # El total del filtro completo, para paginar sin perder la suma del periodo.
+    response.headers["X-Total-Count"] = str(total)
+    response.headers["X-Total-Importe"] = f"{suma:.2f}"
+    return lista
 
 
 @router.post(

@@ -129,8 +129,9 @@ class FinanzasRepository:
             raise NotFoundError("Ese gasto no existe.")
         return fila
 
-    async def gastos(
-        self,
+    @staticmethod
+    def _filtrar_gastos(
+        query: Any,
         *,
         ids: Sequence[int] | None = None,
         sucursal_id: int | None = None,
@@ -142,9 +143,8 @@ class FinanzasRepository:
         texto: str | None = None,
         incluir_anulados: bool = False,
         solo_pendientes: bool = False,
-        limite: int = 500,
-    ) -> list[Gasto]:
-        query = select(Gasto)
+    ) -> Any:
+        """Los mismos filtros para la página, su conteo y la exportación."""
         if ids is not None:
             query = query.where(Gasto.id.in_(list(ids)))
         if sucursal_id is not None:
@@ -180,8 +180,32 @@ class FinanzasRepository:
                     ),
                 )
             )
-        query = query.order_by(Gasto.fecha.desc(), Gasto.id.desc()).limit(limite)
+        return query
+
+    async def gastos(self, *, limite: int = 500, offset: int = 0, **filtros: Any) -> list[Gasto]:
+        query = self._filtrar_gastos(select(Gasto), **filtros)
+        query = query.order_by(Gasto.fecha.desc(), Gasto.id.desc()).offset(offset).limit(limite)
         return await self._todas(query)
+
+    async def gastos_por_dia(
+        self, *, desde: date, hasta: date, sucursal_id: int | None
+    ) -> dict[date, Decimal]:
+        query = (
+            select(Gasto.fecha, func.sum(Gasto.importe))
+            .where(Gasto.fecha >= desde, Gasto.fecha <= hasta, Gasto.estado != "anulado")
+            .group_by(Gasto.fecha)
+        )
+        if sucursal_id is not None:
+            query = query.where(Gasto.sucursal_id == sucursal_id)
+        return {f: Decimal(t or 0) for f, t in (await self.session.execute(query)).all()}
+
+    async def contar_gastos(self, **filtros: Any) -> tuple[int, Decimal]:
+        """Cuántos gastos y cuánto suman con esos filtros (para paginar sin perder el total)."""
+        query = self._filtrar_gastos(
+            select(func.count(Gasto.id), func.coalesce(func.sum(Gasto.importe), 0)), **filtros
+        )
+        n, total = (await self.session.execute(query)).one()
+        return int(n), Decimal(total)
 
     async def suma_gastos(
         self, *, desde: date, hasta: date, sucursal_id: int | None = None

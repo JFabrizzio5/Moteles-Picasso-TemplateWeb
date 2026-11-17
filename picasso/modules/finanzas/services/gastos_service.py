@@ -7,6 +7,7 @@ from collections.abc import Awaitable, Callable, Sequence
 from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal
+from typing import Any
 
 from jfastframework.errors import NotFoundError, ValidationError
 
@@ -198,10 +199,13 @@ class GastosService:
         categoria: str | None,
         buscar: str | None,
         incluir_anulados: bool,
-    ) -> list[GastoRead]:
+        pagina: int | None = None,
+        por_pagina: int = 20,
+    ) -> tuple[list[GastoRead], int, Decimal]:
+        """Una página de gastos (o todos, hasta 500, sin `pagina`), el total y su suma."""
         if desde and hasta:
             rango(desde, hasta)
-        filas = await self.repo.gastos(
+        filtros: dict[str, Any] = dict(
             sucursal_id=sucursal_visible(actor, sucursal_id),
             desde=desde,
             hasta=hasta,
@@ -211,7 +215,14 @@ class GastosService:
             texto=buscar,
             incluir_anulados=incluir_anulados,
         )
-        return await self.leer(filas)
+        if pagina is None:
+            filas = await self.repo.gastos(**filtros)
+            return await self.leer(filas), len(filas), sum((g.importe for g in filas), Decimal(0))
+        total, suma = await self.repo.contar_gastos(**filtros)
+        filas = await self.repo.gastos(
+            limite=por_pagina, offset=(max(pagina, 1) - 1) * por_pagina, **filtros
+        )
+        return await self.leer(filas), total, suma
 
     async def detalle(self, actor: Actor, gasto_id: int) -> GastoRead:
         g = await self.repo.gasto(gasto_id)

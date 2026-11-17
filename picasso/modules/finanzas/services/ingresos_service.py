@@ -20,8 +20,10 @@ from ..models import (
     FuenteKairos,
     IngresoDia,
     IngresoTarifa,
+    PuntoSerie,
     Renta,
     ResumenFinanzas,
+    SerieFinanzas,
     TarifaRead,
 )
 from ..repositories import FinanzasRepository
@@ -235,6 +237,49 @@ class IngresosService:
             desde=desde, hasta=hasta, sucursal_id=sucursal_visible(actor, sucursal_id)
         )
         return [TarifaRead(tarifa=t, cantidad=n, importe=_dec(i)) for t, n, i in filas]
+
+    async def serie(
+        self, actor: Actor, *, desde: date, hasta: date, sucursal_id: int | None
+    ) -> SerieFinanzas:
+        """Ingresos y gastos por día, semana o mes (según lo largo del periodo)."""
+        exigir_finanzas(actor)
+        rango(desde, hasta)
+        filtro = sucursal_visible(actor, sucursal_id)
+        ingresos: dict[date, Decimal] = {}
+        for fila in await self.repo.ingresos(desde=desde, hasta=hasta, sucursal_id=filtro):
+            ingresos[fila.fecha] = (
+                ingresos.get(fila.fecha, Decimal(0))
+                + fila.habitaciones
+                + fila.room_service
+                + fila.extras
+            )
+        gastos = await self.repo.gastos_por_dia(desde=desde, hasta=hasta, sucursal_id=filtro)
+        dias = (hasta - desde).days + 1
+        agrupado = "dia" if dias <= 62 else "semana" if dias <= 200 else "mes"
+
+        def tramo(d: date) -> tuple[date, date]:
+            if agrupado == "dia":
+                return d, d
+            if agrupado == "semana":
+                lunes = d - timedelta(days=d.weekday())
+                return max(lunes, desde), min(lunes + timedelta(days=6), hasta)
+            inicio = d.replace(day=1)
+            siguiente = (inicio + timedelta(days=32)).replace(day=1)
+            return max(inicio, desde), min(siguiente - timedelta(days=1), hasta)
+
+        puntos: dict[date, PuntoSerie] = {}
+        for dia in dias_entre(desde, hasta):
+            a, b = tramo(dia)
+            p = puntos.setdefault(
+                a, PuntoSerie(inicio=a, fin=b, ingresos=Decimal(0), gastos=Decimal(0))
+            )
+            p.ingresos += ingresos.get(dia, Decimal(0))
+            p.gastos += gastos.get(dia, Decimal(0))
+        for p in puntos.values():
+            p.ingresos, p.gastos = _dec(p.ingresos), _dec(p.gastos)
+        return SerieFinanzas(
+            desde=desde, hasta=hasta, agrupado=agrupado, puntos=list(puntos.values())
+        )
 
     async def resumen(
         self, actor: Actor, *, desde: date, hasta: date, sucursal_id: int | None

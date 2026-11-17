@@ -32,7 +32,9 @@ from .finanzas_models import (
     IngresoDiaRead,
     PartidaCrear,
     PartidaRead,
+    PuntoSerie,
     ResumenFinanzas,
+    SerieFinanzas,
     TarifaRead,
 )
 
@@ -63,7 +65,9 @@ __all__ = [
     "IngresoTarifa",
     "PartidaCrear",
     "PartidaRead",
+    "PuntoSerie",
     "Renta",
     "ResumenFinanzas",
+    "SerieFinanzas",
     "TarifaRead",
 ]

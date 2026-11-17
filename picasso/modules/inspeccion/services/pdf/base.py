@@ -140,7 +140,8 @@ ETIQUETA = _estilo(
 )
 TITULO = _estilo("titulo", fontSize=24, leading=28, spaceAfter=2)
 SUBTITULO = _estilo("subtitulo", fontSize=10, leading=14, textColor=TEXTO_2)
-SECCION = _estilo("seccion", fontSize=15, leading=19, spaceBefore=14, spaceAfter=6)
+# keepWithNext: un título nunca se queda solo al pie de la página.
+SECCION = _estilo("seccion", fontSize=15, leading=19, spaceBefore=14, spaceAfter=6, keepWithNext=1)
 CUERPO = _estilo("cuerpo")
 NEGRITA = _estilo("negrita", fontName="Helvetica-Bold")
 CHICO = _estilo("chico", fontSize=8, leading=10.5, textColor=TEXTO_2)

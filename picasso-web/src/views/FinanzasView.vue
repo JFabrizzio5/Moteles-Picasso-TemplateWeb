@@ -8,10 +8,12 @@ import { mdiDownload, mdiFileExcelOutline, mdiMagnify, mdiPlus, mdiRefresh } fro
 import BotonPdf from '@/components/BotonPdf.vue'
 import Cargando from '@/components/Cargando.vue'
 import GastoHoja from '@/components/GastoHoja.vue'
+import GraficaBarras from '@/components/GraficaBarras.vue'
+import GraficaSerie from '@/components/GraficaSerie.vue'
 import Icono from '@/components/Icono.vue'
 import Vacio from '@/components/Vacio.vue'
 import { useToast } from '@/composables/useToast.js'
-import { CATEGORIA_GASTO, CATEGORIAS_GASTO, corto, cuando, dia, FORMA_PAGO, mensajeError, pesos, ROLES } from '@/lib/formato.js'
+import { CATEGORIA_GASTO, CATEGORIAS_GASTO, corto, cuando, dia, FORMA_PAGO, hoyISO, mensajeError, pesos, ROLES } from '@/lib/formato.js'
 import * as finanzas from '@/services/finanzas.js'
 import { usePerfilStore } from '@/stores/perfil.store.js'
 
@@ -41,11 +43,12 @@ const PERIODOS = [
   { valor: 'mes', texto: 'Este mes' },
   { valor: 'pasado', texto: 'Mes pasado' },
   { valor: '30', texto: '30 días' },
-  { valor: 'rango', texto: 'Elegir fechas' },
 ]
 
 const vista = computed(() => (VISTAS.some((v) => v.valor === ruta.query.vista) ? ruta.query.vista : 'ingresos'))
-const periodo = computed(() => (PERIODOS.some((p) => p.valor === ruta.query.periodo) ? ruta.query.periodo : 'mes'))
+const periodo = computed(() =>
+  ruta.query.periodo === 'rango' || PERIODOS.some((p) => p.valor === ruta.query.periodo) ? ruta.query.periodo : 'mes',
+)
 const sucursal = computed(() => ruta.query.sucursal || '')
 const rango = computed(() => {
   if (periodo.value !== 'rango') return periodoDe(periodo.value)
@@ -54,6 +57,29 @@ const rango = computed(() => {
   const hasta = ruta.query.hasta || h
   return desde <= hasta ? [desde, hasta] : [hasta, desde]
 })
+// Cambiar cualquiera de las dos fechas pasa a «fechas a la medida».
+function fijarFechas(desde, hasta) {
+  if (!desde || !hasta) return
+  const [a, b] = desde <= hasta ? [desde, hasta] : [hasta, desde]
+  cambiar({ periodo: 'rango', desde: a, hasta: b, pagina: undefined })
+}
+const LARGA = new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })
+const aFecha = (iso) => {
+  const [y, m, d] = iso.split('-').map(Number)
+  return new Date(y, m - 1, d)
+}
+const textoRango = computed(() => {
+  const [a, b] = rango.value
+  return a === b ? LARGA.format(aFecha(a)) : `Del ${LARGA.format(aFecha(a))} al ${LARGA.format(aFecha(b))}`
+})
+const diasRango = computed(() => Math.round((aFecha(rango.value[1]) - aFecha(rango.value[0])) / 86400000) + 1)
+const sucursalTexto = computed(() =>
+  sucursal.value
+    ? perfil.sucursales?.find((s) => String(s.id) === String(sucursal.value))?.nombre ?? 'Una sucursal'
+    : perfil.veTodas
+      ? 'Todas las sucursales'
+      : perfil.miSucursal?.nombre ?? '',
+)
 const rutaPdf = computed(
   () => `/finanzas/reporte.pdf?desde=${rango.value[0]}&hasta=${rango.value[1]}${sucursal.value ? `&sucursal_id=${sucursal.value}` : ''}`,
 )
@@ -62,6 +88,7 @@ const cambiar = (c) => router.replace({ query: { ...ruta.query, ...c } })
 
 const cargando = ref(true)
 const resumen = ref(null)
+const serie = ref(null)
 const dias = ref([])
 const tarifas = ref([])
 const lista = ref([])
@@ -77,17 +104,23 @@ async function cargar() {
   const p = parametros.value
   try {
     if (vista.value === 'ingresos') {
-      const [r, d, t] = await Promise.all([finanzas.resumen(p), finanzas.ingresos(p), finanzas.tarifas(p)])
+      const [r, d, t, se] = await Promise.all([finanzas.resumen(p), finanzas.ingresos(p), finanzas.tarifas(p), finanzas.serie(p)])
       resumen.value = r
+      serie.value = se
       dias.value = d
       tarifas.value = t
     } else if (vista.value === 'gastos') {
-      lista.value = await finanzas.gastos({
+      const r = await finanzas.gastosPagina({
         ...p,
         buscar: buscar.value || undefined,
         categoria: categoria.value || undefined,
         sin_incidencia: sinFolio.value || undefined,
+        pagina: pagina.value,
+        por_pagina: POR_PAGINA,
       })
+      lista.value = r.lista
+      totalLista.value = r.total
+      importeLista.value = r.importe
     } else {
       analisis.value = await finanzas.analisisGastos(p)
     }
@@ -112,9 +145,16 @@ const porDia = computed(() => {
   return [...mapa.values()].sort((a, b) => b.fecha.localeCompare(a.fecha))
 })
 const maxDia = computed(() => Math.max(1, ...porDia.value.map((d) => d.habitaciones + d.room_service + d.extras)))
-const totalGastos = computed(() => lista.value.reduce((s, g) => s + Number(g.importe), 0))
-const pendientes = computed(() => lista.value.filter((g) => !g.exportado_en).length)
-const conXml = computed(() => lista.value.some((g) => g.archivos.some((a) => a.tipo === 'xml')))
+// Paginación de gastos: el total y la suma son del filtro completo, no de la página.
+const POR_PAGINA = 20
+const totalLista = ref(0)
+const importeLista = ref(0)
+const pagina = computed(() => Math.max(1, Number(ruta.query.pagina) || 1))
+const paginas = computed(() => Math.max(1, Math.ceil(totalLista.value / POR_PAGINA)))
+const irA = (n) => {
+  cambiar({ pagina: n > 1 ? String(n) : undefined })
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
 
 async function exportar(tipo, soloPendientes = false) {
   exportando.value = true
@@ -150,11 +190,13 @@ function guardado() {
 }
 
 let espera = null
+// Un filtro nuevo vuelve a la primera página.
+const filtrar = () => (ruta.query.pagina ? cambiar({ pagina: undefined }) : cargar())
 watch(buscar, () => {
   clearTimeout(espera)
-  espera = setTimeout(cargar, 350)
+  espera = setTimeout(filtrar, 350)
 })
-watch([categoria, sinFolio], cargar)
+watch([categoria, sinFolio], filtrar)
 watch(() => ruta.query, cargar)
 onMounted(async () => {
   await perfil.cargar().catch(() => {})
@@ -172,23 +214,42 @@ onMounted(async () => {
 
     <div class="mt-7 space-y-3">
       <div class="sin-scroll -mx-4 flex gap-2 overflow-x-auto px-4">
-        <button v-for="v in VISTAS" :key="v.valor" class="chip" :aria-pressed="vista === v.valor" @click="cambiar({ vista: v.valor })">{{ v.texto }}</button>
+        <button v-for="v in VISTAS" :key="v.valor" class="chip" :aria-pressed="vista === v.valor" @click="cambiar({ vista: v.valor, pagina: undefined })">{{ v.texto }}</button>
       </div>
-      <div class="sin-scroll -mx-4 flex gap-2 overflow-x-auto px-4">
-        <button v-for="p in PERIODOS" :key="p.valor" class="chip" :aria-pressed="periodo === p.valor" @click="cambiar({ periodo: p.valor })">{{ p.texto }}</button>
-      </div>
-      <select v-if="perfil.veTodas" class="campo sm:max-w-xs" :value="sucursal" @change="cambiar({ sucursal: $event.target.value || undefined })">
-        <option value="">Todas las sucursales</option>
-        <option v-for="s in perfil.sucursales" :key="s.id" :value="s.id">{{ s.nombre }}</option>
-      </select>
-      <div v-if="periodo === 'rango'" class="grid max-w-md grid-cols-2 gap-2">
-        <label class="text-sm font-semibold">Desde<input type="date" class="campo mt-1" :value="rango[0]" @change="cambiar({ desde: $event.target.value })" /></label>
-        <label class="text-sm font-semibold">Hasta<input type="date" class="campo mt-1" :value="rango[1]" @change="cambiar({ hasta: $event.target.value })" /></label>
-      </div>
-      <div class="flex flex-wrap items-center justify-between gap-3">
-        <p class="text-[13px] text-[var(--texto-3)]">Del {{ dia(rango[0]) }} al {{ dia(rango[1]) }}</p>
-        <BotonPdf :ruta="rutaPdf" :nombre="`Finanzas-Picasso-${rango[0]}-a-${rango[1]}.pdf`" texto="Imprimir reporte" />
-      </div>
+      <!-- Periodo: lo que se ve en pantalla es exactamente lo que trae el PDF. -->
+      <section class="tarjeta p-4 sm:p-5">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p class="etiqueta etiqueta-vino">Periodo</p>
+            <p class="mt-1 text-[19px] leading-snug font-bold">{{ textoRango }}</p>
+            <p class="text-[13px] text-[var(--texto-3)]">{{ diasRango }} {{ diasRango === 1 ? 'día' : 'días' }} · {{ sucursalTexto }}</p>
+          </div>
+          <BotonPdf :ruta="rutaPdf" :nombre="`Finanzas-Picasso-${rango[0]}-a-${rango[1]}.pdf`" :texto="`Descargar PDF · ${dia(rango[0])} al ${dia(rango[1])}`" />
+        </div>
+        <div class="sin-scroll -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 sm:-mx-5 sm:px-5">
+          <button v-for="p in PERIODOS" :key="p.valor" class="chip" :aria-pressed="periodo === p.valor" @click="cambiar({ periodo: p.valor, desde: undefined, hasta: undefined, pagina: undefined })">
+            {{ p.texto }}
+          </button>
+          <span v-if="periodo === 'rango'" class="chip" aria-pressed="true">Fechas a la medida</span>
+        </div>
+        <div class="mt-3 grid gap-2" :class="perfil.veTodas ? 'sm:grid-cols-[1fr_1fr_1.2fr]' : 'grid-cols-2 sm:max-w-md'">
+          <label class="text-[13px] font-semibold text-[var(--texto-2)]">
+            Desde
+            <input type="date" class="campo mt-1" :value="rango[0]" :max="rango[1]" @change="fijarFechas($event.target.value, rango[1])" />
+          </label>
+          <label class="text-[13px] font-semibold text-[var(--texto-2)]">
+            Hasta
+            <input type="date" class="campo mt-1" :value="rango[1]" :min="rango[0]" :max="hoyISO()" @change="fijarFechas(rango[0], $event.target.value)" />
+          </label>
+          <label v-if="perfil.veTodas" class="text-[13px] font-semibold text-[var(--texto-2)]">
+            Sucursal
+            <select class="campo mt-1" :value="sucursal" @change="cambiar({ sucursal: $event.target.value || undefined, pagina: undefined })">
+              <option value="">Todas las sucursales</option>
+              <option v-for="s in perfil.sucursales" :key="s.id" :value="s.id">{{ s.nombre }}</option>
+            </select>
+          </label>
+        </div>
+      </section>
     </div>
 
     <Cargando v-if="cargando && !resumen && !lista.length && !analisis" texto="Sumando" />
@@ -216,6 +277,20 @@ onMounted(async () => {
           <p class="serif mt-2 text-[34px] leading-none md:text-[42px]">{{ pesos(resumen.utilidad, true) }}</p>
           <p class="mt-1 text-[12.5px] text-[var(--texto-3)]">Ingresos menos gastos</p>
         </div>
+      </div>
+
+      <div class="mt-4 grid gap-4" :class="resumen.sucursales.length > 1 ? 'lg:grid-cols-[1.6fr_1fr]' : ''">
+        <section v-if="serie" class="tarjeta p-5">
+          <p class="etiqueta etiqueta-vino mb-3">Ingresos y gastos en el tiempo</p>
+          <GraficaSerie :puntos="serie.puntos" :agrupado="serie.agrupado" />
+        </section>
+        <section v-if="resumen.sucursales.length > 1" class="tarjeta p-5">
+          <p class="etiqueta etiqueta-vino mb-3">Por sucursal</p>
+          <GraficaBarras
+            :filas="resumen.sucursales.map((s) => ({ etiqueta: corto(s.nombre), valores: { ingresos: s.ingresos, gastos: s.gastos } }))"
+            :series="[{ clave: 'ingresos', texto: 'Ingresos', color: 'var(--serie-ingresos)' }, { clave: 'gastos', texto: 'Gastos', color: 'var(--serie-gastos)' }]"
+          />
+        </section>
       </div>
 
       <section v-if="resumen.sucursales.length > 1" class="tarjeta mt-4 overflow-x-auto">
@@ -278,13 +353,13 @@ onMounted(async () => {
     <template v-if="vista === 'gastos'">
       <div class="mt-6 flex flex-wrap items-center gap-2">
         <button class="boton boton-vino" @click="hoja = 'nuevo'"><Icono :path="mdiPlus" :size="20" /> Registrar gasto</button>
-        <button class="boton boton-borde" :disabled="exportando || !lista.length" @click="exportar('excel')">
+        <button class="boton boton-borde" :disabled="exportando || !totalLista" @click="exportar('excel')">
           <Icono :path="mdiFileExcelOutline" :size="20" /> Exportar a E-Cont
         </button>
-        <button v-if="pendientes && pendientes < lista.length" class="boton boton-suave boton-chico" :disabled="exportando" @click="exportar('excel', true)">
-          Solo los {{ pendientes }} sin exportar
+        <button v-if="totalLista" class="boton boton-suave boton-chico" :disabled="exportando" @click="exportar('excel', true)">
+          Solo los que no se han exportado
         </button>
-        <button v-if="conXml" class="boton boton-suave boton-chico" :disabled="exportando" @click="exportar('xml')">
+        <button v-if="totalLista" class="boton boton-suave boton-chico" :disabled="exportando" @click="exportar('xml')">
           <Icono :path="mdiDownload" :size="18" /> XML de facturas
         </button>
       </div>
@@ -299,7 +374,10 @@ onMounted(async () => {
         </select>
         <label class="flex items-center gap-2 text-sm"><input v-model="sinFolio" type="checkbox" class="h-5 w-5" /> Solo sin folio de incidencia</label>
       </div>
-      <p v-if="!cargando" class="etiqueta mt-5 mb-3">{{ lista.length }} gastos · {{ pesos(totalGastos) }}</p>
+      <p v-if="!cargando" class="etiqueta mt-5 mb-3">
+        {{ totalLista }} {{ totalLista === 1 ? 'gasto' : 'gastos' }} · {{ pesos(importeLista) }}
+        <template v-if="paginas > 1"> · página {{ pagina }} de {{ paginas }}</template>
+      </p>
       <Vacio v-if="!cargando && !lista.length" titulo="Sin gastos" texto="Registra el primero con el botón de arriba o desde un folio de incidencia." />
       <div class="escalonado grid gap-3 lg:grid-cols-2">
         <button v-for="(g, i) in lista" :key="g.id" class="tarjeta tarjeta-viva p-5 text-left" :style="{ '--i': Math.min(i, 14) }" @click="hoja = { gasto: g }">
@@ -327,6 +405,13 @@ onMounted(async () => {
           </div>
         </button>
       </div>
+      <nav v-if="paginas > 1" class="mt-5 flex items-center justify-between gap-3" aria-label="Páginas de gastos">
+        <button class="boton boton-suave boton-chico" :disabled="pagina <= 1 || cargando" @click="irA(pagina - 1)">Anterior</button>
+        <span class="text-sm text-[var(--texto-2)]">
+          {{ (pagina - 1) * POR_PAGINA + 1 }}–{{ Math.min(pagina * POR_PAGINA, totalLista) }} de {{ totalLista }}
+        </span>
+        <button class="boton boton-suave boton-chico" :disabled="pagina >= paginas || cargando" @click="irA(pagina + 1)">Siguiente</button>
+      </nav>
     </template>
 
     <!-- AUDITORÍA -->

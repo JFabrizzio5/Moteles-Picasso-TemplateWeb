@@ -5,11 +5,14 @@ import { onMounted, ref, watch } from 'vue'
 
 import BotonPdf from '@/components/BotonPdf.vue'
 import Cargando from '@/components/Cargando.vue'
+import ReporteFinanzas from '@/components/ReporteFinanzas.vue'
 import { useToast } from '@/composables/useToast.js'
 import { corto, hoyISO, mensajeError, porcentaje } from '@/lib/formato.js'
 import * as picasso from '@/services/picasso.js'
+import { usePerfilStore } from '@/stores/perfil.store.js'
 
 const avisos = useToast()
+const perfil = usePerfilStore()
 const datos = ref(null)
 const dias = ref(6)
 const cargando = ref(true)
@@ -131,5 +134,8 @@ const horas = (h) => (h === null || h === undefined ? '—' : h < 48 ? `${h} h` 
         </section>
       </div>
     </template>
+
+    <!-- Finanzas: gerentes, administración y propietarios (la ama de llaves no la ve). -->
+    <ReporteFinanzas v-if="perfil.perfil && !perfil.esAma" :desde="hoyISO(dias)" :hasta="hoyISO()" />
   </div>
 </template>
