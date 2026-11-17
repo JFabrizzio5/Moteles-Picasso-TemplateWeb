@@ -91,6 +91,11 @@ function elegirArchivos(e) {
   archivos.value = [...archivos.value, ...e.target.files]
   e.target.value = ''
 }
+const arrastrando = ref(false)
+function soltar(e) {
+  arrastrando.value = false
+  archivos.value = [...archivos.value, ...(e.dataTransfer?.files ?? [])]
+}
 
 async function guardar() {
   guardando.value = true
@@ -209,20 +214,33 @@ async function guardar() {
         </select>
       </div>
 
-      <!-- Comprobantes -->
+      <!-- Comprobantes: recuadro para arrastrar o tocar -->
       <div>
-        <label class="flex cursor-pointer items-center gap-2 text-sm font-semibold text-[var(--vino-texto)]">
-          <Icono :path="mdiPaperclip" :size="18" /> Adjuntar ticket, PDF o XML de la factura
-          <input type="file" class="sr-only" multiple accept="image/*,application/pdf,.xml,text/xml" @change="elegirArchivos" />
+        <p class="mb-1.5 text-sm font-semibold">Comprobante</p>
+        <label
+          class="soltar"
+          :class="{ encima: arrastrando }"
+          @dragenter.prevent="arrastrando = true"
+          @dragover.prevent="arrastrando = true"
+          @dragleave.prevent="arrastrando = false"
+          @drop.prevent="soltar"
+        >
+          <Icono :path="mdiPaperclip" :size="30" class="text-[var(--vino-texto)]" />
+          <span class="text-[15px] font-semibold">Sube el PDF, la foto del ticket o el XML de la factura</span>
+          <span class="text-[13px] text-[var(--texto-3)]">Arrástralo aquí o toca para elegirlo · hasta 8 MB</span>
+          <input type="file" class="sr-only" multiple accept="image/*,application/pdf,.pdf,.xml,text/xml" @change="elegirArchivos" />
         </label>
-        <ul v-if="archivos.length" class="mt-1 space-y-0.5 text-[13px] text-[var(--texto-2)]">
-          <li v-for="(a, i) in archivos" :key="i">· {{ a.name }} <button class="ml-1 text-[var(--texto-3)]" @click="archivos.splice(i, 1)">quitar</button></li>
+        <ul v-if="archivos.length" class="mt-2 space-y-1 text-[13.5px] text-[var(--texto-2)]">
+          <li v-for="(a, i) in archivos" :key="i" class="flex items-center justify-between gap-2 rounded-[10px] bg-[var(--superficie-2)] px-3 py-2">
+            <span class="truncate">{{ a.name }}</span>
+            <button class="shrink-0 text-[var(--texto-3)]" @click="archivos.splice(i, 1)">Quitar</button>
+          </li>
         </ul>
         <p v-if="g?.archivos?.length" class="mt-1 text-[12px] text-[var(--texto-3)]">Ya tiene {{ g.archivos.length }} comprobante(s).</p>
       </div>
 
       <button type="button" class="text-sm font-semibold text-[var(--texto-2)] underline underline-offset-4" @click="masDatos = !masDatos">
-        {{ masDatos ? 'Ocultar' : 'Datos para E-Cont' }} (factura, RFC, banco)
+        {{ masDatos ? 'Ocultar información adicional' : 'Información adicional (factura, RFC, banco)' }}
       </button>
       <div v-if="masDatos" class="grid grid-cols-2 gap-3">
         <div>
@@ -269,6 +287,26 @@ async function guardar() {
   min-height: 42px;
   padding: 8px 10px;
   font-size: 14px;
+}
+.soltar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 150px;
+  padding: 20px;
+  text-align: center;
+  border: 2px dashed var(--linea-fuerte);
+  border-radius: 14px;
+  background: var(--superficie);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.soltar:hover,
+.soltar.encima {
+  border-color: var(--vino);
+  background: var(--vino-suave);
 }
 select.campo-chico {
   padding-right: 26px;
