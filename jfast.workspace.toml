@@ -1,0 +1,33 @@
+# JFast workspace. Generated and updated by the `jfast` CLI.
+# Ports are allocated in blocks of ten; see docs/deploy.md.
+
+[workspace]
+name = "picasso"
+base_port = 9790
+
+[[workspace.resources]]
+name = "picasso-database"
+type = "postgres"
+port = 9801
+
+[[workspace.resources]]
+name = "picasso-cache"
+type = "redis"
+port = 9803
+
+[[workspace.services]]
+name = "picasso"
+kind = "api"
+port = 9800
+path = "picasso"
+uses = [
+  { resource = "picasso-database", as = "JFAST_DB_DSN" },
+  { resource = "picasso-cache", as = "JFAST_CACHE_URL" },
+]
+
+[[workspace.services]]
+name = "picasso_web"
+kind = "spa"
+port = 9810
+path = "picasso-web"
+frontend = "vue"

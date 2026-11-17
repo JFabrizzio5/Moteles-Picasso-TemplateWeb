@@ -1,0 +1,48 @@
+# Copia de Picasso en Docker en la Mac, solo para pruebas de estrés. Va encima
+# de docker-compose.yml y docker-compose.prod.yml (lo arma compose.sh) con el
+# proyecto picasso-estres: base, fotos y Redis propios, sin tocar los de
+# desarrollo ni el VPS.
+#
+# Las rutas relativas parten de la raíz del proyecto (la carpeta del primer
+# archivo de compose), no de esta carpeta.
+#
+# Topes: la API con 2 CPU y 2 procesos, igual que en el VPS, para que los
+# números equivalgan a un servidor de 2 vCPU. La memoria va más justa que en el
+# VPS porque Docker en esta Mac tiene 7.6 GB y otros proyectos ya usan 5.
+
+services:
+  picasso:
+    environment:
+      JFAST_WORKERS: "2"
+    cpus: 2
+    mem_limit: 768m
+
+  picasso-worker:
+    cpus: 0.5
+    mem_limit: 384m
+
+  picasso-database:
+    cpus: 1.5
+    mem_limit: 768m
+    shm_size: 256mb
+
+  picasso-cache:
+    cpus: 0.25
+    mem_limit: 128m
+
+  caddy:
+    cpus: 0.5
+    mem_limit: 128m
+    # Solo en la Mac: lecturas.sh y fichas.py entran por aquí. k6 entra por
+    # la red de compose (http://caddy), sin pasar por el puerto.
+    ports: !override
+      - "127.0.0.1:9850:80"
+
+networks:
+  default:
+    # Docker en esta Mac ya no tiene subredes libres en sus rangos («all
+    # predefined address pools have been fully subnetted»); con una fija no
+    # hace falta pedirle una.
+    ipam:
+      config:
+        - subnet: 10.231.0.0/24

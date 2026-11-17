@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Picasso Inspecciones · Presentación</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%23000%22/%3E%3Ctext x=%2232%22 y=%2246%22 font-family=%22Georgia,serif%22 font-style=%22italic%22 font-size=%2240%22 text-anchor=%22middle%22 fill=%22%23fe7877%22%3EP%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@300;400;500;600&family=Open+Sans:wght@400;600&display=swap">
+<!--
+  Presentación de la app de inspecciones para Motel Picasso (aparte de la app y de la
+  documentación). Recorrido por scroll: el celular en CSS 3D (como el de cometax.click)
+  muestra grabaciones reales de la app, sobre fotos y video de Picasso Vaqueritos
+  (de motelpicasso.mx) y de las otras cinco casas. Flechas ← → o la rueda para avanzar.
+-->
+<style>
+  :root {
+    --negro: #000;
+    --carbon: #0d0c0c;
+    --blanco: #f5f7fa;
+    --gris: #b9b3b3;
+    --gris-2: #7d7676;
+    --coral: #fe7877;
+    --linea: rgb(245 247 250 / 0.14);
+    --titulo: 'Barlow Semi Condensed', 'Arial Narrow', sans-serif;
+    --texto: 'Open Sans', system-ui, sans-serif;
+    --lado: max(20px, env(safe-area-inset-left, 0px));
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--negro); }
+  body { margin: 0; background: var(--negro); color: var(--blanco); font: 16px/1.6 var(--texto); -webkit-font-smoothing: antialiased; overflow-x: clip; }
+  img, video { display: block; }
+  a { color: inherit; }
+  h1, h2, h3 { font-family: var(--titulo); font-weight: 300; margin: 0; line-height: 0.98; letter-spacing: -0.005em; text-wrap: balance; }
+  em { font-style: normal; color: var(--coral); }
+  .ceja { font-family: var(--titulo); font-weight: 500; font-size: 14px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--coral); display: flex; align-items: center; gap: 12px; margin: 0; }
+  .ceja::before { content: ""; width: 28px; height: 2px; background: currentColor; flex: none; }
+  .boton { display: inline-flex; align-items: center; gap: 10px; padding: 13px 22px; border-radius: 999px; font-weight: 600; font-size: 15px; text-decoration: none; border: 1px solid rgb(245 247 250 / 0.3); transition: background .2s, border-color .2s, transform .2s; }
+  .boton:hover { border-color: var(--coral); transform: translateY(-1px); }
+  .boton.lleno { background: var(--coral); color: #000; border-color: var(--coral); }
+  .boton.lleno:hover { background: #ff8e8d; }
+  :focus-visible { outline: 2px solid var(--coral); outline-offset: 3px; }
+
+  /* ---------- barra ---------- */
+  .barra { position: fixed; z-index: 50; inset: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: calc(14px + env(safe-area-inset-top, 0px)) var(--lado) 14px; pointer-events: none; }
+  .barra > * { pointer-events: auto; }
+  .barra .logo { height: 46px; width: auto; filter: drop-shadow(0 2px 12px rgb(0 0 0 / 0.5)); }
+  .barra .derecha { display: flex; align-items: center; gap: 14px; font-family: var(--titulo); font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; color: rgb(245 247 250 / 0.75); }
+  .barra .cometax { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+  .barra .cometax i { width: 22px; height: 18px; background: currentColor; -webkit-mask: url(assets/marca/cometax-logo.svg) center / contain no-repeat; mask: url(assets/marca/cometax-logo.svg) center / contain no-repeat; }
+  .progreso { position: fixed; z-index: 51; inset: 0 0 auto; height: 2px; background: transparent; }
+  .progreso i { position: absolute; inset: 0; background: var(--coral); transform-origin: left; transform: scaleX(0); }
+
+  /* ---------- inicio ---------- */
+  .inicio { position: relative; height: 100svh; min-height: 560px; overflow: hidden; display: flex; align-items: flex-end; }
+  .inicio video, .inicio .poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .inicio::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgb(0 0 0 / 0.55) 0%, rgb(0 0 0 / 0.1) 30%, rgb(0 0 0 / 0.35) 60%, #000 100%), linear-gradient(90deg, rgb(0 0 0 / 0.7) 0%, transparent 65%); }
+  .inicio .dentro { position: relative; z-index: 2; width: 100%; padding: 0 var(--lado) clamp(56px, 11vh, 120px); display: grid; gap: 22px; max-width: 1280px; margin: 0 auto; }
+  .inicio h1 { font-size: clamp(54px, 9.4vw, 136px); }
+  .inicio p.lead { max-width: 54ch; color: rgb(245 247 250 / 0.82); font-size: clamp(16px, 1.4vw, 19px); margin: 0; }
+  .inicio .casas { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .inicio .casas li { font-family: var(--titulo); font-weight: 500; letter-spacing: 0.06em; font-size: 15px; padding: 4px 14px; border-radius: 999px; border: 1px solid rgb(245 247 250 / 0.28); background: rgb(0 0 0 / 0.3); backdrop-filter: blur(6px); }
+  .inicio .casas li.nueva { border-color: var(--coral); color: var(--coral); }
+  .desliza { position: absolute; z-index: 2; left: 50%; bottom: 22px; transform: translateX(-50%); font-family: var(--titulo); font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase; color: rgb(245 247 250 / 0.6); display: grid; justify-items: center; gap: 8px; }
+  .desliza::after { content: ""; width: 1px; height: 34px; background: linear-gradient(var(--coral), transparent); animation: baja 1.8s ease-in-out infinite; transform-origin: top; }
+  @keyframes baja { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); } 100% { transform: scaleY(0); transform-origin: bottom; } }
+
+  /* ---------- recorrido 3D ---------- */
+  .recorrido { position: relative; height: calc(var(--n, 6) * 100svh + 100svh); }
+  .escenario { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+  .fondos, .fondos figure { position: absolute; inset: 0; margin: 0; }
+  .fondos figure { opacity: 0; will-change: opacity, transform; }
+  .fondos img { width: 100%; height: 100%; object-fit: cover; }
+  .velo { position: absolute; inset: 0; background: linear-gradient(90deg, rgb(0 0 0 / 0.9) 0%, rgb(0 0 0 / 0.62) 38%, rgb(0 0 0 / 0.25) 70%, rgb(0 0 0 / 0.55) 100%), linear-gradient(180deg, rgb(0 0 0 / 0.5) 0%, transparent 25%, transparent 75%, rgb(0 0 0 / 0.75) 100%); }
+  .mundo { position: absolute; inset: 0; perspective: 1500px; perspective-origin: 62% 46%; }
+  .eje { position: absolute; left: 66%; top: 52%; width: 0; height: 0; transform-style: preserve-3d; }
+  #tarjetas { position: absolute; left: 0; top: 0; transform-style: preserve-3d; }
+  .tarjeta-foto { position: absolute; left: 0; top: 0; border-radius: 14px; overflow: hidden; opacity: 0; box-shadow: 0 40px 80px -30px rgb(0 0 0 / 0.9); border: 1px solid rgb(255 255 255 / 0.14); will-change: transform, opacity; backface-visibility: hidden; }
+  .tarjeta-foto img { width: 100%; height: 100%; object-fit: cover; }
+  .tarjeta-foto span { position: absolute; left: 10px; bottom: 9px; font-family: var(--titulo); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: #fff; text-shadow: 0 1px 8px rgb(0 0 0 / 0.8); }
+
+  /* El celular: iPhone 18 Pro Max en acabado vino (6.9", biseles delgados, isla dinámica chica,
+     isla de cámaras cuadrada arriba a la izquierda con tres lentes en triángulo, flash y LiDAR).
+     Maqueta en CSS 3D, no un render de Apple: sin su logo. El grosor sale de capas del canto
+     apiladas en Z; --lx mueve el reflejo según hacia dónde mira el celular (lo pone el JS). */
+  .cel {
+    --w: 300px; --h: 660px; --r: 46px; --b: 9px; --g: 24px; --lx: 30%;
+    --metal-1: #2b090e; --metal-2: #8f3d47; --metal-3: #4d151c; --metal-4: #b25a64;
+    --vidrio-1: #5b1b24; --vidrio-2: #3f1017; --vidrio-3: #2a0a0f;
+    position: absolute; left: 0; top: 0; width: var(--w); height: var(--h); margin: calc(var(--h) / -2) 0 0 calc(var(--w) / -2);
+    transform-style: preserve-3d; will-change: transform;
+  }
+  .cel .canto { position: absolute; inset: 0; border-radius: var(--r); background: linear-gradient(90deg, var(--metal-1), var(--metal-2) 10%, var(--metal-3) 48%, var(--metal-4) 90%, var(--metal-1)); }
+  .cel .boton { position: absolute; width: 5px; border-radius: 3px; background: linear-gradient(90deg, var(--metal-1), var(--metal-4), var(--metal-1)); }
+  .cel .boton.izq { left: -3px; }
+  .cel .boton.der { right: -3px; }
+  .cel .boton.control { background: linear-gradient(90deg, #160406, #5a2028, #160406); }
+  .cel .frente { position: absolute; inset: 0; border-radius: var(--r); background: #030303; box-shadow: inset 0 0 0 2px var(--metal-4), inset 0 0 0 3.5px var(--metal-3), inset 0 0 0 5px #0a0a0a, 0 0 120px -30px rgb(254 120 119 / 0.5); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+  .cel .pantalla { position: absolute; inset: var(--b); border-radius: calc(var(--r) - var(--b)); overflow: hidden; background: #000; }
+  .cel .estado { position: absolute; z-index: 3; left: 0; right: 0; top: 0; height: 32px; background: #000; color: #fff; font: 700 11px/1 -apple-system, 'Open Sans', sans-serif; }
+  .cel .estado .hora { position: absolute; left: 30px; top: 11px; }
+  .cel .estado svg { position: absolute; right: 22px; top: 12px; }
+  .cel .isla { position: absolute; z-index: 4; top: 7px; left: 50%; width: 62px; height: 19px; margin-left: -31px; border-radius: 10px; background: #000; box-shadow: 0 0 0 1px #111; }
+  .cel .isla::after { content: ""; position: absolute; right: 7px; top: 5px; width: 9px; height: 9px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #33415e 0 18%, #07080c 60%); }
+  .cel .vista { position: absolute; left: 0; right: 0; top: 32px; bottom: 0; background: #000; }
+  .cel .vista video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; opacity: 0; transition: opacity .25s; }
+  .cel .vista .ve { opacity: 1; }
+  /* reflejo del cristal: una franja que se desplaza con el giro */
+  .cel .brillo { position: absolute; inset: 0; z-index: 5; pointer-events: none; background: linear-gradient(115deg, transparent calc(var(--lx) - 30%), rgb(255 255 255 / 0.13) calc(var(--lx) - 6%), rgb(255 255 255 / 0.03) calc(var(--lx) + 10%), transparent calc(var(--lx) + 26%)), linear-gradient(180deg, rgb(255 255 255 / 0.05), transparent 30%); }
+  /* espalda: vidrio mate de color con textura fina y el mismo reflejo */
+  .cel .atras { position: absolute; inset: 0; border-radius: var(--r); transform: translateZ(calc(var(--g) * -1)) rotateY(180deg); transform-style: preserve-3d; backface-visibility: hidden; -webkit-backface-visibility: hidden; background: linear-gradient(165deg, var(--vidrio-1) 0%, var(--vidrio-2) 48%, var(--vidrio-3) 100%); box-shadow: inset 0 0 0 2px var(--metal-4), inset 0 0 0 3.5px var(--metal-3), inset 0 0 0 4.5px #1a0508; overflow: hidden; }
+  .cel .atras::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"); opacity: 0.07; mix-blend-mode: overlay; }
+  .cel .atras::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(105deg, transparent calc(100% - var(--lx) - 34%), rgb(255 255 255 / 0.12) calc(100% - var(--lx) - 8%), rgb(255 255 255 / 0.02) calc(100% - var(--lx) + 12%), transparent calc(100% - var(--lx) + 30%)); }
+  .cel .logo-atras { position: absolute; left: 50%; top: 52%; width: 104px; transform: translate(-50%, -50%); opacity: 0.6; filter: drop-shadow(0 1px 0 rgb(0 0 0 / 0.35)); }
+  /* isla de cámaras: cuadrada, en relieve (capas) y más brillante que el vidrio */
+  .cel .camaras { position: absolute; left: 16px; top: 16px; width: 146px; height: 150px; transform-style: preserve-3d; }
+  .cel .camaras .grosor { position: absolute; inset: 0; border-radius: 38px; background: #24080c; }
+  .cel .camaras .tapa { position: absolute; inset: 0; border-radius: 38px; transform: translateZ(4px); background: linear-gradient(150deg, #6c232d 0%, #4c141b 55%, #3b0f15 100%); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.22), inset 0 0 0 1px rgb(255 255 255 / 0.07), 0 10px 18px -8px rgb(0 0 0 / 0.7); }
+  .cel .lente { position: absolute; width: 58px; height: 58px; border-radius: 50%; transform: translateZ(1px);
+    background:
+      radial-gradient(circle at 36% 32%, rgb(255 255 255 / 0.7) 0 3%, transparent 8%),
+      radial-gradient(circle at 62% 66%, rgb(150 120 255 / 0.25) 0 6%, transparent 14%),
+      radial-gradient(circle, #1d2848 0 12%, #05070c 20%, #121520 30%, #020203 44%, #18181d 54%, #070708 60%, #34343b 63%, #0b0b0d 67%);
+    box-shadow: 0 0 0 3px #2b090e, 0 0 0 5px #a24e58, 0 0 0 6.5px #3a0e14, 0 4px 9px 4px rgb(0 0 0 / 0.45), inset 0 0 7px rgb(0 0 0 / 0.95); }
+  .cel .flash { position: absolute; width: 17px; height: 17px; border-radius: 50%; transform: translateZ(1px); background: radial-gradient(circle at 45% 40%, #fffaf0 0 25%, #e6dfcf 50%, #a49d8e 100%); box-shadow: 0 0 0 2px #2b090e, 0 0 0 3px #8f3d47; }
+  .cel .lidar { position: absolute; width: 17px; height: 17px; border-radius: 50%; transform: translateZ(1px); background: radial-gradient(circle at 42% 38%, #4a4a58 0 16%, #08080a 62%); box-shadow: 0 0 0 2px #2b090e, 0 0 0 3px #8f3d47; }
+  .cel .micro { position: absolute; width: 5px; height: 5px; border-radius: 50%; transform: translateZ(1px); background: #120306; box-shadow: inset 0 1px 1px #000; }
+  .sombra-cel { position: absolute; left: -190px; top: 285px; width: 380px; height: 90px; border-radius: 50%; background: radial-gradient(closest-side, rgb(0 0 0 / 0.75), transparent); transform: rotateX(80deg) translateZ(-40px); }
+
+  .textos { position: absolute; z-index: 4; left: var(--lado); top: 50%; transform: translateY(-50%); width: min(500px, 40vw); }
+  .cap { position: absolute; left: 0; top: 0; transform: translateY(-50%); opacity: 0; display: grid; gap: 18px; will-change: opacity, transform; }
+  .cap .num { font-family: var(--titulo); font-weight: 300; font-size: 15px; letter-spacing: 0.2em; color: rgb(245 247 250 / 0.55); }
+  .cap h2 { font-size: clamp(40px, 4.6vw, 70px); }
+  .cap p { margin: 0; color: rgb(245 247 250 / 0.8); font-size: clamp(15px, 1.2vw, 18px); max-width: 44ch; }
+  .cap .lugar { font-family: var(--titulo); font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; color: rgb(245 247 250 / 0.5); }
+  .puntos { position: absolute; z-index: 5; right: calc(var(--lado) - 4px); top: 50%; transform: translateY(-50%); display: grid; gap: 10px; }
+  .puntos button { width: 10px; height: 10px; padding: 0; border-radius: 50%; border: 1px solid rgb(245 247 250 / 0.5); background: transparent; cursor: pointer; transition: background .25s, transform .25s; }
+  .puntos button.on { background: var(--coral); border-color: var(--coral); transform: scale(1.3); }
+
+  /* ---------- Vaqueritos: galería en 3D ---------- */
+  .galeria { position: relative; height: 340svh; }
+  .galeria .escenario { display: grid; grid-template-columns: minmax(0, 1fr); align-content: center; gap: 34px; background: radial-gradient(90% 70% at 70% 40%, #2a0d0e 0%, #0a0606 55%, #000 100%); }
+  .galeria .cabeza { padding: 0 var(--lado); max-width: 1280px; width: 100%; margin: 0 auto; display: grid; gap: 14px; }
+  .galeria h2 { font-size: clamp(42px, 6vw, 88px); }
+  .galeria .cabeza p { margin: 0; max-width: 60ch; color: rgb(245 247 250 / 0.75); }
+  .pista-marco { perspective: 1400px; perspective-origin: 50% 50%; }
+  .pista { display: flex; gap: 28px; padding: 0 var(--lado); width: max-content; transform-style: preserve-3d; will-change: transform; }
+  .suite { position: relative; flex: none; width: clamp(280px, 38vw, 600px); aspect-ratio: 3 / 2; border-radius: 18px; overflow: hidden; transform-style: preserve-3d; will-change: transform; box-shadow: 0 50px 90px -40px rgb(0 0 0 / 0.95); border: 1px solid rgb(255 255 255 / 0.1); }
+  .suite img { width: 100%; height: 100%; object-fit: cover; }
+  .suite::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgb(0 0 0 / 0.85) 100%); }
+  .suite .pie { position: absolute; z-index: 1; left: 18px; right: 18px; bottom: 16px; display: grid; gap: 8px; }
+  .suite h3 { font-size: clamp(24px, 2.4vw, 34px); }
+  .suite .equipo { display: flex; flex-wrap: wrap; gap: 6px; }
+  .suite .equipo span { font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 999px; background: rgb(254 120 119 / 0.18); color: #ffc2c1; border: 1px solid rgb(254 120 119 / 0.35); }
+
+  /* ---------- secciones en flujo ---------- */
+  .seccion { position: relative; padding: clamp(80px, 12vh, 140px) var(--lado); max-width: 1280px; margin: 0 auto; }
+  .seccion > header { display: grid; gap: 14px; margin-bottom: 36px; }
+  .seccion h2 { font-size: clamp(42px, 5.6vw, 80px); }
+  .seccion > header p { margin: 0; max-width: 62ch; color: rgb(245 247 250 / 0.72); }
+  .casas-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: clamp(150px, 15vw, 210px); gap: 14px; }
+  .casa { position: relative; border-radius: 16px; overflow: hidden; border: 1px solid rgb(255 255 255 / 0.1); opacity: 0; transform: translateY(40px) rotateX(8deg); transition: opacity .8s, transform .8s cubic-bezier(.2,.7,.2,1); transition-delay: calc(var(--i) * 80ms); }
+  .casa.ve { opacity: 1; transform: none; }
+  .casa img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s; }
+  .casa:hover img { transform: scale(1.05); }
+  .casa::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgb(0 0 0 / 0.8)); }
+  .casa .pie { position: absolute; z-index: 1; left: 16px; bottom: 12px; display: grid; gap: 2px; }
+  .casa h3 { font-size: clamp(26px, 2.6vw, 38px); }
+  .casa small { font-size: 13px; color: rgb(245 247 250 / 0.75); }
+  .casa.grande { grid-column: span 2; grid-row: span 2; }
+  .casa .marca-nueva { position: absolute; z-index: 1; top: 14px; left: 14px; font-family: var(--titulo); font-weight: 600; font-size: 12px; letter-spacing: 0.2em; padding: 4px 12px; border-radius: 999px; background: var(--coral); color: #000; }
+
+  .video-marco { border-radius: 18px; overflow: hidden; border: 1px solid var(--linea); background: #000; box-shadow: 0 60px 120px -50px rgb(254 120 119 / 0.35); }
+  .video-marco video { width: 100%; height: auto; }
+  .video-marco .vertical { display: none; }
+
+  .cierre { position: relative; min-height: 100svh; display: grid; align-content: center; overflow: hidden; text-align: center; }
+  .cierre img.fondo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.38; transform: scale(var(--z, 1.1)); }
+  .cierre::before { content: ""; position: absolute; inset: 0; background: radial-gradient(70% 60% at 50% 50%, rgb(0 0 0 / 0.3), #000 90%); }
+  .cierre .dentro { position: relative; z-index: 1; display: grid; justify-items: center; gap: 26px; padding: 80px var(--lado); }
+  .cierre .logo { width: clamp(180px, 22vw, 300px); height: auto; }
+  .cierre h2 { font-size: clamp(48px, 7vw, 104px); }
+  .cierre p { margin: 0; max-width: 56ch; color: rgb(245 247 250 / 0.78); }
+  .cierre .botones { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+  .pie-pagina { position: relative; z-index: 1; padding: 22px var(--lado) calc(22px + env(safe-area-inset-bottom, 0px)); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; font-size: 13px; color: var(--gris-2); border-top: 1px solid var(--linea); }
+  .pie-pagina a { text-decoration: none; }
+  .pie-pagina a:hover { color: var(--blanco); }
+
+  /* ---------- QR para abrir la app en el celular ---------- */
+  .qr-celular { display: flex; align-items: center; gap: 18px; padding: 12px 24px 12px 12px; border-radius: 18px; background: rgb(0 0 0 / 0.55); border: 1px solid rgb(245 247 250 / 0.16); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); text-align: left; color: var(--blanco); text-decoration: none; }
+  .qr-celular img { width: 128px; height: 128px; flex-shrink: 0; background: #fff; padding: 10px; border-radius: 12px; }
+  .qr-celular b { display: block; font-family: var(--titulo); font-weight: 600; font-size: 22px; letter-spacing: 0.01em; }
+  .qr-celular span { display: block; margin-top: 4px; max-width: 24ch; font-size: 14px; line-height: 1.4; color: rgb(245 247 250 / 0.72); }
+  .qr-celular small { display: block; margin-top: 8px; font-size: 12px; letter-spacing: 0.04em; color: rgb(245 247 250 / 0.45); }
+  .inicio .qr-celular { position: absolute; z-index: 2; right: var(--lado); bottom: clamp(56px, 11vh, 120px); display: none; }
+  @media (min-width: 1100px) { .inicio .qr-celular { display: flex; } }
+
+  /* ---------- celular y tableta ---------- */
+  @media (max-width: 899px) {
+    .barra .logo { height: 36px; }
+    .barra .derecha .texto, .solo-ancho { display: none; }
+    .velo { background: linear-gradient(180deg, rgb(0 0 0 / 0.92) 0%, rgb(0 0 0 / 0.72) 36%, rgb(0 0 0 / 0.2) 62%, rgb(0 0 0 / 0.85) 100%); }
+    .mundo { perspective-origin: 50% 70%; }
+    .eje { left: 50%; top: 71%; }
+    .textos { top: calc(84px + env(safe-area-inset-top, 0px)); transform: none; width: auto; right: var(--lado); }
+    .cap { transform: none; gap: 10px; }
+    .cap h2 { font-size: clamp(32px, 9vw, 46px); }
+    .cap p { font-size: 14.5px; }
+    .cap .lugar { display: none; }
+    .puntos { top: auto; bottom: 24px; right: var(--lado); transform: none; grid-auto-flow: column; }
+    .casas-grid { grid-template-columns: 1fr 1fr; grid-auto-rows: 150px; }
+    .video-marco .horizontal { display: none; }
+    .video-marco .vertical { display: block; max-height: 82svh; width: auto; max-width: 100%; margin: 0 auto; }
+    .video-marco { background: transparent; border: 0; box-shadow: none; }
+  }
+  @media (max-width: 899px) and (max-height: 760px) {
+    .cap p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .desliza::after { animation: none; }
+    .casa { transition: none; opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progreso" aria-hidden="true"><i id="barraProgreso"></i></div>
+<header class="barra">
+  <img class="logo" src="assets/marca/picasso-logo-blanco.svg" alt="Motel Picasso">
+  <div class="derecha">
+    <span class="texto">Inspecciones</span>
+    <a class="cometax" href="https://cometax.click" target="_blank" rel="noopener"><i aria-hidden="true"></i><span class="texto">CometaX</span></a>
+  </div>
+</header>
+
+<main>
+  <!-- Inicio: tomas del teaser de Picasso Vaqueritos -->
+  <section class="inicio" id="inicio">
+    <img class="poster" src="assets/inicio.jpg" alt="">
+    <video id="videoInicio" src="assets/inicio.mp4" poster="assets/inicio.jpg" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
+    <div class="dentro">
+      <p class="ceja">Motel Picasso<span class="solo-ancho"> · Mantenimiento y limpieza</span></p>
+      <h1>Revisar, documentar <em>y resolver.</em></h1>
+      <p class="lead">La app de inspecciones de las seis casas Picasso: el gerente y la ama de llaves revisan cada cuarto desde el celular, cada falla queda con foto y los dueños ven todo en una sola vista.</p>
+      <ul class="casas" aria-label="Sucursales">
+        <li class="nueva">Vaqueritos</li><li>Lerma</li><li>Toluca</li><li>Circuito</li><li>Churubusco</li><li>Periférico</li>
+      </ul>
+    </div>
+    <a class="qr-celular" href="https://2.25.196.39:9630/login" target="_blank" rel="noopener">
+        <img src="assets/qr-app.svg" alt="Código QR de la app de prueba" width="128" height="128">
+        <div><b>Pruébala en tu celular</b><span>Apunta la cámara al código y entra con un toque.</span><small>2.25.196.39:9630</small></div>
+      </a>
+    <span class="desliza">Desliza</span>
+  </section>
+
+  <!-- Recorrido: el celular en 3D con la app real -->
+  <section class="recorrido" id="recorrido" style="--n: 6" aria-label="La app, paso a paso">
+    <div class="escenario">
+      <div class="fondos" id="fondos"></div>
+      <div class="velo"></div>
+      <div class="mundo">
+        <div class="eje" id="eje">
+          <div id="tarjetas"></div>
+          <div class="sombra-cel" id="sombraCel"></div>
+          <div class="cel" id="cel">
+            <div class="atras">
+              <img class="logo-atras" src="assets/marca/picasso-logo-blanco.svg" alt="">
+              <div class="camaras">
+                <div class="grosor"></div>
+                <div class="grosor" style="transform: translateZ(2px)"></div>
+                <div class="tapa">
+                  <span class="lente" style="left:10px;top:10px"></span>
+                  <span class="lente" style="left:10px;top:82px"></span>
+                  <span class="lente" style="left:78px;top:46px"></span>
+                  <span class="flash" style="left:112px;top:14px"></span>
+                  <span class="lidar" style="left:112px;top:119px"></span>
+                  <span class="micro" style="left:89px;top:16px"></span>
+                </div>
+              </div>
+            </div>
+            <div class="canto-grupo" id="canto"></div>
+            <div class="frente">
+              <div class="pantalla" id="pantalla">
+                <div class="estado"><span class="hora">18:16</span><svg width="52" height="10" viewBox="0 0 72 14" aria-hidden="true"><rect x="0" y="10" width="3.4" height="4" rx="1" fill="#fff"/><rect x="5" y="7" width="3.4" height="7" rx="1" fill="#fff"/><rect x="10" y="4" width="3.4" height="10" rx="1" fill="#fff"/><rect x="15" y="1" width="3.4" height="13" rx="1" fill="#fff"/><path d="M30 5.2a9 9 0 0 1 12 0M32.4 7.9a5.4 5.4 0 0 1 7.2 0M34.8 10.5a1.8 1.8 0 0 1 2.4 0" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/><rect x="47" y="1.5" width="21" height="11" rx="3" stroke="rgba(255,255,255,0.45)" stroke-width="1.2" fill="none"/><rect x="49" y="3.5" width="15" height="7" rx="1.6" fill="#fff"/></svg></div>
+                <div class="isla"></div>
+                <div class="vista" id="vista"></div>
+                <div class="brillo"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="textos" id="textos"></div>
+      <nav class="puntos" id="puntos" aria-label="Capítulos"></nav>
+    </div>
+  </section>
+
+  <!-- Vaqueritos: las suites, en una galería que gira -->
+  <section class="galeria" id="vaqueritos" aria-label="Picasso Vaqueritos">
+    <div class="escenario">
+      <div class="cabeza">
+        <p class="ceja">La casa nueva</p>
+        <h2>Picasso Vaqueritos, <em>suite por suite.</em></h2>
+        <p>Siete tipos de suite, de la sencilla a la de alberca con terraza. En la app, lo que tiene cada cuarto entra a su lista de revisión: el gerente revisa que funcione y la ama de llaves que esté limpio.</p>
+      </div>
+      <div class="pista-marco"><div class="pista" id="pista"></div></div>
+    </div>
+  </section>
+
+  <!-- Las seis casas -->
+  <section class="seccion" id="casas">
+    <header>
+      <p class="ceja">Una sola app</p>
+      <h2>Seis casas, <em>la misma vara.</em></h2>
+      <p>Cada sucursal con sus cuartos, su personal y sus reglas. Los dueños las comparan con los mismos indicadores: revisiones hechas, folios abiertos, tiempo de solución y cuartos sin rentar.</p>
+    </header>
+    <div class="casas-grid" id="casasGrid"></div>
+  </section>
+
+  <!-- El video -->
+  <section class="seccion" id="video">
+    <header>
+      <p class="ceja">El video</p>
+      <h2>La app, <em>de principio a fin.</em></h2>
+      <p>Grabaciones reales de la versión de prueba: la revisión del cuarto, el folio con foto, la reparación, el panel de las seis casas y los reportes.</p>
+    </header>
+    <div class="video-marco">
+      <video class="horizontal" src="assets/video/Picasso-Inspecciones-16x9.mp4" poster="assets/video/portada-16x9.jpg" controls playsinline preload="none"></video>
+      <video class="vertical" src="assets/video/Picasso-Inspecciones-9x16.mp4" poster="assets/video/portada-9x16.jpg" controls playsinline preload="none"></video>
+    </div>
+  </section>
+
+  <!-- Cierre -->
+  <section class="cierre" id="cierre">
+    <img class="fondo" id="cierreFondo" src="assets/fotos/alberca-noche.webp" alt="" loading="lazy">
+    <div class="dentro">
+      <img class="logo" src="assets/marca/picasso-logo-blanco.svg" alt="Motel Picasso">
+      <h2>Que ningún cuarto se rente <em>sin estar listo.</em></h2>
+      <p>La versión de prueba ya funciona con datos de ejemplo. Se entra con un toque como dueño, administración, gerente o ama de llaves de cualquier sucursal.</p>
+      <a class="qr-celular solo-ancho" href="https://2.25.196.39:9630/login" target="_blank" rel="noopener">
+        <img src="assets/qr-app.svg" alt="Código QR de la app de prueba" width="128" height="128">
+        <div><b>Pruébala en tu celular</b><span>Apunta la cámara al código y entra con un toque.</span><small>2.25.196.39:9630</small></div>
+      </a>
+      <div class="botones">
+        <a class="boton lleno" href="https://2.25.196.39:9630" target="_blank" rel="noopener">Probar la app →</a>
+        <a class="boton" href="../" target="_blank" rel="noopener">Documentación y manual</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="pie-pagina">
+  <span>Fotos y video de Picasso Vaqueritos: motelpicasso.mx · Datos de la app: de ejemplo</span>
+  <a href="https://cometax.click" target="_blank" rel="noopener">Hecho por CometaX · cometax.click</a>
+</footer>
+
+<script>
+(() => {
+  // ---------- contenido ----------
+  const F = (n) => `assets/fotos/${n}.webp`
+  const CAPS = [
+    { clip: 'revision', fondo: 'suite-roja', lugar: 'Suite Jacuzzi Penthouse · Vaqueritos',
+      ceja: 'Gerente y ama de llaves', t1: 'Revisan cada cuarto', t2: 'desde el celular.',
+      p: 'Después de cada limpieza, la ama recorre su lista de 29 puntos y el gerente la suya de 25. Se toca solo lo que está mal; lo demás queda bien, con la hora del chequeo.',
+      tarjetas: ['jacuzzi-rojo', 'pasillo', 'recepcion'] },
+    { clip: 'folio', fondo: 'jacuzzi-jardin', lugar: 'Suite Jacuzzi Terraza · Vaqueritos',
+      ceja: 'Folio de incidencia', t1: 'Cada falla abre', t2: 'un folio con foto.',
+      p: 'El gerente lo pone en atención, anota quién lo repara y lo cierra solo con la foto de la reparación. La falla y el arreglo quedan juntos.',
+      tarjetas: ['jacuzzi-vista', 'sauna', 'suite'] },
+    { clip: 'estado', fondo: 'alberca-celosia', lugar: 'Suite Alberca T1 · Vaqueritos',
+      ceja: 'Decisión de renta', t1: 'Ningún cuarto se renta', t2: 'sin estar listo.',
+      p: 'Al terminar la revisión, el gerente decide si el cuarto se puede rentar. Queda el motivo, su nombre y la hora, y el cuarto vuelve a rentarse cuando se cierra el folio.',
+      tarjetas: ['alberca-dia', 'alberca-noche', 'lobby'] },
+    { clip: 'admin', fondo: 'sauna', lugar: 'Suite Jacuzzi Sauna · Vaqueritos',
+      ceja: 'Administración', t1: 'Cada suite', t2: 'con lo que tiene.',
+      p: 'Alberca, jacuzzi, sauna, terraza, Netflix, sillón: lo que tiene cada cuarto entra a su revisión. Un cuarto en remodelación se da de baja y deja de contar.',
+      tarjetas: ['jacuzzi-jardin', 'suite-roja', 'accesos'] },
+    { clip: 'panel', fondo: 'fachada', lugar: 'Picasso Vaqueritos · Periférico Sur, Tlalpan',
+      ceja: 'Propietarios', t1: 'Seis casas,', t2: 'en una sola vista.',
+      p: 'Revisiones hechas, folios abiertos, cuartos sin rentar y la hora del último chequeo de cada sucursal. Vaqueritos entra al panel desde que abre.',
+      tarjetas: ['suc-lerma', 'suc-toluca', 'suc-circuito'] },
+    { clip: 'reportesAdmin', fondo: 'lobby', lugar: 'Lobby · Vaqueritos',
+      ceja: 'Reportes', t1: 'Todo se baja', t2: 'en PDF.',
+      p: 'Cada revisión, cada folio con su foto de antes y de después, el expediente de cada cuarto y el reporte del periodo, con la marca de Picasso.',
+      tarjetas: ['recepcion', 'suc-churubusco', 'suc-periferico'] },
+  ]
+  const ETIQUETAS = { 'suc-lerma': 'Lerma', 'suc-toluca': 'Toluca', 'suc-circuito': 'Circuito', 'suc-churubusco': 'Churubusco', 'suc-periferico': 'Periférico' }
+  // Posición de las tres fotos que flotan alrededor del celular (px, a escala 1).
+  // En el celular van a los lados y más arriba/abajo para no taparlo.
+  const LUGARES_MOVIL = [{ x: -175, y: -40 }, { x: 170, y: -200 }, { x: 175, y: 140 }]
+  const LUGARES = [
+    { x: -310, y: 200, w: 320, h: 214 },
+    { x: 290, y: -240, w: 290, h: 194 },
+    { x: 320, y: 170, w: 320, h: 214 },
+  ]
+  const SUITES = [
+    { foto: 'alberca-dia', nombre: 'Alberca Terraza T2', equipo: ['Alberca', 'Terraza', 'Jacuzzi'] },
+    { foto: 'alberca-noche', nombre: 'Alberca T1', equipo: ['Alberca privada'] },
+    { foto: 'jacuzzi-jardin', nombre: 'Jacuzzi Terraza', equipo: ['Jacuzzi', 'Terraza'] },
+    { foto: 'suite-roja', nombre: 'Jacuzzi Penthouse', equipo: ['Jacuzzi', 'Sillón'] },
+    { foto: 'sauna', nombre: 'Jacuzzi Sauna', equipo: ['Jacuzzi', 'Sauna'] },
+    { foto: 'jacuzzi-vista', nombre: 'Jacuzzi', equipo: ['Jacuzzi'] },
+    { foto: 'suite', nombre: 'Suite', equipo: ['Netflix', 'Wifi'] },
+  ]
+  const CASAS = [
+    { foto: F('fachada'), nombre: 'Vaqueritos', nota: 'Periférico Sur, Tlalpan', nueva: true },
+    { foto: F('suc-lerma'), nombre: 'Lerma' },
+    { foto: F('suc-toluca'), nombre: 'Toluca' },
+    { foto: F('suc-circuito'), nombre: 'Circuito' },
+    { foto: F('suc-churubusco'), nombre: 'Churubusco' },
+    { foto: F('suc-periferico'), nombre: 'Periférico' },
+  ]
+
+  const $ = (id) => document.getElementById(id)
+  const N = CAPS.length
+  const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v))
+  const lerp = (a, b, t) => a + (b - a) * t
+  const paso = (a, b, v) => { const t = clamp((v - a) / (b - a), 0, 1); return t * t * (3 - 2 * t) }
+  const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e }
+
+  // ---------- el canto del celular: capas apiladas hacia atrás y botones ----------
+  ;(() => {
+    const cel = $('cel'), canto = $('canto')
+    canto.remove()
+    for (let z = 1; z <= 23; z += 2) {
+      const k = el('div', 'canto')
+      k.style.transform = `translateZ(${-z}px)`
+      k.style.filter = `brightness(${(1 - z * 0.012).toFixed(3)})`
+      cel.prepend(k)
+    }
+    // izquierda: botón de acción y volumen; derecha: botón lateral y control de cámara
+    const botones = [['izq', 118, 26], ['izq', 168, 48], ['izq', 226, 48], ['der', 200, 74], ['der control', 430, 50]]
+    botones.forEach(([lado, top, alto]) => [-8, -12, -16].forEach((z) => {
+      const b = el('div', 'boton ' + lado)
+      b.style.top = top + 'px'; b.style.height = alto + 'px'; b.style.transform = `translateZ(${z}px)`
+      cel.prepend(b)
+    }))
+  })()
+
+  // ---------- armar el recorrido ----------
+  const fondos = CAPS.map((c) => { const f = el('figure'); f.innerHTML = `<img src="${F(c.fondo)}" alt="" decoding="async">`; $('fondos').append(f); return f })
+  const caps = CAPS.map((c, i) => {
+    const d = el('div', 'cap')
+    d.innerHTML = `<span class="num">${String(i + 1).padStart(2, '0')} / ${String(N).padStart(2, '0')}</span><p class="ceja">${c.ceja}</p><h2>${c.t1} <em>${c.t2}</em></h2><p>${c.p}</p><span class="lugar">${c.lugar}</span>`
+    $('textos').append(d)
+    return d
+  })
+  const videos = CAPS.map((c) => {
+    const v = el('video')
+    Object.assign(v, { muted: true, loop: true, playsInline: true, preload: 'none' })
+    v.setAttribute('muted', ''); v.setAttribute('playsinline', '')
+    v.poster = `assets/app/${c.clip}.jpg`
+    v.dataset.src = `assets/app/${c.clip}.mp4`
+    $('vista').append(v)
+    return v
+  })
+  const tarjetas = CAPS.map((c) => c.tarjetas.map((n, j) => {
+    const t = el('div', 'tarjeta-foto')
+    const L = LUGARES[j]
+    t.style.width = L.w + 'px'; t.style.height = L.h + 'px'
+    t.innerHTML = `<img src="${F(n)}" alt="" loading="lazy" decoding="async">` + (ETIQUETAS[n] ? `<span>Picasso ${ETIQUETAS[n]}</span>` : '')
+    $('tarjetas').append(t)
+    return t
+  }))
+  const puntos = CAPS.map((c, i) => {
+    const b = el('button'); b.setAttribute('aria-label', `${i + 1}. ${c.ceja}`)
+    b.addEventListener('click', () => irA(paradaCap(i)))
+    $('puntos').append(b)
+    return b
+  })
+
+  // Galería de suites
+  const suites = SUITES.map((s) => {
+    const d = el('figure', 'suite')
+    d.innerHTML = `<img src="${F(s.foto)}" alt="Suite ${s.nombre}, Picasso Vaqueritos" loading="lazy" decoding="async"><figcaption class="pie"><h3>${s.nombre}</h3><div class="equipo">${s.equipo.map((e) => `<span>${e}</span>`).join('')}</div></figcaption>`
+    d.style.margin = '0'
+    $('pista').append(d)
+    return d
+  })
+
+  // Las seis casas
+  CASAS.forEach((c, i) => {
+    const d = el('figure', 'casa' + (c.nueva ? ' grande' : ''))
+    d.style.margin = '0'; d.style.setProperty('--i', i)
+    d.innerHTML = `<img src="${c.foto}" alt="Picasso ${c.nombre}" loading="lazy" decoding="async">${c.nueva ? '<span class="marca-nueva">NUEVA</span>' : ''}<figcaption class="pie"><h3>${c.nombre}</h3>${c.nota ? `<small>${c.nota}</small>` : ''}</figcaption>`
+    $('casasGrid').append(d)
+  })
+  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('ve'); io.unobserve(e.target) } }), { threshold: 0.2 })
+  document.querySelectorAll('.casa').forEach((c) => io.observe(c))
+
+  // ---------- medidas ----------
+  let vh = innerHeight, vw = innerWidth, movil = vw < 900, topRec = 0, topGal = 0, altoGal = 0, escala = 1
+  function medir() {
+    vh = innerHeight; vw = innerWidth; movil = vw < 900
+    topRec = $('recorrido').offsetTop
+    topGal = $('vaqueritos').offsetTop; altoGal = $('vaqueritos').offsetHeight
+    // El celular mide 660 px; que quepa con aire en la pantalla.
+    escala = movil ? clamp((vh * 0.5) / 660, 0.4, 0.69) : clamp((vh * 0.78) / 660, 0.6, 1.07)
+    tS = tObj = tRecorrido()
+  }
+  const tRecorrido = () => (scrollY - topRec) / vh
+  const paradaCap = (i) => topRec + (i + 0.5) * vh
+
+  // ---------- video del capítulo ----------
+  let activo = -1
+  function mostrar(i) {
+    if (i === activo) return
+    activo = i
+    videos.forEach((v, j) => {
+      if (j === i) {
+        if (!v.src) v.src = v.dataset.src
+        v.currentTime = 0
+        v.classList.add('ve')
+        const p = v.play(); if (p) p.catch(() => {})
+      } else {
+        v.classList.remove('ve'); v.pause()
+      }
+    })
+    // precarga el siguiente
+    const sig = videos[i + 1]; if (sig && !sig.src) { sig.src = sig.dataset.src; sig.preload = 'auto' }
+    puntos.forEach((b, j) => b.classList.toggle('on', j === i))
+  }
+
+  // ---------- cuadro por cuadro ----------
+  let tS = 0, tObj = 0
+  const GIRO = 0.2 // ventana del giro entre capítulos (en capítulos)
+  function cuadro() {
+    tObj = tRecorrido()
+    tS += (tObj - tS) * (quieto ? 1 : 0.11)
+    const t = tS
+
+    // barra de progreso de toda la página
+    const total = document.documentElement.scrollHeight - vh
+    $('barraProgreso').style.transform = `scaleX(${clamp(scrollY / total, 0, 1)})`
+
+    // solo trabajar si el recorrido está a la vista
+    if (t > -1.1 && t < N + 1) {
+      const tc = clamp(t, 0, N - 0.001)
+      // fondos: fundido y acercamiento lento
+      fondos.forEach((f, i) => {
+        const o = i === 0 ? 1 - paso(i + 0.85, i + 1.15, tc) : paso(i - 0.15, i + 0.15, tc) * (i === N - 1 ? 1 : 1 - paso(i + 0.85, i + 1.15, tc))
+        f.style.opacity = o.toFixed(3)
+        f.style.transform = `scale(${(1.12 - 0.08 * clamp(tc - i + 0.15, 0, 1.3)).toFixed(4)})`
+      })
+      // textos
+      caps.forEach((c, i) => {
+        const entra = i === 0 ? 1 : paso(i - 0.02, i + 0.16, tc)
+        const sale = i === N - 1 ? 0 : paso(i + 0.84, i + 1.0, tc)
+        const o = entra * (1 - sale)
+        c.style.opacity = o.toFixed(3)
+        c.style.visibility = o < 0.01 ? 'hidden' : 'visible'
+        const y = (1 - entra) * 40 - sale * 40
+        c.style.transform = (movil ? '' : 'translateY(-50%) ') + `translateY(${y.toFixed(1)}px)`
+      })
+      // el celular: entra desde abajo, flota, y da una vuelta entre capítulos
+      const entrada = paso(-0.95, 0.05, t)
+      let giro = 0
+      for (let b = 1; b < N; b++) giro += 360 * (quieto ? (t > b ? 1 : 0) : paso(b - GIRO, b + GIRO, t))
+      const ry = -16 + 12 * Math.sin(t * 1.25) - giro - (1 - entrada) * 30
+      const rx = 7 + 3 * Math.sin(t * 0.9) + (1 - entrada) * 28
+      const rz = (1 - entrada) * -12
+      const enGiro = (() => { let m = 0; for (let b = 1; b < N; b++) m = Math.max(m, 1 - Math.abs(t - b) / GIRO); return clamp(m, 0, 1) })()
+      const dx = movil ? 0 : -40 + 30 * Math.sin(t * 0.8)
+      const dy = (1 - entrada) * vh * 0.7 - 10 * Math.sin(t * 2.1) - enGiro * 26
+      const dz = enGiro * 90
+      // el reflejo cruza el cristal según hacia dónde mira el celular
+      const mira = ((ry % 360) + 540) % 360 - 180
+      $('cel').style.setProperty('--lx', (50 + clamp(mira, -90, 90) * 0.75).toFixed(1) + '%')
+      $('cel').style.transform = `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, ${dz.toFixed(1)}px) scale(${escala.toFixed(3)}) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg)`
+      $('sombraCel').style.transform = `translate3d(${dx.toFixed(1)}px, ${(dy * 0.4 + 315 * escala).toFixed(1)}px, -60px) rotateX(80deg) scale(${(escala * (1 - enGiro * 0.2)).toFixed(3)})`
+      $('sombraCel').style.opacity = (entrada * 0.9).toFixed(2)
+      // la pantalla cambia justo cuando el celular está de espaldas
+      let idx = 0; for (let b = 1; b < N; b++) if (t >= b) idx = b
+      mostrar(clamp(idx, 0, N - 1))
+
+      // fotos que flotan alrededor: llegan desde el fondo y pasan junto a la cámara
+      const ex = movil ? 0.5 : escala * 0.95
+      tarjetas.forEach((grupo, i) => grupo.forEach((tj, j) => {
+        const u = t - i
+        const o = paso(-0.38, -0.08, u) * (1 - paso(1.02, 1.3, u))
+        if (o < 0.005) { tj.style.opacity = '0'; tj.style.visibility = 'hidden'; return }
+        tj.style.visibility = 'visible'
+        const L = LUGARES[j]
+        let z
+        if (u < 0) z = lerp(-1700, -700, paso(-0.4, 0, u))
+        else if (u < 1) z = lerp(-700, -260, u)
+        else z = lerp(-260, 900, paso(1, 1.32, u))
+        z += j * 70
+        const x = movil ? LUGARES_MOVIL[j].x : L.x * ex
+        const y = (movil ? LUGARES_MOVIL[j].y : L.y * ex) - (u - 0.5) * 40
+        const r = (j === 1 ? -1 : 1) * (10 - 6 * u)
+        tj.style.opacity = o.toFixed(3)
+        tj.style.transform = `translate3d(${(x - L.w * ex / 2).toFixed(1)}px, ${(y - L.h * ex / 2).toFixed(1)}px, ${z.toFixed(1)}px) rotateY(${r.toFixed(2)}deg) scale(${ex.toFixed(3)})`
+        tj.style.transformOrigin = '0 0'
+      }))
+    } else if (activo !== -1 && (t <= -1.1 || t >= N + 1)) {
+      videos.forEach((v) => v.pause()); activo = -1
+    }
+
+    // galería de Vaqueritos: avanza de lado y cada foto gira al pasar por el centro
+    const g = (scrollY - topGal) / Math.max(1, altoGal - vh)
+    if (g > -0.6 && g < 1.6) {
+      const pista = $('pista')
+      const ancho = pista.scrollWidth - vw
+      const x = -clamp(g, 0, 1) * ancho
+      pista.style.transform = `translate3d(${x.toFixed(1)}px,0,0)`
+      suites.forEach((s) => {
+        const r = s.getBoundingClientRect()
+        const c = (r.left + r.width / 2 - vw / 2) / vw
+        const ry = clamp(-c * 38, -40, 40)
+        const z = -Math.abs(c) * 260
+        s.style.transform = `translateZ(${z.toFixed(1)}px) rotateY(${ry.toFixed(2)}deg)`
+      })
+    }
+
+    // cierre: la foto se acerca
+    const cf = $('cierreFondo').getBoundingClientRect()
+    if (cf.top < vh && cf.bottom > 0) $('cierreFondo').style.setProperty('--z', (1.18 - 0.14 * clamp(1 - cf.top / vh, 0, 1)).toFixed(3))
+
+    requestAnimationFrame(cuadro)
+  }
+
+  // ---------- teclado para presentar: ← → por capítulo ----------
+  function paradas() {
+    const s = [0]
+    for (let i = 0; i < N; i++) s.push(paradaCap(i))
+    s.push(topGal + (altoGal - vh) * 0.02, topGal + (altoGal - vh) * 0.5, topGal + (altoGal - vh) * 0.98)
+    ;['casas', 'video', 'cierre'].forEach((id) => s.push($(id).offsetTop))
+    return s
+  }
+  function irA(y) { scrollTo({ top: y, behavior: quieto ? 'auto' : 'smooth' }) }
+  addEventListener('keydown', (e) => {
+    if (e.target.closest && e.target.closest('video')) return
+    if (!['ArrowRight', 'ArrowLeft'].includes(e.key)) return
+    e.preventDefault()
+    const s = paradas(), y = scrollY
+    const sig = e.key === 'ArrowRight' ? s.find((p) => p > y + 8) : [...s].reverse().find((p) => p < y - 8)
+    if (sig != null) irA(sig)
+  })
+
+  // el video de inicio solo corre mientras se ve
+  const vi = $('videoInicio')
+  new IntersectionObserver(([e]) => { if (e.isIntersecting) { const p = vi.play(); if (p) p.catch(() => {}) } else vi.pause() }).observe(vi)
+
+  addEventListener('resize', medir)
+  addEventListener('load', medir)
+  medir()
+  mostrar(0)
+  requestAnimationFrame(cuadro)
+})()
+</script>
+</body>
+</html>

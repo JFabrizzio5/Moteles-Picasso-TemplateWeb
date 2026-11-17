@@ -1,0 +1,791 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Manual de usuario · Picasso</title>
+<meta name="description" content="Manual de usuario de la app de inspecciones de Motel Picasso: gerentes, amas de llaves, propietarios y administración.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@300;400;500;600&family=Open+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Manual para el personal. Misma piel que documentacion.html: barra negra con el
+   logo, portada negra, índice a la izquierda en escritorio y en píldoras en el
+   celular. Las capturas van dentro de un marco de teléfono. */
+:root {
+  --fondo: #f3f3f2; --papel: #ffffff; --papel-2: #f0efed; --linea: #e2e1de;
+  --tinta: #1e1e1e; --tinta-2: #545454; --tinta-3: #8a8a88;
+  --coral: #fe7877; --coral-tinta: #c8403d; --coral-suave: rgb(254 120 119 / 0.14);
+  --barra: #000000; --bien: #2e7d4f; --bien-suave: #e6f2ea; --mal: #d92d24; --mal-suave: #fdecea;
+  --ambar: #9a6410; --ambar-suave: #fbf0dc;
+  --f-titulo: 'Barlow Semi Condensed', 'Arial Narrow', sans-serif;
+  --f-texto: 'Open Sans', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fondo: #0c0c0c; --papel: #171717; --papel-2: #202020; --linea: #2c2c2c;
+    --tinta: #f2f2f0; --tinta-2: #b6b6b2; --tinta-3: #80807c; --coral-tinta: #ff8f8e;
+    --coral-suave: rgb(254 120 119 / 0.16); --bien: #7cc495; --bien-suave: #13261a;
+    --mal: #ff7b74; --mal-suave: #2e1412; --ambar: #e2b064; --ambar-suave: #2a2112;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --fondo: #0c0c0c; --papel: #171717; --papel-2: #202020; --linea: #2c2c2c;
+  --tinta: #f2f2f0; --tinta-2: #b6b6b2; --tinta-3: #80807c; --coral-tinta: #ff8f8e;
+  --coral-suave: rgb(254 120 119 / 0.16); --bien: #7cc495; --bien-suave: #13261a;
+  --mal: #ff7b74; --mal-suave: #2e1412; --ambar: #e2b064; --ambar-suave: #2a2112;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--fondo); color: var(--tinta); font-family: var(--f-texto); font-size: 16px; line-height: 1.65; margin: 0; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--barra); }
+a { color: var(--coral-tinta); text-underline-offset: 3px; }
+h1, h2, h3 { font-family: var(--f-titulo); font-weight: 400; letter-spacing: -0.01em; text-wrap: balance; line-height: 1.05; margin: 0; }
+h2 { font-size: clamp(2rem, 5vw, 2.7rem); }
+h3 { font-size: 1.55rem; font-weight: 500; margin-top: 2.4rem; scroll-margin-top: 90px; }
+p { margin: 0.7rem 0; max-width: 68ch; }
+ul, ol { padding-left: 1.3rem; max-width: 70ch; }
+li { margin: 0.3rem 0; }
+b, strong { font-weight: 600; }
+.etiqueta { font-family: var(--f-titulo); font-size: 13px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--tinta-3); }
+
+.barra { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--barra); color: #f5f7fa; }
+.barra .dentro { display: flex; align-items: center; gap: 16px; height: 62px; max-width: 1240px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.barra img { height: 38px; width: auto; }
+.barra .nombre { font-family: var(--f-titulo); font-size: 15px; letter-spacing: 0.14em; text-transform: uppercase; color: rgb(245 247 250 / 0.7); }
+.barra .version { margin-left: auto; font-size: 12px; color: rgb(245 247 250 / 0.55); white-space: nowrap; }
+
+.portada { background: var(--barra); color: #f5f7fa; }
+.portada .dentro { max-width: 1240px; margin: 0 auto; padding-block: 28px 44px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.portada .etiqueta { color: rgb(245 247 250 / 0.6); }
+.portada h1 { font-size: clamp(2.6rem, 8vw, 4.6rem); font-weight: 300; max-width: 15ch; margin-top: 10px; }
+.portada h1 em { font-style: normal; color: var(--coral); font-weight: 400; }
+.portada p { color: rgb(245 247 250 / 0.72); font-size: 16px; }
+.datos { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.dato { border: 1px solid rgb(255 255 255 / 0.14); border-radius: 10px; padding: 8px 12px; font-size: 13px; color: rgb(245 247 250 / 0.8); }
+.dato b { color: #fff; }
+.descargas { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.descargas[hidden] { display: none; }
+.descargas span { font-size: 13px; color: rgb(245 247 250 / 0.6); margin-right: 4px; }
+.descargas a { color: #fff; border: 1px solid rgb(255 255 255 / 0.22); border-radius: 999px; padding: 6px 14px; font-size: 13.5px; text-decoration: none; }
+.descargas a:hover { background: rgb(255 255 255 / 0.08); }
+.descargas a.principal { background: var(--coral); color: #000; border-color: var(--coral); font-weight: 600; }
+
+.marco { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 32px 80px; }
+nav.indice { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 82px); align-self: start; max-height: calc(100vh - 110px); overflow-y: auto; }
+nav.indice a { display: block; padding: 6px 10px; border-radius: 8px; color: var(--tinta-2); text-decoration: none; font-size: 14px; }
+nav.indice a:hover { background: var(--papel-2); color: var(--tinta); }
+nav.indice a.activo { background: var(--tinta); color: var(--fondo); }
+nav.indice .grupo { margin: 16px 10px 6px; }
+main { min-width: 0; max-width: 840px; }
+section.parte { padding-top: 12px; margin-bottom: 72px; scroll-margin-top: 90px; }
+section.parte > .etiqueta { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; color: var(--coral-tinta); }
+section.parte > .etiqueta::before { content: ""; width: 22px; height: 2px; background: var(--coral); border-radius: 2px; }
+.intro { font-size: 17px; color: var(--tinta-2); }
+
+@media (max-width: 980px) {
+  .marco { grid-template-columns: minmax(0, 1fr); gap: 0; padding-top: 0; }
+  nav.indice { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 62px); z-index: 15; max-height: none; display: flex; gap: 6px;
+    overflow-x: auto; background: var(--fondo); margin: 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))); padding: 10px max(16px, env(safe-area-inset-left, 0px));
+    border-bottom: 1px solid var(--linea); scrollbar-width: none; }
+  nav.indice::-webkit-scrollbar { display: none; }
+  nav.indice .grupo, nav.indice .sub { display: none; }
+  nav.indice a { white-space: nowrap; border: 1px solid var(--linea); border-radius: 999px; padding: 5px 12px; font-size: 13px; }
+  main { padding-top: 24px; }
+  section.parte, h3 { scroll-margin-top: 120px; }
+  .barra .nombre { display: none; }
+}
+
+.caja { background: var(--papel); border: 1px solid var(--linea); border-radius: 14px; padding: 18px 20px; margin: 16px 0; }
+.caja > :first-child { margin-top: 0; }
+.caja > :last-child { margin-bottom: 0; }
+.nota { border-left: 3px solid var(--coral); background: var(--coral-suave); border-radius: 0 12px 12px 0; padding: 12px 16px; margin: 16px 0; font-size: 15px; }
+.nota.ambar { border-color: var(--ambar); background: var(--ambar-suave); }
+.nota.bien { border-color: var(--bien); background: var(--bien-suave); }
+.nota p { margin: 0.3rem 0; }
+.tabla { overflow-x: auto; margin: 16px 0; border: 1px solid var(--linea); border-radius: 12px; background: var(--papel); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+th { text-align: left; font-family: var(--f-titulo); font-weight: 600; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--tinta-3); background: var(--papel-2); padding: 10px 12px; }
+td { padding: 10px 12px; border-top: 1px solid var(--linea); vertical-align: top; }
+td:first-child { font-weight: 600; }
+
+/* pasos numerados */
+.pasos { counter-reset: paso; list-style: none; padding: 0; }
+.pasos > li { counter-increment: paso; position: relative; padding-left: 44px; margin: 14px 0; }
+.pasos > li::before { content: counter(paso); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 50%;
+  background: var(--tinta); color: var(--fondo); display: grid; place-items: center; font-family: var(--f-titulo); font-weight: 600; font-size: 16px; }
+
+/* el texto y su pantalla */
+.guia { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 28px; align-items: start; }
+.guia .cel { position: sticky; top: 100px; }
+.tira { display: flex; gap: 18px; overflow-x: auto; padding: 4px 2px 10px; margin: 18px 0; scrollbar-width: thin; }
+.tira .cel { flex: 0 0 200px; }
+.cel { margin: 0; }
+.cel .pantalla { display: block; background: #0b0b0b; padding: 7px; border-radius: 30px; box-shadow: 0 22px 40px -26px rgb(0 0 0 / 0.55); }
+.cel img { display: block; width: 100%; height: auto; border-radius: 23px; }
+.cel figcaption, figure.ancha figcaption { font-size: 12.5px; color: var(--tinta-3); margin-top: 8px; text-align: center; line-height: 1.4; }
+figure.ancha { margin: 20px 0; }
+figure.ancha img { display: block; width: 100%; max-width: 640px; height: auto; margin: 0 auto; border: 1px solid var(--linea); border-radius: 10px; }
+@media (max-width: 720px) {
+  .guia { grid-template-columns: minmax(0, 1fr); }
+  .guia .cel { position: static; max-width: 250px; margin: 0 auto; }
+  .tira .cel { flex-basis: 190px; }
+}
+
+/* estados de cuarto y botones como se ven en la app */
+.estado { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 2px 10px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.estado::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.e-coral { background: rgb(254 120 119 / 0.16); color: #d9443f; }
+.e-vino { background: var(--mal-suave); color: #9b2335; }
+.e-ambar { background: var(--ambar-suave); color: var(--ambar); }
+.e-bien { background: var(--bien-suave); color: var(--bien); }
+.e-gris { background: var(--papel-2); color: var(--tinta-3); }
+.boton-app { display: inline-block; border-radius: 8px; padding: 0 7px; background: var(--papel-2); border: 1px solid var(--linea); font-weight: 600; font-size: 0.92em; white-space: nowrap; }
+
+/* preguntas */
+.faq { margin: 12px 0; }
+.faq dt { font-weight: 600; margin-top: 18px; }
+.faq dd { margin: 4px 0 0; color: var(--tinta-2); max-width: 68ch; }
+.pie-manual { margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--linea); font-size: 13px; color: var(--tinta-3); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+@media print {
+  body::before, .barra, nav.indice, .descargas { display: none !important; }
+  .marco { display: block; padding: 0; }
+  .guia .cel { position: static; }
+  .tira { overflow: visible; flex-wrap: wrap; }
+  .guia, .tira, .cel, tr, .nota { break-inside: avoid; }
+}
+</style>
+<style id="estilo-pdf" media="print">
+/* Solo para los PDF de CometaX (generar-pdfs.cjs conserva esta hoja y quita la
+   de arriba). Todo va bajo .doc, que solo existe en el PDF armado. */
+.doc .intro { font-size: 10pt; color: var(--texto); }
+.doc .guia { grid-template-columns: minmax(0, 1fr) 1.55in; gap: 0.3in; }
+.doc .tarea { break-inside: avoid; }
+.doc .tarea:has(.faq) { break-inside: auto; }
+.doc .cel { margin: 0; break-inside: avoid; }
+.doc .cel .pantalla { display: block; background: #0b0b0b; padding: 4px; border-radius: 18px; }
+.doc .cel img { display: block; width: 100%; height: auto; border: 0; border-radius: 14px; }
+.doc .cel figcaption { font-size: 7pt; color: var(--suave); text-align: center; margin-top: 4px; line-height: 1.3; }
+.doc .tira { display: flex; justify-content: center; gap: 0.3in; margin: 0.16in 0; break-inside: avoid; }
+.doc .tira .cel { flex: 0 0 1.62in; }
+.doc figure.ancha img { display: block; margin: 0 auto; max-height: 6in; width: auto; max-width: 100%; border: 1px solid var(--linea); border-radius: 8px; }
+.doc figure.ancha figcaption { font-size: 7pt; color: var(--suave); text-align: center; margin-top: 4px; }
+.doc .estado { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; padding: 1px 7px; font-size: 7.4pt; font-weight: 600; white-space: nowrap; }
+.doc .estado::before { content: ""; width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
+.doc .e-coral { background: #ffe9e9; color: #c8403d; }
+.doc .e-vino { background: var(--rojo-claro); color: var(--rojo); }
+.doc .e-ambar { background: #fbf0dc; color: var(--ambar); }
+.doc .e-bien { background: #e6f2ea; color: var(--verde); }
+.doc .e-gris { background: #f1f1f1; color: var(--suave); }
+.doc .boton-app { display: inline-block; border-radius: 5px; padding: 0 4px; background: var(--crema); border: 1px solid var(--linea); font-weight: 600; color: var(--tinta); white-space: nowrap; }
+.doc .faq { margin: 0.06in 0; }
+.doc .faq dt { font-weight: 600; color: var(--tinta); margin-top: 0.1in; break-after: avoid; }
+.doc .faq dd { margin: 0.02in 0 0; }
+.doc .faq div { break-inside: avoid; }
+.doc .pie-manual { display: none; }
+/* Portada: «Manual de ama de llaves» y «Manual de administración» caben en una línea. */
+.portada .hero h1 { font-size: 38pt; }
+</style>
+</head>
+<body>
+
+<header class="barra">
+  <div class="dentro">
+    <img src="img/logo.svg" alt="Motel Picasso">
+    <span class="nombre">Manual de usuario</span>
+    <span class="version">Versión 0.1 · noviembre 2026</span>
+  </div>
+</header>
+
+<section class="portada">
+  <div class="dentro">
+    <p class="etiqueta">App de inspecciones · Manual de usuario</p>
+    <h1>Cómo se usa, <em>paso a paso.</em></h1>
+    <p>Para gerentes, amas de llaves, propietarios y administración de las seis sucursales. Con pantallas reales de la app.</p>
+    <div class="datos">
+      <span class="dato"><b>4</b> puestos</span>
+      <span class="dato"><b>25</b> puntos del gerente</span>
+      <span class="dato"><b>29</b> puntos de ama de llaves</span>
+      <span class="dato">Sigue funcionando <b>sin señal</b></span>
+    </div>
+    <div class="descargas" hidden>
+      <span>Para imprimir:</span>
+      <a class="principal" href="pdf/Picasso-Manual-de-usuario.pdf">Manual completo (PDF)</a>
+      <a href="pdf/Picasso-Manual-Gerente.pdf">Gerente</a>
+      <a href="pdf/Picasso-Manual-Ama-de-llaves.pdf">Ama de llaves</a>
+      <a href="pdf/Picasso-Manual-Propietarios.pdf">Propietarios</a>
+      <a href="pdf/Picasso-Manual-Administracion.pdf">Administración</a>
+    </div>
+  </div>
+</section>
+
+<div class="marco">
+  <nav class="indice" aria-label="Índice">
+    <p class="etiqueta grupo">Para todos</p>
+    <a href="#primeros">Primeros pasos</a>
+    <p class="etiqueta grupo">Por puesto</p>
+    <a href="#gerente">Gerente</a>
+    <a href="#ama">Ama de llaves</a>
+    <a href="#propietarios">Propietarios</a>
+    <a href="#admin">Administración</a>
+    <p class="etiqueta grupo">Ayuda</p>
+    <a href="#sin-senal">Sin señal</a>
+    <a href="#problemas">Problemas comunes</a>
+  </nav>
+
+  <main>
+
+    <!-- ============================== PRIMEROS PASOS -->
+    <section class="parte" id="primeros">
+      <p class="etiqueta">Primeros pasos</p>
+      <h2>Antes de empezar</h2>
+      <p class="intro">La app registra la revisión de cada cuarto: lo que está mal, con foto, y el seguimiento hasta que queda reparado. Busca tu puesto en el índice; esta parte y la de ayuda sirven para todos.</p>
+      <div class="nota ambar"><p>Las pantallas de este manual usan <b>datos de ejemplo</b>: los nombres, cuartos y folios que se ven no son reales.</p></div>
+
+      <div class="tarea">
+        <h3 id="que-ve-cada-puesto">Qué hace cada puesto</h3>
+        <div class="tabla">
+          <table>
+            <tr><th>Puesto</th><th>Qué hace en la app</th><th>Barra de abajo</th></tr>
+            <tr><td>Ama de llaves</td><td>Al terminar de limpiar, revisa el cuarto con sus 29 puntos y lo envía al gerente.</td><td>Cuartos · Folios · Perfil</td></tr>
+            <tr><td>Gerente</td><td>Revisa los cuartos con sus 25 puntos, decide si se pueden rentar y lleva cada folio hasta cerrarlo.</td><td>Cuartos · Folios · Reportes · Perfil</td></tr>
+            <tr><td>Propietarios</td><td>Ven las seis sucursales, los folios y los indicadores. Solo consultan.</td><td>Panel · Folios · Reportes · Perfil</td></tr>
+            <tr><td>Administración</td><td>Da de alta cuartos, equipo y personal, y fija las reglas de cada sucursal.</td><td>Panel · Folios · Reportes · Ajustes · Perfil</td></tr>
+          </table>
+        </div>
+        <p>El gerente y la ama de llaves solo ven su sucursal. Propietarios y administración ven las seis.</p>
+      </div>
+      <div class="tarea">
+        <h3 id="palabras">Palabras que vas a ver</h3>
+        <div class="tabla">
+          <table>
+            <tr><th>Palabra</th><th>Qué significa</th></tr>
+            <tr><td>Checklist</td><td>La lista de puntos que se revisan en un cuarto. La del gerente tiene 25, la de ama de llaves 29, más el equipo que tenga ese cuarto.</td></tr>
+            <tr><td>«Mal» o falla</td><td>Un punto que no está bien. Siempre lleva qué pasa y, de preferencia, una foto.</td></tr>
+            <tr><td>Folio</td><td>El seguimiento de una falla, con su número: <b>PIC-LER-000008</b> es el folio 8 de Lerma. Nace solo al marcar algo mal.</td></tr>
+            <tr><td>Renta</td><td>La decisión del gerente de si un cuarto <b>puede rentarse</b> o <b>no</b>, con su motivo.</td></tr>
+            <tr><td>Chequeo</td><td>Cada revisión terminada. La app guarda quién la hizo y a qué hora.</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="tarea">
+        <h3 id="entrar">Entrar</h3>
+        <div class="guia">
+          <div>
+            <ol class="pasos">
+              <li>Abre en el celular la dirección que te dé la administración: en Android con <b>Chrome</b>, en iPhone con <b>Safari</b>.</li>
+              <li>Escribe tu <b>correo</b> y tu <b>contraseña</b>. El botón <span class="boton-app">Ver</span> enseña lo que escribiste, para revisar que esté bien.</li>
+              <li>Toca <span class="boton-app">Entrar</span>. Llegas directo a tu inicio.</li>
+              <li>La sesión se queda abierta: la próxima vez entras sin escribir nada. Si pasan 30 días sin abrir la app, te la vuelve a pedir.</li>
+            </ol>
+            <p>¿Olvidaste tu contraseña? Pídela a la administración: la app todavía no la recupera sola. Si te sale un mensaje en rojo, ve a <a href="#no-entra">No me deja entrar</a>.</p>
+          </div>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/01-entrada.jpg" alt="Pantalla de entrada con correo y contraseña" width="390" height="844" loading="lazy"></span><figcaption>La entrada</figcaption></figure>
+        </div>
+      </div>
+      <div class="tarea">
+        <h3 id="instalar">Instalarla como app</h3>
+        <div class="guia">
+          <div>
+            <p>No se baja de ninguna tienda: se instala desde el navegador y queda con su ícono en la pantalla de inicio. Abre sin la barra del navegador, como cualquier app.</p>
+            <h4>En iPhone (Safari)</h4>
+            <ol class="pasos">
+              <li>Con la app abierta, toca el botón <b>Compartir</b> (el cuadro con la flecha hacia arriba).</li>
+              <li>Elige <b>«Agregar a inicio»</b> y luego <b>Agregar</b>.</li>
+            </ol>
+            <h4>En Android (Chrome)</h4>
+            <ol class="pasos">
+              <li>Toca el menú <b>⋮</b> de arriba a la derecha.</li>
+              <li>Elige <b>«Instalar app»</b> o <b>«Agregar a la pantalla principal»</b>. A veces la app misma muestra el botón <span class="boton-app">Instalar Picasso</span> en <b>Perfil</b>.</li>
+            </ol>
+            <p>En <b>Perfil → Instalar en el teléfono</b> la app te recuerda cómo hacerlo en tu celular, o te dice «Ya la estás usando como app».</p>
+          </div>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/03-perfil.jpg" alt="Pantalla de perfil con apariencia, instalar en el teléfono y cerrar sesión" width="390" height="844" loading="lazy"></span><figcaption>Perfil</figcaption></figure>
+        </div>
+      </div>
+      <div class="tarea">
+        <h3 id="moverse">Moverte por la app y salir</h3>
+        <ul>
+          <li>Abajo está la <b>barra de navegación</b>, con el nombre de cada pantalla. La que tienes abierta se marca en coral.</li>
+          <li>Arriba a la derecha dice tu puesto. Arriba a la izquierda, el logo te regresa a tu inicio.</li>
+          <li>En <b>Perfil</b> ves tu nombre, tu sucursal y tu correo; eliges apariencia <b>Clara</b> u <b>Oscura</b>, y cierras sesión con <span class="boton-app">Cerrar sesión</span>. Si el celular lo usan varias personas, ciérrala al terminar tu turno.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================== GERENTE -->
+    <section class="parte" id="gerente">
+      <p class="etiqueta">Gerente</p>
+      <h2>Tu día como gerente</h2>
+      <p class="intro">Revisas los cuartos de tu sucursal, decides si se pueden rentar y llevas cada folio hasta cerrarlo con foto de la reparación. La app te dice qué sigue.</p>
+
+      <div class="tarea">
+        <h3 id="g-inicio">Tu inicio y «Tu siguiente paso»</h3>
+        <div class="guia">
+          <div>
+            <p>Arriba está tu sucursal con tres números: cuartos <b>por revisar hoy</b>, <b>folios abiertos</b> y cuartos <b>sin rentar</b>.</p>
+            <p>Debajo, <b>«Tu siguiente paso»</b> te dice lo más urgente, con un botón para ir directo. Sale en este orden:</p>
+            <ol class="pasos">
+              <li>Un cuarto que dejaste <b>a medias</b>: «Tienes el 101 a medias». Lo que marcaste ya está guardado.</li>
+              <li>Cuartos que la ama de llaves te <b>envió</b>: revísalos tú.</li>
+              <li><b>Folios nuevos</b> sin atender: decide la renta y pon quién lo atiende.</li>
+              <li>Cuartos que te faltan <b>por revisar hoy</b>.</li>
+              <li>Si no hay nada: «Todo al día».</li>
+            </ol>
+            <p>Más abajo, <b>Folios abiertos</b> se desliza de lado; «Ver todos» abre la lista completa.</p>
+          </div>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/10-gerente-inicio.jpg" alt="Inicio del gerente con su siguiente paso" width="390" height="844" loading="lazy"></span><figcaption>Inicio del gerente</figcaption></figure>
+        </div>
+      </div>
+      <div class="tarea">
+        <h3 id="g-cuartos">Tus cuartos y su estado</h3>
+        <div class="guia">
+          <div>
+            <p>Cada tarjeta trae el número del cuarto, su estado, sus áreas especiales (o «Sencilla»), parte de su equipo y la hora del <b>último chequeo</b> con quién lo hizo y cuántas cosas salieron mal.</p>
+            <p>Los botones de arriba filtran: <b>Todos</b>, <b>Por revisar</b>, <b>A medias</b>, <b>Con folio</b> y <b>No rentar</b>. <b>Actualizar</b> vuelve a cargar la lista.</p>
+            <div class="tabla">
+              <table>
+                <tr><th>Estado</th><th>Qué quiere decir</th></tr>
+                <tr><td><span class="estado e-coral">Por revisar hoy</span></td><td>Te toca revisarlo hoy.</td></tr>
+                <tr><td><span class="estado e-coral">Enviado por ama</span></td><td>La ama de llaves ya lo revisó y te lo pasó.</td></tr>
+                <tr><td><span class="estado e-ambar">A medias</span></td><td>Empezaste su checklist y no lo terminaste.</td></tr>
+                <tr><td><span class="estado e-vino">Con folio</span></td><td>Tiene al menos un folio abierto.</td></tr>
+                <tr><td><span class="estado e-vino">No rentar</span></td><td>Tu decisión vigente es que no puede rentarse.</td></tr>
+                <tr><td><span class="estado e-bien">Al día</span></td><td>Sin pendientes.</td></tr>
+              </table>
+            </div>
+          </div>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/11-gerente-cuartos.jpg" alt="Cuartos con su estado, filtros y último chequeo" width="390" height="844" loading="lazy"></span><figcaption>Cuartos y filtros</figcaption></figure>
+        </div>
+      </div>
+      <div class="tarea">
+        <h3 id="g-revisar">Revisar un cuarto</h3>
+        <ol class="pasos">
+          <li>Toca el cuarto. Sube una hoja con su último chequeo, la última revisión de la ama de llaves, la tuya, la renta vigente y lo que tiene el cuarto.</li>
+          <li>Toca <span class="boton-app">Revisar el cuarto 103</span>. Si ya lo tenías a medias, la app te lleva directo a donde te quedaste.</li>
+          <li>Arriba ves el último chequeo de ese cuarto. Debajo, los puntos agrupados: acceso y seguridad, agua y baño, electricidad y clima, habitación, entretenimiento y servicio, áreas especiales, cochera, revisión final y el <b>equipo del cuarto</b>.</li>
+          <li><b>Toca solo lo que está mal.</b> Lo que no toques queda bien al terminar.</li>
+        </ol>
+        <p>Lo que el cuarto no tiene (jacuzzi, alberca, sauna o terraza) no aparece: la app lo marca solo como «no aplica» y lo dice al final de la lista.</p>
+        <div class="tira">
+          <figure class="cel"><span class="pantalla"><img src="img/manual/12-gerente-hoja-cuarto.jpg" alt="Hoja del cuarto 103 con su último chequeo y el botón para revisarlo" width="390" height="844" loading="lazy"></span><figcaption>1 · Toca el cuarto</figcaption></figure>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/13-checklist.jpg" alt="Checklist del gerente: toca solo lo que está mal" width="390" height="844" loading="lazy"></span><figcaption>2 · El checklist</figcaption></figure>
+        </div>
+      </div>
+      <div class="tarea">
+        <h3 id="g-mal">Marcar lo que está mal</h3>
+        <ol class="pasos">
+          <li>Toca el renglón que está mal. Se abre «¿qué está mal?» con lo que se revisa en ese punto.</li>
+          <li><b>Escribe qué pasa</b>, por ejemplo «Gotea la llave del lavabo». Es obligatorio: con eso empieza el folio.</li>
+          <li>Toca <span class="boton-app">Tomar foto</span>: se abre la cámara. La foto se achica sola para que suba rápido aunque haya poca señal. Puedes tomar varias.</li>
+          <li>Toca <span class="boton-app">Está mal</span>. El renglón queda con un <b>tache rojo</b> y arriba aparece «Folio PIC-LER-000009 abierto».</li>
+        </ol>
+        <p>Si ese mismo punto de ese cuarto ya tenía un folio abierto, la falla se suma a ese folio en lugar de abrir otro.</p>
+        <p><b>¿Te equivocaste?</b> Toca otra vez el renglón: cambia el texto y toca <span class="boton-app">Guardar</span>, o toca <span class="boton-app">Quitar (fue un error)</span>. Si el folio todavía no se atendía, queda <b>anulado</b>.</p>
+        <div class="tira">
+          <figure class="cel"><span class="pantalla"><img src="img/manual/14-que-esta-mal.jpg" alt="Hoja ¿qué está mal? con la descripción y la foto" width="390" height="844" loading="lazy"></span><figcaption>3 · Qué pasa y la foto</figcaption></figure>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/15-checklist-falla.jpg" alt="El punto queda marcado con tache rojo y su folio" width="390" height="844" loading="lazy"></span><figcaption>4 · Queda con tache rojo</figcaption></figure>
+        </div>
+      </div>
+      <div class="tarea">
+        <h3 id="g-terminar">Terminar y decidir la renta</h3>
+        <ol class="pasos">
+          <li>Toca el botón de abajo, que dice cuántas cosas marcaste: <span class="boton-app">Terminar · 1 mal</span>. Si no marcaste nada, la app te pregunta «¿Todo bien con el cuarto?» antes de guardarlo.</li>
+          <li>Todo lo que no tocaste queda <b>bien</b> y el chequeo se guarda con su hora. Después ya no se puede cambiar.</li>
+          <li>En la pantalla final están las fallas con su folio. Responde <b>«¿Este cuarto puede rentarse?»</b>: <span class="boton-app">Sí, puede</span> o <span class="boton-app">No rentar</span>.</li>
+          <li>Revisa el <b>motivo</b> (la app propone uno), elige el folio relacionado si no se renta, y toca <span class="boton-app">Registrar decisión</span>.</li>
+        </ol>
+        <p>Desde ahí también bajas el <b>PDF</b> de esa revisión.</p>
+        <div class="tira">
+          <figure class="cel"><span class="pantalla"><img src="img/manual/16-terminado.jpg" alt="Chequeo registrado con una cosa mal y la pregunta de renta" width="390" height="844" loading="lazy"></span><figcaption>5 · Chequeo registrado</figcaption></figure>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/17-renta.jpg" alt="Decisión del gerente: puede rentarse, con su motivo" width="390" height="844" loading="lazy"></span><figcaption>6 · La decisión de renta</figcaption></figure>
+        </div>
+        <div class="nota"><p>Si administración puso tu sucursal en <b>«Marcar cada punto ✓ o ✗»</b>, cada renglón trae ✓ y ✗, y el botón dice «Faltan 12 por marcar» hasta que marques todos.</p></div>
+      </div>
+      <div class="tarea">
+        <h3 id="g-folio">Dar seguimiento a un folio</h3>
+        <ol class="pasos">
+          <li>En <b>Folios</b> filtras por <b>Abiertas</b>, <b>Reportadas</b>, <b>En atención</b>, <b>Cerradas</b> o <b>Todas</b>, buscas por folio, problema o cuarto, y eliges la fecha.</li>
+          <li>Abre el folio. Arriba, <b>«Siguiente paso»</b> te dice qué toca, y debajo ves los cinco pasos del seguimiento: detectar, decidir la renta, atender, verificar con foto y cerrar.</li>
+          <li>Si no has decidido la renta, la app te lo pide primero.</li>
+          <li>Toca <span class="boton-app">Poner en atención</span> y escribe quién lo atiende: mantenimiento, un plomero, un proveedor.</li>
+          <li>En <b>Dar seguimiento</b> cambias la <b>prioridad</b> (alta, media o baja), anotas avances con <span class="boton-app">Anotar avance</span> y cambias la renta si hace falta.</li>
+        </ol>
+        <div class="tira">
+          <figure class="cel"><span class="pantalla"><img src="img/manual/18-folios.jpg" alt="Lista de folios con filtros" width="390" height="844" loading="lazy"></span><figcaption>Folios</figcaption></figure>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/19-folio.jpg" alt="Folio con su siguiente paso: pon quién lo atiende" width="390" height="844" loading="lazy"></span><figcaption>Siguiente paso</figcaption></figure>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/20-folio-atencion.jpg" alt="Poner en atención: quién atiende" width="390" height="844" loading="lazy"></span><figcaption>Poner en atención</figcaption></figure>
+        </div>
+      </div>
+      <div class="tarea">
+        <h3 id="g-cerrar">Cerrar un folio</h3>
+        <ol class="pasos">
+          <li>Cuando quede reparado, <b>compruébalo tú</b> y toca <span class="boton-app">Tomar foto de reparación</span>.</li>
+          <li>Toca <span class="boton-app">Actualizar y cerrar</span>, escribe qué se corrigió y toca <span class="boton-app">Cerrar folio</span>.</li>
+          <li>La app te pide confirmar la renta del cuarto: normalmente «Puede rentarse · Reparación verificada».</li>
+        </ol>
+        <p>Sin <b>foto de reparación del gerente</b> y sin <b>explicar la corrección</b>, el folio no se cierra: el botón se queda apagado y debajo dice qué falta. Solo el gerente de la sucursal cierra folios. Si la reparación no quedó bien, no lo cierres: sigue abierto.</p>
+        <div class="tira">
+          <figure class="cel"><span class="pantalla"><img src="img/manual/21-folio-listo.jpg" alt="Ya puedes cerrar el folio" width="390" height="844" loading="lazy"></span><figcaption>Con la foto, ya se puede cerrar</figcaption></figure>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/22-folio-cerrar.jpg" alt="Actualizar y cerrar: qué se corrigió" width="390" height="844" loading="lazy"></span><figcaption>Qué se corrigió</figcaption></figure>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/23-folio-cerrado.jpg" alt="Folio cerrado con su resumen" width="390" height="844" loading="lazy"></span><figcaption>Folio cerrado</figcaption></figure>
+        </div>
+      </div>
+      <div class="tarea">
+        <h3 id="g-expediente">Historial y expediente del cuarto</h3>
+        <ul>
+          <li>En el folio, <b>Historial</b> dice quién hizo qué y cuándo; <b>Evidencias</b> junta todas las fotos. Toca una foto para verla grande con quién la tomó.</li>
+          <li><span class="boton-app">Descargar PDF</span> baja el folio completo.</li>
+          <li>Desde un cuarto, <span class="boton-app">Expediente y renta</span> muestra la decisión de renta vigente y las anteriores, los puntos pendientes, sus folios y todas sus revisiones. También tiene su PDF.</li>
+          <li>En <b>Reportes</b> ves los indicadores de tu sucursal y bajas el PDF del periodo. Cómo se lee cada indicador está en la parte de <a href="#p-reportes">Propietarios</a> del manual completo.</li>
+        </ul>
+        <div class="tira">
+          <figure class="cel"><span class="pantalla"><img src="img/manual/24-folio-historial.jpg" alt="Historial del folio: quién hizo qué y cuándo" width="390" height="844" loading="lazy"></span><figcaption>Historial del folio</figcaption></figure>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/25-expediente.jpg" alt="Expediente de la habitación con su renta y sus folios" width="390" height="844" loading="lazy"></span><figcaption>Expediente del cuarto</figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== AMA DE LLAVES -->
+    <section class="parte" id="ama">
+      <p class="etiqueta">Ama de llaves</p>
+      <h2>Tu checklist de limpieza</h2>
+      <p class="intro">Cuando terminas de limpiar un cuarto, lo revisas en la app: tocas solo lo que está mal y lo envías al gerente.</p>
+
+      <div class="tarea">
+        <h3 id="a-inicio">Tu inicio</h3>
+        <div class="guia">
+          <div>
+            <p>Arriba ves tu sucursal con tres números: cuartos <b>a medias</b>, <b>folios abiertos</b> y cuartos <b>sin rentar</b>.</p>
+            <p><b>«Tu siguiente paso»</b> te recuerda si dejaste un cuarto a medias («Tienes el 111 a medias» → <span class="boton-app">Seguir con el 111</span>). Si no, te pregunta «¿Terminaste de limpiar un cuarto?».</p>
+            <p>Abajo están tus cuartos con su estado y la hora del último chequeo. Los filtros son <b>Todos</b>, <b>A medias</b>, <b>Con folio</b> y <b>No rentar</b>.</p>
+          </div>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/30-ama-inicio.jpg" alt="Inicio de ama de llaves" width="390" height="844" loading="lazy"></span><figcaption>Inicio de ama de llaves</figcaption></figure>
+        </div>
+      </div>
+      <div class="tarea">
+        <h3 id="a-revisar">Revisar un cuarto</h3>
+        <div class="guia">
+          <div>
+            <ol class="pasos">
+              <li>Al terminar de limpiar, toca el cuarto y luego <span class="boton-app">Revisar el cuarto 101</span>.</li>
+              <li>Arriba ves cuándo fue el último chequeo. Los 29 puntos van por grupos: cama y blancos, baño, habitación, amenidades, funcionamiento, cochera, áreas especiales y cierre, más el <b>equipo del cuarto</b>.</li>
+              <li><b>Toca solo lo que está mal.</b> Lo demás queda bien al terminar.</li>
+              <li>Cada toque se guarda al momento. Si te interrumpen o cierras la app, el cuarto queda «a medias» y sigues donde te quedaste.</li>
+            </ol>
+          </div>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/31-ama-checklist.jpg" alt="Checklist de ama de llaves" width="390" height="844" loading="lazy"></span><figcaption>El checklist de 29 puntos</figcaption></figure>
+        </div>
+      </div>
+      <div class="tarea">
+        <h3 id="a-mal">Cuando algo está mal</h3>
+        <div class="guia">
+          <div>
+            <ol class="pasos">
+              <li>Toca el renglón que está mal.</li>
+              <li>Escribe qué pasa, por ejemplo «Falta una toalla de mano». Es obligatorio.</li>
+              <li>Toca <span class="boton-app">Tomar foto</span> y toma la foto con la cámara.</li>
+              <li>Toca <span class="boton-app">Está mal</span>. El renglón queda con tache rojo y se abre un folio para el gerente.</li>
+            </ol>
+            <p>Si te equivocaste, toca otra vez el renglón y elige <span class="boton-app">Quitar (fue un error)</span>.</p>
+          </div>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/35-ama-que-esta-mal.jpg" alt="Hoja ¿qué está mal? de ama de llaves con descripción y foto" width="390" height="844" loading="lazy"></span><figcaption>Qué pasa y la foto</figcaption></figure>
+        </div>
+      </div>
+      <div class="tarea">
+        <h3 id="a-no-aplica">Si un punto no aplica</h3>
+        <div class="guia">
+          <div>
+            <p>Lo que el cuarto no tiene (jacuzzi, alberca, sauna o terraza) la app ya lo quita sola. Si otro punto no se puede revisar en ese cuarto:</p>
+            <ol class="pasos">
+              <li>Toca el punto.</li>
+              <li>Abajo, toca <b>«Este punto no aplica en este cuarto»</b>.</li>
+              <li>Elige el motivo: <b>No existe en esta habitación</b>, <b>La habitación estaba sucia</b> o <b>Fuera de servicio</b>. O escribe otro y toca <span class="boton-app">Guardar</span>.</li>
+            </ol>
+            <p>El punto queda tachado con su motivo.</p>
+          </div>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/32-no-aplica.jpg" alt="Elegir por qué no aplica un punto" width="390" height="844" loading="lazy"></span><figcaption>No aplica, con su motivo</figcaption></figure>
+        </div>
+      </div>
+      <div class="tarea">
+        <h3 id="a-enviar">Enviar al gerente</h3>
+        <ol class="pasos">
+          <li>Toca el botón de abajo: <span class="boton-app">Enviar al gerente · todo bien</span> o <span class="boton-app">Enviar al gerente · 1 mal</span>.</li>
+          <li>Si no marcaste nada, la app pregunta <b>«¿Todo bien con el cuarto?»</b>. Toca <span class="boton-app">Sí, todo está bien</span>, o <span class="boton-app">No, voy a revisar otra vez</span> para regresar.</li>
+          <li>Queda registrado con la hora. Ya está con el gerente: <b>él decide si el cuarto puede rentarse</b>.</li>
+        </ol>
+        <div class="tira">
+          <figure class="cel"><span class="pantalla"><img src="img/manual/33-ama-confirmar.jpg" alt="Confirmar que todo está bien con el cuarto" width="390" height="844" loading="lazy"></span><figcaption>¿Todo bien con el cuarto?</figcaption></figure>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/34-ama-enviado.jpg" alt="Chequeo registrado: todo bien, ya está con el gerente" width="390" height="844" loading="lazy"></span><figcaption>Enviado al gerente</figcaption></figure>
+        </div>
+        <p>En <b>Folios</b> puedes consultar los folios de tu sucursal: su estado, sus fotos y su historial. Solo el gerente los actualiza y los cierra.</p>
+      </div>
+    </section>
+
+    <!-- ============================== PROPIETARIOS -->
+    <section class="parte" id="propietarios">
+      <p class="etiqueta">Propietarios</p>
+      <h2>Las seis sucursales en una sola vista</h2>
+      <p class="intro">El panel junta el avance de las revisiones, los folios abiertos y los cuartos que no se rentan. Todo es de consulta: nada de lo que toques cambia datos.</p>
+
+      <div class="tarea">
+        <h3 id="p-panel">El panel</h3>
+        <ol class="pasos">
+          <li>Elige el periodo arriba: <b>Hoy</b>, <b>Ayer y hoy</b>, <b>7 días</b> o <b>30 días</b>. Debajo dice la hora del corte, en hora de CDMX.</li>
+          <li><b>Revisiones completas</b>: las hechas contra las que tocaban en el periodo, sumando gerente y ama de llaves, y cuántas faltan.</li>
+          <li><b>Incidencias abiertas</b>: folios sin cerrar, incluidos los que están en atención. Tócalo para ver la lista.</li>
+          <li><b>Cuartos bloqueados</b>: los que tienen decisión vigente de no rentarse.</li>
+        </ol>
+        <div class="tira">
+          <figure class="cel"><span class="pantalla"><img src="img/manual/50-panel.jpg" alt="Panel de propietarios con los periodos" width="390" height="844" loading="lazy"></span><figcaption>El panel y el periodo</figcaption></figure>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/51-panel-cifras.jpg" alt="Revisiones completas, incidencias abiertas y cuartos bloqueados" width="390" height="844" loading="lazy"></span><figcaption>Las tres cifras</figcaption></figure>
+        </div>
+      </div>
+      <div class="tarea">
+        <h3 id="p-sucursal">Cada sucursal</h3>
+        <div class="guia">
+          <div>
+            <p>Cada tarjeta trae la foto de la sucursal, su clave y, si hay, cuántos cuartos están <b>sin rentar</b>. Debajo:</p>
+            <ul>
+              <li><b>Gerente</b> y <b>Ama de llaves</b>: revisiones completas contra las que tocaban, con su barra.</li>
+              <li>Los <b>folios abiertos</b> y la hora del <b>último chequeo</b>.</li>
+            </ul>
+            <p>Toca la tarjeta para ver los folios abiertos de esa sucursal. El botón <span class="boton-app">PDF</span> baja el reporte del periodo.</p>
+            <div class="nota"><p>«Completa» quiere decir que el checklist se terminó, <b>no</b> que salió sin fallas.</p></div>
+          </div>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/52-panel-sucursales.jpg" alt="Tarjetas por sucursal con avance de gerente y ama de llaves" width="390" height="844" loading="lazy"></span><figcaption>Cada casa, su avance</figcaption></figure>
+        </div>
+      </div>
+      <div class="tarea">
+        <h3 id="p-folios">Folios de todas las sucursales</h3>
+        <div class="guia">
+          <div>
+            <p>En <b>Folios</b> filtras por estado, buscas por folio, problema o cuarto, y eliges <b>sucursal</b> y <b>fecha</b>.</p>
+            <p>Cada folio abre su expediente completo: el reporte original con quién lo reportó, la decisión de renta, quién lo atiende, las fotos (la inicial y la de la reparación) y el historial. Lo puedes bajar en PDF.</p>
+          </div>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/54-folios-propietario.jpg" alt="Folios con filtro de sucursal y fecha" width="390" height="844" loading="lazy"></span><figcaption>Folios con filtro de sucursal</figcaption></figure>
+        </div>
+      </div>
+      <div class="tarea">
+        <h3 id="p-reportes">Reportes e indicadores</h3>
+        <div class="guia">
+          <div>
+            <p>Elige el periodo (<b>Hoy</b>, <b>7</b>, <b>30</b> o <b>90 días</b>). Cada indicador dice cómo se calcula:</p>
+            <div class="tabla">
+              <table>
+                <tr><th>Indicador</th><th>Cómo se lee</th></tr>
+                <tr><td>Cumplimiento de revisión</td><td>Revisiones completas entre las que tocaban, por puesto (gerente y ama).</td></tr>
+                <tr><td>Conformidad de puntos</td><td>Puntos bien entre puntos revisados (bien + falla). «No aplica» y «Sin revisar» no cuentan como aprobados.</td></tr>
+                <tr><td>Tiempo de solución</td><td>Lo que tardan en promedio los folios cerrados, y cuánto lleva el abierto más antiguo.</td></tr>
+                <tr><td>Reincidencia</td><td>Cuartos donde se repitió la misma categoría de falla dentro del periodo.</td></tr>
+              </table>
+            </div>
+            <p>Más abajo: la tabla por sucursal, las <b>fallas frecuentes</b> y las <b>reincidencias</b> (tócalas para abrir el expediente del cuarto).</p>
+          </div>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/53-reportes.jpg" alt="Reportes con cumplimiento y conformidad" width="390" height="844" loading="lazy"></span><figcaption>Reportes</figcaption></figure>
+        </div>
+      </div>
+      <div class="tarea">
+        <h3 id="p-pdf">El reporte en PDF</h3>
+        <p>En <b>Reportes</b>, <span class="boton-app">Descargar reporte del periodo (PDF)</span> baja el resumen de las seis sucursales con sus indicadores, listo para imprimir o mandar. Se genera al momento y necesita señal.</p>
+        <figure class="ancha"><img src="img/manual/55-reporte-pdf.jpg" alt="Primera hoja del reporte del grupo en PDF" width="1100" height="1424" loading="lazy"><figcaption>Primera hoja del reporte del grupo (datos de ejemplo)</figcaption></figure>
+      </div>
+    </section>
+
+    <!-- ============================== ADMINISTRACIÓN -->
+    <section class="parte" id="admin">
+      <p class="etiqueta">Administración</p>
+      <h2>Cuartos, equipo y personal</h2>
+      <p class="intro">Todo está en <b>Ajustes</b>, con tres pestañas: <b>Cuartos</b>, <b>Catálogo de equipo</b> y <b>Personal</b>. Casi todo se guarda en cuanto lo tocas; el equipo de un cuarto y las altas de personal llevan su botón para guardar.</p>
+
+      <div class="tarea">
+        <h3 id="ad-reglas">Reglas de cada sucursal</h3>
+        <div class="guia">
+          <div>
+            <p>En <b>Cuartos</b>, elige la sucursal arriba. Debajo están sus tres reglas:</p>
+            <div class="tabla">
+              <table>
+                <tr><th>Regla</th><th>Opciones</th></tr>
+                <tr><td>Revisión del gerente</td><td>Diaria, cada dos días o cada tres días.</td></tr>
+                <tr><td>Exigibles de ama de llaves</td><td>Una por cada limpieza, o una por cuarto al día.</td></tr>
+                <tr><td>Checklist</td><td>Solo marcar lo que está mal, o marcar cada punto ✓ o ✗.</td></tr>
+              </table>
+            </div>
+            <p>Las dos primeras cambian cuántas revisiones «tocaban» en el panel y en los reportes. La tercera cambia cómo se ve el checklist en esa sucursal.</p>
+          </div>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/60-admin-reglas.jpg" alt="Ajustes: reglas de la sucursal" width="390" height="844" loading="lazy"></span><figcaption>Reglas de la sucursal</figcaption></figure>
+        </div>
+      </div>
+      <div class="tarea">
+        <h3 id="ad-cuartos">Cuartos</h3>
+        <div class="guia">
+          <div>
+            <ol class="pasos">
+              <li>Para dar de alta un cuarto, escribe su <b>número</b> junto a «Cuartos» y toca <b>+</b>.</li>
+              <li>Marca sus áreas especiales: <b>Jacuzzi</b>, <b>Alberca</b>, <b>Sauna</b> o <b>Terraza</b>. Los puntos de esas áreas solo salen en los cuartos que las tienen.</li>
+              <li><span class="boton-app">Baja</span> saca un cuarto de servicio; <span class="boton-app">Activar</span> lo regresa. Su historial se conserva.</li>
+            </ol>
+          </div>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/61-admin-cuartos.jpg" alt="Lista de cuartos con áreas especiales y equipo" width="390" height="844" loading="lazy"></span><figcaption>Cuartos</figcaption></figure>
+        </div>
+      </div>
+      <div class="tarea">
+        <h3 id="ad-equipo">Equipo de cada cuarto</h3>
+        <div class="guia">
+          <div>
+            <ol class="pasos">
+              <li>Toca <span class="boton-app">Equipo</span> en el cuarto.</li>
+              <li>Toca todo lo que tiene: bocina, Netflix, sillón tántrico, minibar… Lo elegido se pone en negro.</li>
+              <li>Toca <span class="boton-app">Guardar · 5 cosas</span>.</li>
+            </ol>
+            <p>Cada cosa sale en el checklist de ese cuarto, en «Equipo del cuarto», para gerente y ama de llaves.</p>
+          </div>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/62-admin-equipo-cuarto.jpg" alt="Qué tiene el cuarto, por categorías" width="390" height="844" loading="lazy"></span><figcaption>¿Qué tiene el cuarto?</figcaption></figure>
+        </div>
+      </div>
+      <div class="tarea">
+        <h3 id="ad-catalogo">Catálogo de equipo</h3>
+        <div class="guia">
+          <div>
+            <ol class="pasos">
+              <li>Escribe el nombre de lo nuevo, elige su categoría (o «Otra categoría…») y toca <span class="boton-app">Agregar</span>.</li>
+              <li>El lápiz cambia el nombre.</li>
+              <li><b>Activo / Inactivo</b>: lo inactivo deja de salir en los checklists nuevos. Lo que ya se revisó se conserva.</li>
+            </ol>
+          </div>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/63-admin-catalogo.jpg" alt="Catálogo de equipo por categorías" width="390" height="844" loading="lazy"></span><figcaption>Catálogo de equipo</figcaption></figure>
+        </div>
+      </div>
+      <div class="tarea">
+        <h3 id="ad-personal">Personal</h3>
+        <ol class="pasos">
+          <li>En <b>Personal</b> ves a todos con su puesto y su sucursal.</li>
+          <li>Toca <span class="boton-app">Dar de alta</span>: nombre completo, correo, una contraseña de al menos 10 caracteres, el puesto y, para gerente o ama de llaves, su sucursal.</li>
+          <li>Toca <span class="boton-app">Crear cuenta</span> y <b>entrega la contraseña en persona</b>, no por mensaje.</li>
+        </ol>
+        <div class="tira">
+          <figure class="cel"><span class="pantalla"><img src="img/manual/64-admin-personal.jpg" alt="Lista del personal con puesto y sucursal" width="390" height="844" loading="lazy"></span><figcaption>Personal</figcaption></figure>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/65-admin-alta.jpg" alt="Formulario para dar de alta a una persona" width="390" height="844" loading="lazy"></span><figcaption>Nueva persona</figcaption></figure>
+        </div>
+        <div class="nota ambar"><p><b>Lo que la app todavía no hace:</b> cambiar o restablecer contraseñas, editar los datos de una persona o darla de baja. Mientras tanto, pídelo al soporte técnico de CometaX Company.</p></div>
+      </div>
+    </section>
+
+    <!-- ============================== SIN SEÑAL -->
+    <section class="parte" id="sin-senal">
+      <p class="etiqueta">Sin señal</p>
+      <h2>Si se va la señal</h2>
+      <p class="intro">En los cuartos la señal falla. El checklist está hecho para seguir sin ella.</p>
+      <div class="guia">
+        <div>
+          <ol class="pasos">
+            <li><b>Sigue marcando.</b> Lo que tocas se guarda en el teléfono y abajo dice «1 sin subir por falta de señal; se suben solos».</li>
+            <li>Cuando vuelve la señal, <b>se sube solo</b>. La app lo vuelve a intentar cada 20 segundos.</li>
+            <li><b>No termines ni envíes</b> hasta que se suba todo: la app no te deja y avisa «Hay cambios sin subir por falta de señal».</li>
+            <li><b>Las fotos no esperan:</b> sin señal no se guardan. La app avisa «Sin señal: toma la foto otra vez cuando haya conexión».</li>
+          </ol>
+          <div class="nota ambar"><p>Lo que no se ha subido vive en ese teléfono. No borres los datos del navegador ni cambies de celular mientras diga que hay cambios sin subir.</p></div>
+          <p>La app abre aunque no haya señal, pero las listas de cuartos, folios y reportes necesitan conexión para cargarse. Sin ella dice «Sin conexión. Revisa la señal e inténtalo otra vez».</p>
+        </div>
+        <figure class="cel"><span class="pantalla"><img src="img/manual/40-sin-senal.jpg" alt="Checklist sin señal: un cambio sin subir" width="390" height="844" loading="lazy"></span><figcaption>Un cambio esperando señal</figcaption></figure>
+      </div>
+    </section>
+
+    <!-- ============================== PROBLEMAS -->
+    <section class="parte" id="problemas">
+      <p class="etiqueta">Ayuda</p>
+      <h2>Preguntas frecuentes y problemas comunes</h2>
+
+      <div class="tarea">
+        <h3 id="no-entra">No me deja entrar</h3>
+        <div class="guia">
+          <div>
+            <div class="tabla">
+              <table>
+                <tr><th>Si dice…</th><th>Qué pasa y qué hacer</th></tr>
+                <tr><td>«El correo o la contraseña no son correctos.»</td><td>Revisa el correo (sin espacios) y usa <b>Ver</b> para revisar la contraseña. Después de <b>5 contraseñas equivocadas</b> la cuenta se bloquea <b>15 minutos</b>, y en ese tiempo sale este mismo mensaje aunque la escribas bien: espera los 15 minutos. Si sigue, pide a la administración que revise tu cuenta.</td></tr>
+                <tr><td>«Demasiados intentos. Espera unos minutos.»</td><td>Hubo muchos intentos seguidos desde la misma red o a la misma cuenta. Espera 5 minutos y vuelve a intentar.</td></tr>
+                <tr><td>«Sin conexión. Revisa la señal e inténtalo otra vez.»</td><td>No hay internet. Busca señal o conéctate al wifi.</td></tr>
+              </table>
+            </div>
+          </div>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/02-entrada-error.jpg" alt="Mensaje de correo o contraseña incorrectos" width="390" height="844" loading="lazy"></span><figcaption>El mensaje de error</figcaption></figure>
+        </div>
+      </div>
+      <div class="tarea">
+        <h3 id="foto">La foto no sube</h3>
+        <div class="tabla">
+          <table>
+            <tr><th>Si dice…</th><th>Qué pasa y qué hacer</th></tr>
+            <tr><td>«Sin señal: toma la foto otra vez cuando haya conexión.»</td><td>Las fotos necesitan señal. Acércate a donde haya y vuelve a tomarla.</td></tr>
+            <tr><td>«La foto pesa más de 8 MB.»</td><td>La app achica las fotos, pero algunos teléfonos guardan un formato que no puede achicar. Tómala otra vez; en iPhone puedes poner <b>Ajustes → Cámara → Formatos → Más compatible</b>.</td></tr>
+            <tr><td>«La evidencia debe ser una foto (JPG, PNG o WebP).»</td><td>Elegiste un archivo que no es foto, o una foto en un formato que no se acepta. Vuelve a tomarla con la cámara.</td></tr>
+            <tr><td>Se queda en «Subiendo foto…»</td><td>La señal es débil. Espera; si marca error, vuelve a tomarla.</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="tarea">
+        <h3 id="faq">Otras preguntas</h3>
+        <dl class="faq">
+          <div><dt>¿Se pierde lo que marqué si cierro la app o me llaman?</dt>
+          <dd>No. Cada toque se guarda al momento. El cuarto queda «a medias» y al volver sigues donde te quedaste.</dd></div>
+          <div><dt>¿Puedo cambiar una revisión que ya terminé?</dt>
+          <dd>No. Al terminar queda registrada con su hora y ya no se modifica. Si algo cambió, se hace una revisión nueva.</dd></div>
+          <div><dt>¿Por qué no se activa el botón de terminar?</dt>
+          <dd>Si tu sucursal pide marcar cada punto, dice «Faltan 12 por marcar» hasta que marques todos. También se detiene si hay cambios sin subir por falta de señal.</dd></div>
+          <div><dt>¿Quién cierra un folio?</dt>
+          <dd>Solo el gerente de la sucursal, con su foto de la reparación y la explicación de lo que se corrigió. Los demás lo consultan.</dd></div>
+          <div><dt>¿Por qué un cuarto dice «No rentar»?</dt>
+          <dd>Porque la decisión vigente del gerente es que no puede rentarse. El motivo está en el expediente del cuarto y en su folio.</dd></div>
+          <div><dt>No baja el PDF.</dt>
+          <dd>Los PDF se generan al momento y necesitan señal. Si dice «No se pudo generar el reporte», inténtalo otra vez en un momento.</dd></div>
+          <div><dt>Olvidé mi contraseña.</dt>
+          <dd>Pídela a la administración. La app todavía no la recupera ni la cambia sola.</dd></div>
+          <div><dt>¿Puedo usar la app en la computadora?</dt>
+          <dd>Sí. Se abre en el navegador con la misma dirección y se acomoda a la pantalla grande. Para tomar fotos conviene el celular.</dd></div>
+        </dl>
+        <div class="nota bien"><p>¿Algo no funciona como dice este manual? Toma una captura de pantalla y avisa a la administración.</p></div>
+        <p class="pie-manual">Manual de usuario · versión 0.1 · noviembre de 2026 · elaborado por CometaX Company para Motel Picasso.</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+// Los PDF se ofrecen solo si están junto a esta página (en el servidor de pruebas sí;
+// abierta como archivo suelto, no).
+;(async () => {
+  const caja = document.querySelector('.descargas')
+  if (!caja || location.protocol === 'file:') return
+  try {
+    const r = await fetch('pdf/Picasso-Manual-de-usuario.pdf', { method: 'HEAD' })
+    if (r.ok) caja.hidden = false
+  } catch {}
+})()
+
+// Índice: marca la sección que se está leyendo.
+;(() => {
+  const enlaces = [...document.querySelectorAll('nav.indice a')]
+  const partes = enlaces.map((a) => document.querySelector(a.getAttribute('href'))).filter(Boolean)
+  if (!('IntersectionObserver' in window)) return
+  const visto = new IntersectionObserver((entradas) => {
+    for (const e of entradas) {
+      if (!e.isIntersecting) continue
+      const id = '#' + e.target.id
+      for (const a of enlaces) a.classList.toggle('activo', a.getAttribute('href') === id)
+      const activo = enlaces.find((a) => a.getAttribute('href') === id)
+      if (activo && getComputedStyle(activo.parentElement).display === 'flex') activo.scrollIntoView({ block: 'nearest', inline: 'center' })
+    }
+  }, { rootMargin: '-30% 0px -60% 0px' })
+  partes.forEach((p) => visto.observe(p))
+})()
+</script>
+</body>
+</html>

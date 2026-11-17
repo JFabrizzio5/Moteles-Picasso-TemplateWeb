@@ -1,0 +1,58 @@
+# Prueba en el VPS de prueba (2.25.196.39). Va encima de los otros dos; el
+# .env del servidor lo deja fijo con
+#
+#   COMPOSE_FILE=docker-compose.yml:docker-compose.prod.yml:docker-compose.vps.yml
+#
+# Ahí no hay dominio y los puertos 80/443 son de otro proyecto, cuyo Caddy ya
+# tiene el certificado HTTPS de la IP (Let's Encrypt, perfil shortlived). Pedir
+# otro para la misma IP desde este Caddy gastaría el límite semanal de
+# certificados repetidos, así que este no publica puertos: se une a la red
+# picasso-proxy y el del servidor le pasa
+#
+#   https://2.25.196.39:9630  ->  picasso-web:80    la app
+#   https://2.25.196.39:9631  ->  picasso-web:8081  la documentación
+#
+# La red se crea una vez a mano (`docker network create picasso-proxy`) para
+# que ninguno de los dos proyectos la borre al bajar el suyo. Ver Caddyfile.vps.
+
+services:
+  # Es una prueba en el servidor compartido con otro sistema en producción: los
+  # topes de CPU y memoria impiden que una prueba de estrés (pruebas-estres/)
+  # le quite recursos. De paso, los resultados equivalen a un servidor de
+  # 2 vCPU para la API, el tamaño recomendado para empezar.
+  picasso:
+    # Sin esto serían ocho procesos, uno por CPU del VPS.
+    environment:
+      JFAST_WORKERS: "2"
+    cpus: 2
+    mem_limit: 1536m
+
+  picasso-worker:
+    cpus: 1
+    mem_limit: 1g
+
+  picasso-database:
+    cpus: 2
+    mem_limit: 2g
+
+  picasso-cache:
+    cpus: 0.5
+    mem_limit: 256m
+
+  caddy:
+    ports: !reset []
+    volumes: !override
+      - "./Caddyfile.vps:/etc/caddy/Caddyfile:ro"
+      - "./Caddyfile.prod:/etc/caddy/Caddyfile.prod:ro"
+      - "./picasso-web/dist:/srv:ro"
+      - "./docs:/docs:ro"
+      - "caddy_data:/data"
+      - "caddy_config:/config"
+    networks:
+      default: {}
+      picasso-proxy:
+        aliases: [picasso-web]
+
+networks:
+  picasso-proxy:
+    external: true

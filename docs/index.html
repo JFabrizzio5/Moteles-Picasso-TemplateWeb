@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Documentación de Picasso</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<!--
+  Entrada a la documentación de la prueba (https://2.25.196.39:9631). La sirve
+  el Caddy de Picasso desde docs/ (Caddyfile.vps); las notas internas (*.md) y
+  los generadores (*.cjs) no se publican.
+-->
+<style>
+  :root {
+    --fondo: #f3f0eb;
+    --tarjeta: #ffffff;
+    --tinta: #161212;
+    --suave: #5e5654;
+    --linea: #e2dbd3;
+    --vino: #6e1014;
+    --rojo: #a3161c;
+    --acento: #a3161c;
+    --negro: #0b0b0b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --fondo: #0b0b0b;
+      --tarjeta: #151212;
+      --tinta: #f3f0eb;
+      --suave: #b8aeaa;
+      --linea: #2c2424;
+      --acento: #ff8a8f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --fondo: #0b0b0b;
+    --tarjeta: #151212;
+    --tinta: #f3f0eb;
+    --suave: #b8aeaa;
+    --linea: #2c2424;
+    --acento: #ff8a8f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--fondo);
+    color: var(--tinta);
+    font: 16px/1.55 Barlow, system-ui, sans-serif;
+  }
+  a { color: inherit; }
+  .hero {
+    background: radial-gradient(120% 90% at 85% 0%, #6e1014 0%, #2a0a0b 45%, #0b0b0b 75%);
+    color: #f3f0eb;
+    padding: 28px 16px 44px;
+  }
+  .ancho { max-width: 1040px; margin: 0 auto; }
+  .marca { display: flex; align-items: center; gap: 12px; font-family: "Archivo Black", sans-serif; letter-spacing: .02em; }
+  .logo {
+    width: 40px; height: 32px; background: currentColor;
+    -webkit-mask: url(img/cometax-logo.svg) center / contain no-repeat;
+    mask: url(img/cometax-logo.svg) center / contain no-repeat;
+  }
+  .marca span { transform: scaleX(1.1); transform-origin: left; display: inline-block; }
+  .sobre { margin: 40px 0 6px; font: 700 14px/1 "Barlow Condensed", sans-serif; letter-spacing: .18em; text-transform: uppercase; color: #ff8a8f; }
+  h1 { margin: 0; font: 800 clamp(40px, 8vw, 76px)/.95 "Barlow Condensed", sans-serif; text-transform: uppercase; }
+  .hero p { max-width: 620px; color: #d9cfcb; margin: 16px 0 0; }
+  .botones { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+  .boton {
+    display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; border-radius: 999px;
+    font-weight: 600; text-decoration: none; border: 1px solid rgba(243, 240, 235, .35);
+  }
+  .boton.lleno { background: #f3f0eb; color: #0b0b0b; border-color: #f3f0eb; }
+  main { padding: 36px 16px 56px; }
+  h2 { font: 800 28px/1.1 "Barlow Condensed", sans-serif; text-transform: uppercase; margin: 0 0 6px; }
+  .qr-celular { display: inline-flex; align-items: center; gap: 16px; margin-top: 18px; padding: 10px 20px 10px 10px; border-radius: 14px; background: rgb(0 0 0 / .35); border: 1px solid rgb(255 255 255 / .14); color: inherit; text-decoration: none; }
+  .qr-celular img { width: 112px; height: 112px; background: #fff; padding: 8px; border-radius: 10px; }
+  .qr-celular span { display: block; max-width: 26ch; font-size: 14px; line-height: 1.4; color: rgb(243 240 235 / .72); }
+  .qr-celular b { display: block; margin-bottom: 3px; font-size: 17px; color: #f3f0eb; }
+  .qr-celular small { display: block; margin-top: 6px; font-size: 12px; color: rgb(243 240 235 / .45); }
+  @media (max-width: 700px) { .qr-celular { display: none; } }
+  .sub { color: var(--suave); margin: 0 0 18px; }
+  section + section { margin-top: 44px; }
+  .rejilla { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+  .tarjeta {
+    display: flex; flex-direction: column; gap: 6px; padding: 18px; border-radius: 14px;
+    background: var(--tarjeta); border: 1px solid var(--linea); text-decoration: none;
+    transition: transform .15s ease, border-color .15s ease;
+  }
+  .tarjeta:hover { transform: translateY(-2px); border-color: var(--acento); }
+  .tarjeta b { font: 700 21px/1.15 "Barlow Condensed", sans-serif; text-transform: uppercase; }
+  .tarjeta small { color: var(--suave); font-size: 14px; }
+  .tarjeta .para { font: 700 12px/1 "Barlow Condensed", sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--acento); }
+  .pdfs { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .grupo { background: var(--tarjeta); border: 1px solid var(--linea); border-radius: 14px; padding: 16px 18px; }
+  .grupo h3 { margin: 0 0 8px; font: 700 18px/1.2 "Barlow Condensed", sans-serif; text-transform: uppercase; }
+  .grupo ul { list-style: none; margin: 0; padding: 0; }
+  .grupo li { border-top: 1px solid var(--linea); }
+  .grupo li:first-child { border-top: 0; }
+  .grupo a { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; text-decoration: none; }
+  .grupo a:hover span:first-child { color: var(--acento); }
+  .grupo a span:last-child { color: var(--suave); font-size: 14px; white-space: nowrap; }
+  .video { display: grid; gap: 18px; align-items: center; grid-template-columns: 1fr; }
+  .video video { display: block; width: 100%; border-radius: 14px; background: #000; border: 1px solid var(--linea); }
+  .video .vertical { display: none; max-height: 78vh; width: auto; max-width: 100%; margin: 0 auto; }
+  .video .bajar { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 15px; color: var(--suave); }
+  @media (max-width: 700px) {
+    .video .horizontal { display: none; }
+    .video .vertical { display: block; }
+  }
+  .nota { margin-top: 44px; padding: 14px 16px; border-left: 3px solid var(--acento); background: var(--tarjeta); border-radius: 0 10px 10px 0; color: var(--suave); font-size: 15px; }
+  footer { padding: 26px 16px 34px; background: var(--negro); color: #b8aeaa; font-size: 14px; }
+  footer .ancho { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="ancho">
+    <div class="marca"><i class="logo" aria-hidden="true"></i><span>COMETAX</span></div>
+    <p class="sobre">Motel Picasso · versión de prueba</p>
+    <h1>Inspecciones Picasso</h1>
+    <p>Toda la documentación del sistema de revisiones de mantenimiento y limpieza para las seis sucursales: cómo se usa, cómo está hecho y hacia dónde puede crecer.</p>
+    <div class="botones">
+      <a class="boton lleno" href="https://2.25.196.39:9630">Abrir la app de prueba →</a>
+      <a class="boton" href="#video">Ver el video</a>
+      <a class="boton" href="presentacion/">Presentación</a>
+      <a class="boton" href="manual-usuario.html">Manual de usuario</a>
+    </div>
+    <p>La app de prueba trae accesos de un toque: se entra como propietarios, administración o el gerente y la ama de llaves de cualquier sucursal, sin contraseña.</p>
+    <a class="qr-celular" href="https://2.25.196.39:9630/login">
+      <img src="img/qr-app.svg" alt="Código QR de la app de prueba" width="112" height="112">
+      <span><b>Ábrela en tu celular</b>Apunta la cámara al código y entra con un toque.<small>2.25.196.39:9630</small></span>
+    </a>
+  </div>
+</header>
+
+<main>
+  <div class="ancho">
+    <section id="video">
+      <h2>Video promocional</h2>
+      <p class="sub">La app en poco más de un minuto, con grabaciones reales de la prueba.</p>
+      <div class="video">
+        <video class="horizontal" src="video/Picasso-Inspecciones-16x9.mp4" poster="video/portada-16x9.jpg" controls playsinline preload="none"></video>
+        <video class="vertical" src="video/Picasso-Inspecciones-9x16.mp4" poster="video/portada-9x16.jpg" controls playsinline preload="none"></video>
+        <div class="bajar">
+          <span>Para mandar por WhatsApp:</span>
+          <a href="video/Picasso-Inspecciones-9x16.mp4" download>vertical (7.5 MB)</a>
+          <a href="video/Picasso-Inspecciones-16x9.mp4" download>horizontal (7.5 MB)</a>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Para leer en línea</h2>
+      <p class="sub">Se ven bien en el celular y en la computadora.</p>
+      <div class="rejilla">
+        <a class="tarjeta" href="manual-usuario.html">
+          <span class="para">El personal</span>
+          <b>Manual de usuario</b>
+          <small>Paso a paso con pantallas reales, por puesto: gerente, ama de llaves, propietarios y administración.</small>
+        </a>
+        <a class="tarjeta" href="producto/documento-de-producto.html">
+          <span class="para">La dirección</span>
+          <b>Documento de producto</b>
+          <small>Qué resuelve, cómo medir el éxito, el piloto y la hoja de ruta por fases.</small>
+        </a>
+        <a class="tarjeta" href="marketing/folleto.html">
+          <span class="para">La dirección</span>
+          <b>Folleto de entrega</b>
+          <small>Lo que Picasso ya tiene, el antes y el después, y lo que podemos hacer juntos.</small>
+        </a>
+        <a class="tarjeta" href="marketing/de-un-vistazo.html">
+          <span class="para">Para compartir</span>
+          <b>De un vistazo</b>
+          <small>Una sola hoja con lo esencial.</small>
+        </a>
+        <a class="tarjeta" href="documentacion.html">
+          <span class="para">Sistemas</span>
+          <b>Documentación técnica</b>
+          <small>Arquitectura y modelo C4, base de datos, reglas, servidor, seguridad y listas de QA.</small>
+        </a>
+      </div>
+    </section>
+
+    <section>
+      <h2>Para descargar (PDF)</h2>
+      <p class="sub">Con la imagen de CometaX Company. Cada grupo trae el completo y sus partes por separado.</p>
+      <div class="pdfs">
+        <div class="grupo">
+          <h3>Manual de usuario</h3>
+          <ul>
+            <li><a href="pdf/Picasso-Manual-de-usuario.pdf"><span>Manual completo</span><span>23 págs.</span></a></li>
+            <li><a href="pdf/Picasso-Manual-Gerente.pdf"><span>Gerente</span><span>13 págs.</span></a></li>
+            <li><a href="pdf/Picasso-Manual-Ama-de-llaves.pdf"><span>Ama de llaves</span><span>9 págs.</span></a></li>
+            <li><a href="pdf/Picasso-Manual-Propietarios.pdf"><span>Propietarios</span><span>9 págs.</span></a></li>
+            <li><a href="pdf/Picasso-Manual-Administracion.pdf"><span>Administración</span><span>8 págs.</span></a></li>
+          </ul>
+        </div>
+        <div class="grupo">
+          <h3>Producto y entrega</h3>
+          <ul>
+            <li><a href="pdf/Picasso-Documento-de-producto.pdf"><span>Documento de producto</span><span>11 págs.</span></a></li>
+            <li><a href="pdf/Picasso-Folleto-CometaX.pdf"><span>Folleto de entrega</span><span>8 págs.</span></a></li>
+            <li><a href="pdf/Picasso-De-un-vistazo.pdf"><span>De un vistazo</span><span>1 pág.</span></a></li>
+          </ul>
+        </div>
+        <div class="grupo">
+          <h3>Documentación técnica</h3>
+          <ul>
+            <li><a href="pdf/Picasso-Documentacion-completa.pdf"><span>Documentación completa</span><span>41 págs.</span></a></li>
+            <li><a href="pdf/Picasso-01-Arquitectura.pdf"><span>01 · Arquitectura</span><span>16 págs.</span></a></li>
+            <li><a href="pdf/Picasso-02-Base-de-datos.pdf"><span>02 · Base de datos</span><span>4 págs.</span></a></li>
+            <li><a href="pdf/Picasso-03-Roles-y-reglas.pdf"><span>03 · Roles y reglas</span><span>3 págs.</span></a></li>
+            <li><a href="pdf/Picasso-04-Servidor-y-despliegue.pdf"><span>04 · Servidor y despliegue</span><span>9 págs.</span></a></li>
+            <li><a href="pdf/Picasso-05-Guia-de-usuario.pdf"><span>05 · Guía rápida</span><span>7 págs.</span></a></li>
+            <li><a href="pdf/Picasso-06-Listas-de-QA.pdf"><span>06 · Listas de QA</span><span>7 págs.</span></a></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <p class="nota">Página de pruebas. La app trae datos de ejemplo (sucursales reales, cuartos, personas y revisiones inventados) y se puede reiniciar en cualquier momento. Los planes y montos de continuidad quedan a confirmar con CometaX.</p>
+  </div>
+</main>
+
+<footer>
+  <div class="ancho">
+    <span>CometaX — Tecnología diseñada para resolver, evolucionar y escalar.</span>
+    <span><a href="https://cometax.click">cometax.click</a> · @cometaxcompany</span>
+  </div>
+</footer>
+</body>
+</html>

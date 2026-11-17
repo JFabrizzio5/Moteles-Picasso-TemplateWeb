@@ -1,0 +1,12 @@
+# Generated from the framework version that scaffolded this service. While
+# the framework is a pre-release the pin is exact, because the API moves;
+# once it is stable this becomes a compatible-release pin.
+jfastframework[accounts,auth,cache,db,metrics,queue,server,storage,telemetry]==0.1.0a12
+
+# Reportes PDF (modules/inspeccion/services/pdf).
+reportlab==5.1.0
+
+# EmailStr en el alta de personal (sucursal_models.PersonalCreate). En la Mac
+# llegaba por jfastframework[dev]; sin esta línea la imagen de producción no
+# arrancaba («email-validator is not installed»).
+email-validator==2.3.0

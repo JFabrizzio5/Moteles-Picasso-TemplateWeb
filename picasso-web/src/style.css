@@ -1,0 +1,542 @@
+@import 'tailwindcss';
+
+/*
+ * Picasso · sistema visual
+ *
+ * La estética es la de motelpicasso.mx: barra negra con el logo blanco,
+ * títulos en Barlow Semi Condensed ligera, texto en Open Sans, coral #FE7877
+ * en botones con texto negro, esquinas de 10 px y fotos de las sucursales a
+ * sangre con velo negro. De la referencia Nocturne queda solo el orden: títulos
+ * grandes, etiquetas pequeñas en mayúsculas y mucho aire.
+ *
+ * Claro por defecto, como el sitio. Oscuro opcional para la noche.
+ */
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* Claro por defecto, como el sitio de Picasso: barra negra, contenido claro. */
+:root,
+:root[data-theme='light'] {
+  --fondo: #f4f4f4;
+  --fondo-2: #eeeeee;
+  --superficie: #ffffff;
+  --superficie-2: #f0f0f0;
+  --superficie-3: #e6e6e6;
+  --linea: #e4e4e4;
+  --linea-fuerte: #d2d2d2;
+  --texto: #1e1e1e;
+  --texto-2: #555555;
+  --texto-3: #8c8c8c;
+  --plata: #e06666;
+  --barra: #000000;
+  --sobre-barra: #f5f7fa;
+  --carbon: #000000;
+  --sobre-carbon: #f5f7fa;
+  --primario: #fe7877;
+  --sobre-primario: #000000;
+  --vino: #941b0c;
+  --vino-hover: #7f1609;
+  --vino-texto: #c0392b;
+  --vino-suave: #fdecea;
+  --bien: #2e7d4f;
+  --bien-solido: #2e7d4f;
+  --bien-suave: #e6f2ea;
+  --falla: #c0392b;
+  --falla-suave: #fdecea;
+  --na: #a0680f;
+  --na-solido: #b7791f;
+  --na-suave: #fbf0dc;
+  --pendiente: #6b6b6b;
+  --pendiente-suave: #ececec;
+  --vidrio: rgb(244 244 244 / 0.96);
+  --sombra: 0 1px 2px rgb(0 0 0 / 0.04), 0 10px 28px -18px rgb(0 0 0 / 0.25);
+  --radio: 14px;
+  --radio-sm: 10px;
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --fondo: #000000;
+  --fondo-2: #0f0f0f;
+  --superficie: #1a1a1a;
+  --superficie-2: #232323;
+  --superficie-3: #2c2c2c;
+  --linea: #2a2a2a;
+  --linea-fuerte: #3a3a3a;
+  --texto: #f5f7fa;
+  --texto-2: #b4b4b4;
+  --texto-3: #7d7d7d;
+  --plata: #fe7877;
+  --barra: #000000;
+  --sobre-barra: #f5f7fa;
+  --carbon: #000000;
+  --sobre-carbon: #f5f7fa;
+  --primario: #fe7877;
+  --sobre-primario: #000000;
+  --vino: #c0392b;
+  --vino-hover: #d24a3b;
+  --vino-texto: #ff8f8e;
+  --vino-suave: #2e1412;
+  --bien: #7cc495;
+  --bien-solido: #2e7d4f;
+  --bien-suave: #13261a;
+  --falla: #ff8f8e;
+  --falla-suave: #2e1412;
+  --na: #e2b064;
+  --na-solido: #b7791f;
+  --na-suave: #2a2112;
+  --pendiente: #9a9a9a;
+  --pendiente-suave: #222222;
+  --vidrio: rgb(10 10 10 / 0.95);
+  --sombra: 0 16px 32px -20px rgb(0 0 0 / 0.9);
+  --radio: 14px;
+  --radio-sm: 10px;
+  color-scheme: dark;
+}
+
+@theme {
+  --font-sans: 'Open Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Barlow Semi Condensed', 'Open Sans', sans-serif;
+  --font-mono: 'Barlow Semi Condensed', 'Open Sans', sans-serif;
+}
+
+@layer base {
+  html,
+  body {
+    background: var(--fondo);
+    color: var(--texto);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+  ::selection {
+    background: var(--vino);
+    color: #fff;
+  }
+}
+
+/*
+ * Componentes en su capa: así una utilidad de Tailwind (hidden, sm:flex…)
+ * siempre gana sobre ellos. Sin la capa, `.boton` pisaba a `sm:hidden`.
+ */
+@layer components {
+  /* -- tipografía -------------------------------------------------------- */
+  .serif {
+    font-family: var(--font-serif);
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  .serif em,
+  .serif i,
+  .titulo-pagina em {
+    font-style: normal;
+    font-weight: 400;
+    color: var(--plata);
+  }
+  .etiqueta {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--texto-3);
+  }
+  .etiqueta-vino {
+    color: var(--plata);
+  }
+  .folio-codigo {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--vino-texto);
+    white-space: nowrap;
+  }
+  .titulo-pagina {
+    font-family: var(--font-serif);
+    font-weight: 300;
+    font-size: clamp(2.4rem, 8vw, 4rem);
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+  .subtitulo {
+    color: var(--texto-2);
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  /* -- superficies ------------------------------------------------------- */
+  .tarjeta {
+    background: var(--superficie);
+    border: 1px solid var(--linea);
+    border-radius: var(--radio);
+    box-shadow: var(--sombra);
+  }
+  .tarjeta-plana {
+    background: var(--superficie-2);
+    border-radius: var(--radio);
+  }
+  .vidrio {
+    background: var(--vidrio);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+  }
+  .divisor {
+    border-top: 1px solid var(--linea);
+  }
+
+  /* -- botones ------------------------------------------------------------- */
+  .boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 50px;
+    padding: 0 24px;
+    border-radius: var(--radio-sm);
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.005em;
+    transition:
+      background 0.15s,
+      color 0.15s,
+      border-color 0.15s,
+      transform 0.12s,
+      opacity 0.15s;
+    user-select: none;
+  }
+  .boton:active:not(:disabled) {
+    transform: scale(0.975);
+  }
+  .boton:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  /* Principal: la píldora clara, como el "Reserve" de la referencia. */
+  .boton-vino,
+  .boton-primario {
+    background: var(--primario);
+    color: var(--sobre-primario);
+  }
+  .boton-vino:hover:not(:disabled),
+  .boton-primario:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+  /* Para lo que sí es una alerta: falla, no rentar. */
+  .boton-alerta {
+    background: var(--vino);
+    color: #fff;
+  }
+  .boton-alerta:hover:not(:disabled) {
+    background: var(--vino-hover);
+  }
+  .boton-carbon {
+    background: var(--superficie-3);
+    color: var(--texto);
+  }
+  .boton-borde {
+    border: 1px solid var(--linea-fuerte);
+    color: var(--texto);
+    background: transparent;
+  }
+  .boton-borde:hover:not(:disabled) {
+    border-color: var(--texto-2);
+  }
+  .boton-suave {
+    background: var(--superficie-2);
+    color: var(--texto);
+  }
+  .boton-chico {
+    min-height: 40px;
+    padding: 0 16px;
+    font-size: 14px;
+  }
+  .boton-mono {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 38px;
+    padding: 0 15px;
+    border-radius: 999px;
+    border: 1px solid var(--linea-fuerte);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--texto-2);
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .chip[aria-pressed='true'] {
+    background: var(--texto);
+    border-color: var(--texto);
+    color: var(--fondo);
+  }
+
+  /* -- estados ----------------------------------------------------------------- */
+  .estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .estado::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: currentColor;
+  }
+  .estado-bien {
+    background: var(--bien-suave);
+    color: var(--bien);
+  }
+  .estado-falla {
+    background: var(--falla-suave);
+    color: var(--falla);
+  }
+  .estado-na {
+    background: var(--na-suave);
+    color: var(--na);
+  }
+  .estado-pendiente {
+    background: var(--pendiente-suave);
+    color: var(--pendiente);
+  }
+
+  /* -- formularios --------------------------------------------------------------- */
+  .campo {
+    width: 100%;
+    min-height: 50px;
+    padding: 13px 16px;
+    border-radius: var(--radio-sm);
+    border: 1px solid var(--linea-fuerte);
+    background: var(--superficie-2);
+    color: var(--texto);
+    font-size: 16px; /* 16px: iOS no hace zoom al enfocar */
+    outline: none;
+    transition:
+      border-color 0.15s,
+      box-shadow 0.15s;
+  }
+  .campo:focus {
+    border-color: var(--plata);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--plata) 18%, transparent);
+  }
+  .campo::placeholder {
+    color: var(--texto-3);
+  }
+  textarea.campo {
+    min-height: 90px;
+    resize: vertical;
+    line-height: 1.45;
+  }
+  select.campo {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238d8f8c' stroke-width='1.6' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+  }
+
+  /* -- utilidades de la app -------------------------------------------------------- */
+  .contenedor {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  @media (min-width: 768px) {
+    .contenedor {
+      padding-left: 36px;
+      padding-right: 36px;
+    }
+  }
+  .foto-cubierta {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .velo {
+    background: linear-gradient(180deg, rgb(0 0 0 / 0.25) 0%, rgb(0 0 0 / 0.55) 55%, rgb(0 0 0 / 0.85) 100%);
+  }
+  .sin-scroll {
+    scrollbar-width: none;
+  }
+  .sin-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  .seguro-abajo {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 10px);
+  }
+  .aparecer {
+    animation: aparecer 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  /* -- vida en modo claro --------------------------------------------------- */
+  /* Un brillo coral muy tenue arriba del contenido, como las ilustraciones rosas
+     del sitio de Picasso; en oscuro casi no se nota. */
+  .fondo-app {
+    background:
+      radial-gradient(1200px 380px at 85% -60px, rgb(254 120 119 / 0.13), transparent 70%),
+      radial-gradient(900px 300px at -10% 120px, rgb(254 120 119 / 0.06), transparent 70%),
+      var(--fondo);
+  }
+  .seccion {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--texto-2);
+  }
+  .seccion::before {
+    content: '';
+    width: 22px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--primario);
+  }
+  .tarjeta-viva {
+    transition:
+      transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1),
+      box-shadow 0.25s,
+      border-color 0.2s;
+  }
+  @media (hover: hover) {
+    .tarjeta-viva:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 2px 4px rgb(0 0 0 / 0.04), 0 22px 40px -22px rgb(0 0 0 / 0.35);
+    }
+  }
+  .tarjeta-viva:active {
+    transform: scale(0.985);
+  }
+  .bloque-negro {
+    background: #000;
+    color: #f5f7fa;
+    border-radius: var(--radio);
+  }
+  .icono-circulo {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgb(254 120 119 / 0.14);
+    color: #e2524f;
+  }
+  :root[data-theme='dark'] .icono-circulo {
+    color: #fe7877;
+  }
+
+  /* -- animaciones ------------------------------------------------------------ */
+  .escalonado > * {
+    animation: aparecer 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 45ms);
+  }
+  .pop {
+    animation: pop 0.32s cubic-bezier(0.3, 1.6, 0.5, 1);
+  }
+  .esqueleto {
+    background: linear-gradient(90deg, var(--superficie-2) 0%, var(--superficie-3) 50%, var(--superficie-2) 100%);
+    background-size: 200% 100%;
+    animation: brillo 1.2s ease-in-out infinite;
+    border-radius: var(--radio);
+  }
+  .latido {
+    animation: latido 2s ease-in-out infinite;
+  }
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes brillo {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+@keyframes latido {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(254 120 119 / 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgb(254 120 119 / 0);
+  }
+}
+@keyframes subir {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+@keyframes velo-entra {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Cambio de pantalla */
+.pagina-enter-active {
+  transition:
+    opacity 0.26s ease,
+    transform 0.32s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.pagina-leave-active {
+  transition: opacity 0.14s ease;
+}
+.pagina-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.pagina-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

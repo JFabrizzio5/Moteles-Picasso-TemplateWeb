@@ -1,0 +1,25 @@
+"""Background work the Sucursal module owns.
+
+Found at boot by the API and by `jfast worker` alike: a `@task` or `@subscribe`
+declared here runs, and one declared anywhere else runs only if something
+happens to import it first. Empty until the module has work that does not
+belong in a request -- a model call, a PDF, an email::
+
+    from jfastframework.tasks import TaskContext, TaskSession, task
+
+    @task("sucursal.recalculate", idempotent_on=lambda payload: payload["id"])
+    async def recalculate(
+        payload: dict[str, Any], session: TaskSession, ctx: TaskContext
+    ) -> None:
+        llm = ctx.require("llm")  # any provider: storage, outbox, mail...
+        ...  # committed when this returns, rolled back if it raises
+
+``ctx`` is the running app's context, what ``get_context(request.app)`` is in a
+route: a task has no request, so it asks for it by annotation. Drop either
+parameter the task does not need.
+
+Queue it through the request's session, so the job exists only if the request
+commits: ``outbox.enqueue(session, Job(task="sucursal.recalculate", ...))``.
+To react to what another module did, ``@subscribe("<module>.<event>")`` here
+instead of letting that module call in. docs/queues-and-events.md has both.
+"""

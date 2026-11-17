@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Picasso · De un vistazo · CometaX Company</title>
+<meta name="description" content="La app de inspecciones de Motel Picasso en una hoja. Elaborado por CometaX Company.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Barlow+Condensed:wght@600;700;800&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../pdf-cometax.css">
+<link rel="stylesheet" href="folleto.css">
+</head>
+<body>
+
+<section class="hoja vistazo">
+  <header class="v-arriba">
+    <div class="portada-top">
+      <div class="marca"><span class="cx"></span><span class="nombre">COMETAX<small>cometax.click</small></span></div>
+      <div class="para"><span>Preparado para</span><img src="../img/logo.svg" alt="Motel Picasso"></div>
+    </div>
+    <h1 class="titular">Cada cuarto, revisado.<br><em>Cada falla, resuelta.</em></h1>
+    <p class="entrada">La app de mantenimiento y limpieza de las seis sucursales de Motel Picasso, con su propio checklist, ya está construida.</p>
+    <div class="v-cifras">
+      <div><b>6</b><span>sucursales en un solo panel</span></div>
+      <div><b>4</b><span>puestos con su propia vista</span></div>
+      <div><b>54</b><span>puntos de checklist, más el equipo de cada cuarto</span></div>
+      <div><b>4</b><span>reportes en PDF listos para mandar</span></div>
+    </div>
+  </header>
+
+  <div class="v-medio">
+    <div class="v-beneficios">
+      <div class="v-ben"><i class="ico" data-i="cellphoneCheck"></i><div><b>Del papel al celular</b><span>Ama de llaves y gerente revisan cada cuarto desde el celular y tocan solo lo que está mal. Cada revisión queda con nombre, fecha y hora.</span></div></div>
+      <div class="v-ben"><i class="ico" data-i="alertCircleOutline"></i><div><b>Ninguna falla se pierde</b><span>Cada falla abre un folio con foto y no se cierra sin la foto de la reparación. El historial solo se agrega.</span></div></div>
+      <div class="v-ben"><i class="ico" data-i="keyVariant"></i><div><b>La renta, con evidencia</b><span>El gerente decide si el cuarto se renta y deja el motivo.</span></div></div>
+      <div class="v-ben"><i class="ico" data-i="viewDashboardOutline"></i><div><b>Las seis casas en una vista</b><span>Revisiones, folios abiertos, cuartos sin rentar e indicadores por sucursal, sin llamar a nadie.</span></div></div>
+      <div class="v-ben"><i class="ico" data-i="shieldLockOutline"></i><div><b>Seguro y documentado</b><span>Permisos revisados en el servidor, fotos privadas, pruebas automáticas, listas de QA y documentación completa.</span></div></div>
+    </div>
+    <div class="v-teles">
+      <div class="tel"><img src="../img/marketing/m-revision-falla.jpg" alt="Checklist con una falla marcada"></div>
+      <div class="tel"><img src="../img/marketing/m-gerente-inicio.jpg" alt="Inicio del gerente"></div>
+    </div>
+  </div>
+
+  <div class="v-sigue">
+    <h3>Cómo seguimos</h3>
+    <div class="v-fases">
+      <div class="v-fase"><span class="paso-n">1</span><b>Lista para producción</b><span>Servidor, dominio con HTTPS y respaldos.</span></div>
+      <div class="v-fase"><span class="paso-n">2</span><b>Piloto en una sucursal</b><span>Datos reales y la línea base medida.</span></div>
+      <div class="v-fase"><span class="paso-n">3</span><b>Las seis sucursales</b><span>Alta, capacitación por puesto e indicadores.</span></div>
+      <div class="v-fase"><span class="paso-n">4</span><b>Más fácil para el personal</b><span>Avisos al gerente y fotos sin señal.</span></div>
+    </div>
+  </div>
+
+  <div class="v-cta">
+    <div><b>Agendemos la revisión del piloto</b><p>Una reunión con la dirección para confirmar reglas, elegir la sucursal y acordar alcance y montos.</p></div>
+    <div class="datos"><span><i class="ico" data-i="web"></i>cometax.click</span><span><i class="ico" data-i="instagram"></i>@cometaxcompany</span></div>
+  </div>
+  <div class="pie"><span class="sello"><span class="cx chico"></span>CometaX — Tecnología diseñada para resolver, evolucionar y escalar.</span><span>Capturas con datos de ejemplo · Noviembre 2026</span></div>
+</section>
+
+<script src="iconos.js"></script>
+<script>
+  const ajustar = () => {
+    const z = Math.min(1, (window.innerWidth - 16) / 816)
+    for (const h of document.querySelectorAll('.hoja')) h.style.zoom = matchMedia('print').matches ? '' : z < 1 ? z : ''
+  }
+  addEventListener('resize', ajustar); ajustar()
+</script>
+</body>
+</html>

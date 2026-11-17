@@ -1,0 +1,113 @@
+import axios from 'axios'
+
+import { LOGIN_ROUTE, useAuthStore } from '@/stores/auth.store.js'
+
+// Sixty seconds by default, from VITE_API_TIMEOUT. A request that asks a
+// language model for something routinely takes twenty, and a timeout shorter
+// than the slowest endpoint turns a slow answer into an error the user retries
+// -- which runs the expensive call a second time.
+const config = {
+  baseURL: import.meta.env.VITE_API_URL,
+  // No Content-Type here: axios sends a plain object as JSON by itself, and a
+  // forced application/json turned FormData into {"archivo":{}} -- the file
+  // never reached the server. Left alone, an upload goes as multipart.
+  timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 60000,
+}
+
+/**
+ * One axios instance for the whole app.
+ *
+ * The base URL comes from VITE_API_URL, which `jfast` writes from
+ * jfast.workspace.toml -- it points at the gateway when the workspace has one
+ * and at the single backend when it does not. Do not hardcode it per module.
+ */
+const api = axios.create(config)
+
+/**
+ * A second instance with no interceptors, for /auth/refresh only.
+ *
+ * The refresh call cannot go through `api`: its own 401 would reach the
+ * handler below, which would answer it by refreshing again.
+ */
+export const plain = axios.create(config)
+
+// One refresh for a whole burst of 401s. Four panels loading at once produce
+// four of them, and four refreshes present the same refresh token four times
+// -- they are rotated, so three of those are spent, and a backend that treats
+// replay as theft revokes the session outright.
+let refreshing = null
+
+function refreshOnce() {
+  if (!refreshing) {
+    refreshing = useAuthStore()
+      .refresh()
+      .finally(() => {
+        refreshing = null
+      })
+  }
+  return refreshing
+}
+
+// Once, however many requests failed together.
+let leaving = false
+
+function toLogin() {
+  if (leaving) return
+  leaving = true
+  useAuthStore().clear()
+
+  // A whole-page navigation rather than router.push: every store in memory
+  // belongs to the session that just ended, and a reload is the only thing
+  // that clears all of them at once. It also keeps this file out of the
+  // router's import graph.
+  if (window.location.pathname !== LOGIN_ROUTE) {
+    const from = window.location.pathname + window.location.search
+    window.location.assign(`${LOGIN_ROUTE}?next=${encodeURIComponent(from)}`)
+  }
+}
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const original = error.config
+
+    // `skipAuthRefresh` marks the sign-in calls themselves: their 401 means
+    // "wrong password" or "wrong code", not "your session expired", and
+    // answering it with a refresh would sign the person out of a form they
+    // are still filling in.
+    if (error.response?.status === 401 && original && !original.retried && !original.skipAuthRefresh) {
+      original.retried = true
+
+      let token
+      try {
+        token = await refreshOnce()
+      } catch {
+        // The refresh was itself refused: the session is over, and retrying is
+        // what turns that into a loop.
+        toLogin()
+        return Promise.reject(error)
+      }
+
+      // Set on the request that is about to be replayed. This is the line
+      // somebody deletes as redundant -- the auth store already wrote the new
+      // token to `api.defaults.headers`. But a default only fills a header the
+      // config does not already carry, and this config carries one: axios
+      // merged the old token in when the request was first built. Without this
+      // line the refresh succeeds, every retry goes back out with the token
+      // that just 401'd, and the app renders as logged in with each panel
+      // empty.
+      original.headers.Authorization = `Bearer ${token}`
+      return api(original)
+    }
+
+    // The backend speaks RFC 7807. Surface `detail` rather than axios's
+    // generic "Request failed with status code 409".
+    const problem = error.response?.data
+    if (problem?.detail) {
+      error.message = problem.detail
+    }
+    return Promise.reject(error)
+  },
+)
+
+export default api

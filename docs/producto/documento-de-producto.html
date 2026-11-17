@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documento de producto · Motel Picasso · CometaX Company</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Barlow+Condensed:wght@600;700;800&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<!-- La misma hoja de los PDF de la documentación: imagen de CometaX Company. -->
+<link rel="stylesheet" href="../pdf-cometax.css">
+<style>
+  /* ---------- piezas propias de este documento (pantalla e impresión) ---------- */
+  img.logo-cx, .sec-marca img, .lema img { filter: invert(1); }
+  .sec-marca img { width: 0.36in; height: auto; display: block; margin-left: auto; }
+  .pie-portada img { width: 0.19in; height: auto; vertical-align: -2px; margin-right: 5px; filter: invert(0.62); }
+  .lema img { width: 0.3in; height: auto; }
+
+  .lead { font-size: 10.6pt; line-height: 1.5; color: var(--tinta); margin: 0.04in 0 0.1in; }
+  .dos { display: grid; grid-template-columns: 1fr 1fr; gap: 0.14in; }
+  .tres { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.1in; }
+  .dos > .caja, .tres > .caja { margin: 0; }
+  .caja.oscura { background: radial-gradient(120% 160% at 100% 0%, #5c0a0d 0%, rgba(92, 10, 13, 0.45) 35%, rgba(11, 11, 11, 0) 70%), var(--negro);
+    border: 0; color: #d6d6d6; }
+  .caja.oscura h4, .caja.oscura b { color: #fff; }
+  .caja.oscura .etiqueta { color: var(--rosa); }
+  .caja.crema { background: var(--crema-2); }
+
+  /* Antes / con Picasso */
+  .cambio { border: 1px solid var(--linea); border-radius: var(--radio); overflow: hidden; margin: 0.1in 0 0.12in; break-inside: avoid; }
+  .cambio-fila { display: grid; grid-template-columns: 1.2in 1fr 1fr; border-top: 1px solid var(--linea); }
+  .cambio-fila:first-child { border-top: 0; }
+  .cambio-fila > div { padding: 7px 10px; font-size: 8.4pt; }
+  .cambio-fila > div:first-child { font-weight: 600; color: var(--tinta); background: var(--crema-2); }
+  .cambio-fila > div:nth-child(3) { color: var(--tinta); }
+  .cambio-fila.cabeza > div { background: var(--negro); color: #cfcfcf; font-size: 6.8pt; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+  .cambio-fila.cabeza > div:nth-child(3) { color: var(--rosa); }
+
+  /* cifras grandes dentro del documento */
+  .datos { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.07in; margin: 0.12in 0; }
+  .datos div { background: var(--crema); border-radius: 10px; padding: 0.08in 0.09in; position: relative; overflow: hidden; break-inside: avoid; }
+  .datos div::before { content: ""; position: absolute; left: 0; top: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--rojo), var(--rosa)); }
+  .datos b { display: block; font-family: var(--f-titulo); font-weight: 800; font-size: 20pt; color: var(--rojo); line-height: 1; }
+  .datos span { display: block; font-size: 7pt; color: var(--suave); line-height: 1.3; margin-top: 3px; }
+
+  /* recomendación */
+  .siguiente { display: grid; grid-template-columns: auto 1fr; gap: 0.16in; align-items: center; border-radius: 14px; padding: 0.14in 0.18in; margin: 0.12in 0;
+    background: radial-gradient(120% 160% at 100% 0%, #5c0a0d 0%, rgba(92, 10, 13, 0.5) 30%, rgba(11, 11, 11, 0) 62%), var(--negro); color: #d6d6d6; break-inside: avoid; }
+  .siguiente .flecha { font-family: var(--f-titulo); font-weight: 800; font-size: 30pt; color: var(--rosa); line-height: 1; }
+  .siguiente .etiqueta { color: var(--rosa); }
+  .siguiente b { color: #fff; font-family: var(--f-titulo); font-weight: 800; font-size: 13pt; text-transform: uppercase; display: block; line-height: 1.1; margin: 2px 0 3px; }
+  .siguiente p { margin: 0; font-size: 8.4pt; }
+
+  /* puestos con capturas */
+  .puesto { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.24in; align-items: start; margin: 0.06in 0 0.14in; }
+  .puesto-cab { display: flex; align-items: baseline; gap: 10px; margin: 0.2in 0 0.04in; break-after: avoid; }
+  .puesto-cab .n { font-family: var(--f-titulo); font-weight: 800; font-size: 20pt; color: var(--rojo); line-height: 1; }
+  .puesto-cab h3 { margin: 0; }
+  .puesto-cab h3::before { display: none; }
+  .gana { font-size: 9.6pt; color: var(--tinta); font-weight: 500; margin: 0 0 0.06in; }
+  .gana::before { content: "Lo que gana Picasso · "; font-size: 6.8pt; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--rojo); }
+  .capturas { display: flex; gap: 0.14in; align-items: flex-start; }
+  figure { margin: 0; break-inside: avoid; }
+  .telefono { width: 1.62in; border: 5px solid #121212; border-radius: 20px; overflow: hidden; background: #121212; }
+  .telefono.chico { width: 1.4in; }
+  .telefono img { display: block; width: 100%; height: auto; }
+  .navegador { border: 1px solid #d9d6d1; border-radius: 10px; overflow: hidden; background: #fff; }
+  .navegador::before { content: ""; display: block; height: 13px; background:
+      radial-gradient(circle at 9px 6.5px, #e06a6a 2.6px, transparent 3px),
+      radial-gradient(circle at 19px 6.5px, #e8b04f 2.6px, transparent 3px),
+      radial-gradient(circle at 29px 6.5px, #5fb76a 2.6px, transparent 3px), #efede9; border-bottom: 1px solid #e2dfda; }
+  .navegador img { display: block; width: 100%; height: auto; }
+  .muestra { font-size: 6.8pt; color: var(--tenue); text-align: left; margin-top: 4px; }
+  .propietarios { display: grid; grid-template-columns: 3.05in minmax(0, 1fr); gap: 0.16in; align-items: start; margin: 0.1in 0 0.1in; }
+  .propietarios .der { display: grid; gap: 0.12in; }
+
+  /* etiquetas de estado */
+  .ya, .falta, .prop { display: inline-block; font-size: 6.6pt; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 999px; padding: 1px 7px; white-space: nowrap; }
+  .ya { background: #e6f2ea; color: var(--verde); }
+  .falta { background: #fbf0dc; color: var(--ambar); }
+  .prop { background: var(--rojo-claro); color: var(--rojo); }
+  .talla { display: inline-grid; place-items: center; min-width: 0.28in; height: 0.2in; border-radius: 6px; background: var(--negro); color: #fff;
+    font-family: var(--f-titulo); font-weight: 800; font-size: 9pt; padding: 0 5px; }
+
+  /* piloto */
+  .semanas { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.07in; margin: 0.1in 0 0.12in; }
+  .semana { background: var(--crema-2); border: 1px solid var(--linea); border-radius: var(--radio); padding: 0.1in; break-inside: avoid; }
+  .semana .cuando { font-family: var(--f-titulo); font-weight: 800; font-size: 9pt; text-transform: uppercase; color: var(--rojo); letter-spacing: 0.04em; }
+  .semana b { display: block; font-family: var(--f-titulo); font-weight: 800; font-size: 11pt; text-transform: uppercase; line-height: 1.05; margin: 3px 0 4px; }
+  .semana ul li { font-size: 7.5pt; line-height: 1.35; }
+
+  /* planes */
+  .planes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.1in; margin: 0.12in 0; }
+  .plan { border: 1px solid var(--linea); border-radius: 14px; padding: 0.13in; background: #fff; break-inside: avoid; display: flex; flex-direction: column; gap: 3px; }
+  .plan.reco { border: 1.6px solid var(--rojo); box-shadow: 0 0 0 3px var(--rojo-claro); }
+  .plan .nombre { font-family: var(--f-titulo); font-weight: 800; font-size: 17pt; text-transform: uppercase; color: var(--tinta); line-height: 1; }
+  .plan .lema-plan { font-size: 8.2pt; color: var(--rojo); font-weight: 600; }
+  .plan .reco-tag { align-self: flex-start; font-size: 6.4pt; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; background: var(--rojo); color: #fff; border-radius: 999px; padding: 2px 8px; }
+  .plan .cuando { font-size: 7.6pt; color: var(--suave); margin: 2px 0 2px; }
+  .plan ul li { font-size: 7.7pt; }
+  .plan .monto { margin-top: auto; padding-top: 6px; border-top: 1px solid var(--linea); font-size: 7.4pt; color: var(--suave); }
+
+  /* ---------- pantalla: la misma hoja, centrada ---------- */
+  @media screen {
+    html { background: #e7e4df; }
+    body { width: 8.5in; margin: 24px auto; background: #fff; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12); }
+    main.doc { padding: 0 0.6in 0.6in; }
+    section.parte { padding-top: 0.45in; }
+    .pie-portada .paginas { display: none; }
+  }
+  @media screen and (max-width: 860px) {
+    body { width: auto; margin: 0; box-shadow: none; font-size: 10.5pt; }
+    .portada { height: auto; }
+    .hero { padding: 22px 18px 18px; }
+    .hero-top { flex-direction: column; gap: 14px; }
+    .cliente { text-align: left; }
+    .cliente img { margin: 4px 0; }
+    .hero h1 { font-size: 34pt; }
+    .hero-pie { flex-direction: column; align-items: flex-start; }
+    .hero-stack { flex-wrap: wrap; }
+    .cuerpo, main.doc { padding: 0 16px; }
+    ol.contenido, .ficha, .dos, .tres, .planes, .semanas, .puesto, .propietarios { grid-template-columns: 1fr; }
+    .cifras { grid-template-columns: 1fr 1fr; }
+    .datos { grid-template-columns: repeat(3, 1fr); }
+    .portada .cierre { position: static; margin: 18px 16px; }
+    .pie-portada { position: static; margin: 0 16px 16px; }
+    .capturas { flex-wrap: wrap; justify-content: center; }
+    .cambio-fila { grid-template-columns: 1fr; }
+    .cabeza-int { grid-template-columns: auto 1fr; }
+    .sec-marca { display: none; }
+    .tabla { overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+
+<section class="portada">
+  <header class="hero">
+    <div class="hero-top">
+      <div class="marca"><img class="logo-cx" src="../img/cometax-logo.svg" alt=""><span class="nombre">COMETAX<small>cometax.click</small></span></div>
+      <div class="cliente"><span class="para">Preparado para</span><img src="../img/logo.svg" alt="Motel Picasso"><span class="sub">Dirección · noviembre 2026</span></div>
+    </div>
+    <h1>Documento de producto</h1>
+    <div class="hero-pie">
+      <p>Qué se construyó para Motel Picasso, cómo medir que funciona, cómo llevarlo de una sucursal a las seis y cómo sigue creciendo con CometaX Company.</p>
+      <div class="pastilla">Versión <span>0.1</span></div>
+    </div>
+    <div class="hero-stack"><span class="rot">Construido con</span><img src="../img/tech/vuedotjs.svg" alt="Vue"><img src="../img/tech/pwa.svg" alt="PWA"><img src="../img/tech/python.svg" alt="Python"><img src="../img/tech/fastapi.svg" alt="FastAPI"><img src="../img/tech/jfast.svg" alt="JFast"><img src="../img/tech/postgresql.svg" alt="PostgreSQL"><img src="../img/tech/redis.svg" alt="Redis"><img src="../img/tech/docker.svg" alt="Docker"><img src="../img/tech/caddy.svg" alt="Caddy"><img src="../img/tech/letsencrypt.svg" alt="Let's Encrypt"></div>
+  </header>
+  <div class="cuerpo">
+    <div class="seccion"><div class="num">07</div><div class="titulo">Contenido</div></div>
+    <ol class="contenido">
+      <li><span class="n">01</span><span class="t">Resumen ejecutivo</span><span class="d">El problema, lo que ya resuelve y el siguiente paso</span></li>
+      <li><span class="n">02</span><span class="t">Qué se entregó</span><span class="d">Lo que gana cada puesto: ama de llaves, gerente, propietarios y administración</span></li>
+      <li><span class="n">03</span><span class="t">Cómo medir el éxito</span><span class="d">Indicadores que la app ya da y metas propuestas</span></li>
+      <li><span class="n">04</span><span class="t">Piloto y adopción</span><span class="d">Sucursal piloto, capacitación, semanas y criterios para crecer</span></li>
+      <li><span class="n">05</span><span class="t">Hoja de ruta</span><span class="d">Fases, de qué depende cada una y su tamaño</span></li>
+      <li><span class="n">06</span><span class="t">Continuidad con CometaX</span><span class="d">Soporte, mantenimiento, mejoras y medición mensual</span></li>
+      <li><span class="n">07</span><span class="t">Supuestos</span><span class="d">Lo que no se ha comprobado y cómo se comprueba</span></li>
+    </ol>
+    <div class="ficha">
+      <div><span class="rotulo">Cliente</span><b>Motel Picasso</b><span class="extra">Lerma, Toluca, Circuito, Churubusco, Periférico y Vaqueritos</span></div>
+      <div><span class="rotulo">Documento</span><b>Documento de producto</b><span class="extra">Para la dirección y los propietarios</span></div>
+      <div><span class="rotulo">Elaboró</span><b>CometaX Company</b><span class="extra">cometax.click</span></div>
+    </div>
+    <div class="cifras">
+      <div><span class="cifra">6</span><b>Sucursales</b><span class="extra">En un solo panel</span></div>
+      <div><span class="cifra">4</span><b>Puestos</b><span class="extra">Cada uno entra a lo suyo</span></div>
+      <div><span class="cifra">54</span><b>Puntos</b><span class="extra">25 + 29, más el equipo del cuarto</span></div>
+      <div><span class="cifra">4</span><b>Reportes PDF</b><span class="extra">Revisión, folio, cuarto y grupo</span></div>
+    </div>
+  </div>
+  <div class="cierre">
+    <div class="t">CometaX Company</div>
+    <p>Documento elaborado por CometaX Company para Motel Picasso. Describe la versión 0.1 al 12 de noviembre de 2026: la app está completa para un piloto y hoy corre con datos de ejemplo. Las metas y los tamaños son propuesta; los montos se confirman con CometaX.</p>
+    <div class="lema"><b>CometaX — Tecnología diseñada para resolver, evolucionar y escalar.</b><span><img src="../img/cometax-logo.svg" alt="">cometax.click</span></div>
+  </div>
+  <footer class="pie-portada"><span><img src="../img/cometax-logo.svg" alt="">CometaX Company · Documento de producto · Motel Picasso</span><span class="paginas">1</span></footer>
+</section>
+
+<main class="doc">
+
+<!-- ===================================================================== 01 -->
+<section class="parte" id="resumen">
+  <div class="cabeza-int"><span class="sec-num">01</span><div class="sec-tit"><span class="sec-tema">Resumen ejecutivo</span><h2>Cada cuarto revisado, cada falla con dueño</h2></div><div class="sec-marca"><img src="../img/cometax-logo.svg" alt=""><small>Motel Picasso · Inspecciones</small></div></div>
+
+  <p class="lead">Picasso es la app con la que el personal de las seis sucursales revisa cada cuarto desde el celular, documenta con foto lo que está mal y le da seguimiento hasta cerrarlo. Los propietarios ven las seis sucursales en un solo panel. Sigue al pie de la letra el documento de la dirección <i>Reportes de Mantenimiento y Limpieza</i>.</p>
+
+  <h3>El problema</h3>
+  <p>Con seis sucursales, revisar en papel o por mensajes deja huecos difíciles de ver desde la dirección. La app los cierra así:</p>
+  <div class="cambio">
+    <div class="cambio-fila cabeza"><div>Tema</div><div>Sin un sistema</div><div>Con Picasso</div></div>
+    <div class="cambio-fila"><div>Revisiones</div><div>No se sabe si se hicieron todas ni quién las hizo.</div><div>Cada revisión queda con nombre, fecha y hora, y se compara contra las que tocaban.</div></div>
+    <div class="cambio-fila"><div>Fallas</div><div>Una falla anotada o avisada de palabra se puede perder entre turnos.</div><div>Cada falla abre un folio consecutivo (PIC-LER-000245) que sigue abierto hasta que el gerente lo cierra con la foto de la reparación.</div></div>
+    <div class="cambio-fila"><div>Evidencia</div><div>Sin foto ni historial, cuesta saber qué pasó y quién decidió.</div><div>Fotos privadas y un historial que solo se agrega: nadie borra lo que pasó.</div></div>
+    <div class="cambio-fila"><div>Renta</div><div>Un cuarto con falla puede rentarse sin que nadie lo decida.</div><div>El gerente decide si se renta, con motivo, y el panel muestra los cuartos detenidos.</div></div>
+    <div class="cambio-fila"><div>Dirección</div><div>Comparar sucursales exige juntar reportes a mano.</div><div>Un panel y cuatro reportes PDF con los mismos indicadores para las seis sucursales.</div></div>
+  </div>
+
+  <h3>Lo que ya está hecho</h3>
+  <div class="datos">
+    <div><b>6</b><span>sucursales en un panel</span></div>
+    <div><b>54</b><span>puntos de checklist, más el equipo de cada cuarto</span></div>
+    <div><b>4</b><span>reportes PDF listos para imprimir</span></div>
+    <div><b>3</b><span>reglas ajustables por sucursal, sin programar</span></div>
+    <div><b>21</b><span>pruebas automáticas que pasan</span></div>
+    <div><b>46</b><span>casos de QA para probar en los teléfonos</span></div>
+  </div>
+  <div class="siguiente"><span class="flecha">→</span><div><span class="etiqueta">Siguiente paso recomendado</span><b>Instalar en su servidor y hacer un piloto de 4 semanas en una sucursal</b><p>Con cuartos, equipo y personal reales. Al cierre del piloto se decide, con indicadores, si pasa a las seis sucursales (secciones 04 y 05).</p></div></div>
+  <p class="nota-pie">Estado al 12 de noviembre de 2026: la app está completa para un piloto y corre con datos de ejemplo. Lo que falta comprobar está en la sección 07.</p>
+</section>
+
+<!-- ===================================================================== 02 -->
+<section class="parte" id="entrega">
+  <div class="cabeza-int"><span class="sec-num">02</span><div class="sec-tit"><span class="sec-tema">Qué se entregó</span><h2>Lo que gana cada puesto</h2></div><div class="sec-marca"><img src="../img/cometax-logo.svg" alt=""><small>Motel Picasso · Inspecciones</small></div></div>
+
+  <p class="lead">Cada puesto entra a lo suyo y solo ve su sucursal; los permisos se revisan en el servidor, no solo en la pantalla. Las capturas son de la app real con datos de ejemplo.</p>
+  <div class="tres">
+    <div class="caja crema"><span class="etiqueta">Se instala como app</span><p>Desde el navegador, en iPhone y Android, sin pasar por tiendas ni esperar aprobaciones.</p></div>
+    <div class="caja crema"><span class="etiqueta">Aguanta poca señal</span><p>Lo marcado se guarda en el teléfono y se sube solo al volver la conexión.</p></div>
+    <div class="caja crema"><span class="etiqueta">Segura</span><p>Fotos privadas con ligas que caducan en 2 horas; bloqueo de 15 minutos tras 5 intentos fallidos.</p></div>
+  </div>
+
+  <div class="puesto-cab"><span class="n">A</span><h3>Ama de llaves</h3></div>
+  <div class="puesto">
+    <div>
+      <p class="gana">cada cuarto se revisa después de cada limpieza, y lo que falla llega al gerente con foto.</p>
+      <ul>
+        <li>Ve sus cuartos con su estado y la hora del último chequeo; «Tu siguiente paso» le dice qué toca.</li>
+        <li>Checklist de 29 puntos del documento (A01–A29) más el equipo de ese cuarto.</li>
+        <li><b>Toca solo lo que está mal</b>: escribe qué pasa y toma la foto. Se abre un folio o se liga al que ya estaba abierto por la misma falla.</li>
+        <li>Lo que no aplica (jacuzzi, alberca, sauna o terraza que el cuarto no tiene) se marca solo, con su motivo.</li>
+        <li>«Enviar al gerente». Si no marcó nada, la app le pide confirmar que todo está bien.</li>
+        <li>Sin señal sigue trabajando: lo marcado se guarda en el teléfono y se sube solo.</li>
+      </ul>
+    </div>
+    <div class="capturas">
+      <figure><div class="telefono"><img src="../img/producto/ama-inicio.jpg" alt="Inicio de la ama de llaves"></div><figcaption>Su inicio</figcaption></figure>
+      <figure><div class="telefono"><img src="../img/producto/ama-checklist.jpg" alt="Checklist de la ama de llaves"></div><figcaption>Solo lo que está mal</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="puesto-cab"><span class="n">B</span><h3>Gerente</h3></div>
+  <div class="puesto">
+    <div>
+      <p class="gana">ninguna falla se queda sin dueño, y la renta se decide con evidencia.</p>
+      <ul>
+        <li>«Tu siguiente paso»: cuartos que envió la ama, folios nuevos o cuartos por revisar hoy.</li>
+        <li>Su propio checklist de 25 puntos (G01–G25), con la frecuencia que fije la sucursal.</li>
+        <li>Decide si el cuarto <b>puede rentarse</b>, con motivo, por separado del folio.</li>
+        <li>En cada folio pone prioridad, quién lo atiende y anota avances.</li>
+        <li><b>Solo el gerente cierra</b>, con la foto de la reparación y lo que se corrigió. Si no quedó bien, sigue abierto.</li>
+        <li>Expediente de cada cuarto con su historial, y PDF del cuarto y del folio.</li>
+      </ul>
+    </div>
+    <div class="capturas">
+      <figure><div class="telefono"><img src="../img/producto/gerente-inicio.jpg" alt="Inicio del gerente"></div><figcaption>«Tu siguiente paso»</figcaption></figure>
+    </div>
+  </div>
+  <figure><div class="navegador"><img src="../img/producto/folio.jpg" alt="Folio cerrado con sus cinco pasos"></div><figcaption>Un folio cerrado: los cinco pasos del documento, la decisión de renta y quién verificó y cerró.</figcaption></figure>
+
+  <div class="puesto-cab"><span class="n">C</span><h3>Propietarios</h3></div>
+  <p class="gana">las seis sucursales en una sola vista, comparadas con los mismos indicadores.</p>
+  <div class="propietarios">
+    <figure><div class="navegador"><img src="../img/producto/panel.jpg" alt="Panel de las seis sucursales"></div><figcaption>Panel: revisiones contra las que tocaban, folios abiertos y cuartos detenidos por sucursal.</figcaption></figure>
+    <div class="der">
+      <ul>
+        <li>Periodo a elegir: hoy, ayer y hoy, 7 o 30 días.</li>
+        <li>Folios de las seis sucursales con filtros por estado, sucursal, fecha o texto; cada uno abre su expediente completo.</li>
+        <li>Reportes: cumplimiento, conformidad, tiempo de solución, reincidencias y fallas frecuentes, con el PDF del periodo.</li>
+        <li>Consulta sin poder modificar lo que hace el personal.</li>
+      </ul>
+      <figure><div class="navegador"><img src="../img/producto/reportes.jpg" alt="Reportes"></div><figcaption>Reportes por sucursal.</figcaption></figure>
+    </div>
+  </div>
+  <p class="muestra">Las cifras de las capturas son datos de ejemplo de la demo, no de Picasso.</p>
+
+  <div class="puesto-cab"><span class="n">D</span><h3>Administración</h3></div>
+  <div class="puesto">
+    <div>
+      <p class="gana">la app se ajusta a cada sucursal sin programar.</p>
+      <ul>
+        <li>Alta de cuartos por sucursal y qué tiene cada uno (jacuzzi, alberca, sauna, terraza).</li>
+        <li><b>Equipo del cuarto</b> (Netflix, minibar, sillón…) desde un catálogo propio; entra solo al checklist.</li>
+        <li>Alta del personal con su puesto y sucursal.</li>
+        <li>Tres reglas por sucursal que el documento deja abiertas: frecuencia del gerente (diaria, cada 2 o 3 días), cómo contar a la ama (por limpieza o por cuarto al día) y tipo de checklist (solo lo que está mal, o cada punto).</li>
+      </ul>
+    </div>
+    <div class="capturas">
+      <figure><div class="telefono chico"><img src="../img/equipo.jpg" alt="Equipo del cuarto"></div><figcaption>Equipo de cada cuarto</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================================== 03 -->
+<section class="parte" id="medir">
+  <div class="cabeza-int"><span class="sec-num">03</span><div class="sec-tit"><span class="sec-tema">Cómo medir el éxito</span><h2>Indicadores que ya salen de la app</h2></div><div class="sec-marca"><img src="../img/cometax-logo.svg" alt=""><small>Motel Picasso · Inspecciones</small></div></div>
+
+  <p class="lead">El éxito se mide con lo que el personal ya registra al trabajar, sin capturas aparte. Las metas son una propuesta de CometaX: se fijan con la dirección al terminar las dos primeras semanas del piloto, cuando haya una línea base real.</p>
+
+  <div class="tabla"><table>
+    <tr><th>Indicador</th><th>Qué responde</th><th>Dónde se ve hoy</th><th>Meta propuesta</th></tr>
+    <tr><td>Cumplimiento de revisión</td><td>¿Se revisó lo que tocaba? Completas entre exigibles, por puesto y según la frecuencia de cada sucursal.</td><td><span class="ya">Ya</span> Panel y Reportes</td><td>Gerente 95 % o más; ama de llaves 90 % o más.</td></tr>
+    <tr><td>Conformidad de puntos</td><td>¿Qué tan bien están los cuartos? Bien entre (Bien + Falla).</td><td><span class="ya">Ya</span> Reportes</td><td>Fijarla con la línea base del piloto y subirla mes con mes.</td></tr>
+    <tr><td>Folios abiertos y el más antiguo</td><td>¿Qué sigue pendiente y desde cuándo?</td><td><span class="ya">Ya</span> Panel, inicio del gerente y Reportes</td><td>Ninguno con más de 7 días sin avance.</td></tr>
+    <tr><td>Tiempo de solución</td><td>¿Cuánto se tarda en arreglar? Horas promedio de la apertura al cierre.</td><td><span class="ya">Ya</span> Reportes, por sucursal</td><td>Promedio de 48 horas o menos.</td></tr>
+    <tr><td>Reincidencia</td><td>¿Se arregló de verdad? La misma falla en el mismo cuarto dos o más veces en el periodo, con sus folios.</td><td><span class="ya">Ya</span> Reportes</td><td>A la baja mes con mes; cada reincidencia con su causa revisada.</td></tr>
+    <tr><td>Fallas frecuentes</td><td>¿Dónde conviene invertir? Los puntos del checklist y el equipo que más fallan.</td><td><span class="ya">Ya</span> Reportes</td><td>Sin meta: guía compras y mantenimiento preventivo.</td></tr>
+    <tr><td>Cuartos que no pueden rentarse</td><td>¿Cuántos cuartos están detenidos ahora?</td><td><span class="ya">Ya</span> Panel</td><td>Cada uno con su folio en atención el mismo día.</td></tr>
+  </table></div>
+  <p class="nota-pie">Los reportes se piden por periodo (hoy, 7, 30 o 90 días) y salen también en PDF con la marca de Picasso.</p>
+
+  <h3>Lo que habría que construir</h3>
+  <p>La app no da hoy estas medidas. Se propone sumarlas a la fase 4 si la dirección las pide:</p>
+  <div class="tabla"><table>
+    <tr><th>Medida</th><th>Para qué</th><th>Estado</th></tr>
+    <tr><td>Tendencia mes contra mes</td><td>Ver si cada sucursal mejora; hoy se elige un periodo, pero no se compara con el anterior.</td><td><span class="falta">Por construir</span></td></tr>
+    <tr><td>Tiempo de solución por prioridad</td><td>Exigir más rapidez a lo urgente; hoy el promedio junta todas las prioridades.</td><td><span class="falta">Por construir</span></td></tr>
+    <tr><td>Horas de cuarto fuera de renta</td><td>Traducir las fallas a tiempo de venta detenido. Las decisiones ya se guardan con fecha; falta sumarlas.</td><td><span class="falta">Por construir</span></td></tr>
+    <tr><td>Uso por persona</td><td>Medir la adopción durante el piloto, persona por persona.</td><td><span class="falta">Por construir</span></td></tr>
+    <tr><td>Costo de reparaciones</td><td>Saber cuánto cuesta cada falla. La app no registra costos.</td><td><span class="falta">Por construir</span></td></tr>
+  </table></div>
+
+  <div class="nota"><p><b>Beneficios que se esperan, sin medir todavía.</b> Menos tiempo por revisión, porque solo se toca lo que falla (supuesto: en un cuarto revisado la mayoría de los puntos están bien); menos fallas que se pierden entre turnos, porque cada una queda en un folio con dueño; y menos fallas repetidas, porque la reincidencia queda a la vista. Se comprueban con los indicadores de arriba durante el piloto.</p></div>
+</section>
+
+<!-- ===================================================================== 04 -->
+<section class="parte" id="piloto">
+  <div class="cabeza-int"><span class="sec-num">04</span><div class="sec-tit"><span class="sec-tema">Piloto y adopción</span><h2>De una sucursal a las seis</h2></div><div class="sec-marca"><img src="../img/cometax-logo.svg" alt=""><small>Motel Picasso · Inspecciones</small></div></div>
+
+  <p class="lead">Un piloto corto en una sucursal prueba la app con personas, cuartos y señal reales antes de llevarla a las seis. Las semanas son una propuesta; las fechas se acuerdan con la dirección.</p>
+
+  <h3>Qué sucursal elegir</h3>
+  <p>La elige la dirección. Ayuda que tenga buena señal o wifi en los pasillos, un gerente dispuesto a usarla todos los días y suficientes cuartos para ver de todo (fallas, cuartos detenidos, reincidencias). No hace falta que sea la más fácil: lo que se aprenda ahí ahorra problemas en las otras cinco.</p>
+
+  <h3>Semana por semana</h3>
+  <div class="semanas">
+    <div class="semana"><span class="cuando">Semana 0</span><b>Preparar</b><ul><li>Fase 1: servidor, dominio y respaldos.</li><li>Cuartos, equipo y personal reales de la sucursal.</li><li>Confirmar las tres reglas con la dirección.</li></ul></div>
+    <div class="semana"><span class="cuando">Semana 1</span><b>Capacitar y arrancar</b><ul><li>Una sesión corta por puesto, con su propio teléfono.</li><li>Instalar la app en cada teléfono.</li><li>Correr la lista de QA en los teléfonos del personal.</li></ul></div>
+    <div class="semana"><span class="cuando">Semana 2</span><b>Línea base</b><ul><li>Uso diario completo.</li><li>Primer corte de indicadores.</li><li>Ajustar reglas si algo no cuadra con la operación.</li></ul></div>
+    <div class="semana"><span class="cuando">Semana 3</span><b>Afinar</b><ul><li>Fijar las metas con la línea base.</li><li>Corregir lo que reporte el personal.</li><li>Revisar folios viejos y reincidencias.</li></ul></div>
+    <div class="semana"><span class="cuando">Semana 4</span><b>Decidir</b><ul><li>Revisión de indicadores con la dirección.</li><li>Ir o no ir a las seis sucursales.</li><li>Plan de alta de las otras cinco.</li></ul></div>
+  </div>
+
+  <h3>Capacitación por puesto</h3>
+  <div class="tabla"><table>
+    <tr><th>Puesto</th><th>Qué aprende</th><th>Cómo</th></tr>
+    <tr><td>Ama de llaves</td><td>Instalar la app, revisar un cuarto tocando solo lo que falla, tomar la foto y enviar al gerente; qué pasa sin señal.</td><td>En un cuarto real, con su teléfono, y el manual de su puesto.</td></tr>
+    <tr><td>Gerente</td><td>Lo anterior más «Tu siguiente paso», su checklist de 25 puntos, decidir la renta, atender y cerrar folios con foto.</td><td>Un folio de práctica de principio a fin.</td></tr>
+    <tr><td>Propietarios</td><td>Leer el panel, abrir un expediente y bajar los reportes del periodo.</td><td>Sesión con los datos del piloto.</td></tr>
+    <tr><td>Administración</td><td>Dar de alta cuartos, equipo y personal; cambiar las reglas de la sucursal; entregar contraseñas.</td><td>Alta de la sucursal piloto junto con CometaX.</td></tr>
+  </table></div>
+
+  <h3>Criterios para pasar a las seis sucursales</h3>
+  <div class="dos">
+    <div class="caja crema"><ul>
+      <li>Cumplimiento de revisión en la meta acordada dos semanas seguidas.</li>
+      <li>Todas las fallas de la sucursal se reportan en la app, no por fuera.</li>
+      <li>Ningún folio cerrado sin foto de la reparación.</li>
+    </ul></div>
+    <div class="caja crema"><ul>
+      <li>El personal la usa sin ayuda de CometaX.</li>
+      <li>Lista de QA sin casos en Falla que bloqueen el trabajo.</li>
+      <li>Respaldo de la base restaurado con éxito al menos una vez.</li>
+    </ul></div>
+  </div>
+
+  <h3>Riesgos a vigilar</h3>
+  <div class="tabla"><table>
+    <tr><th>Riesgo</th><th>Qué puede pasar</th><th>Cómo se cuida</th></tr>
+    <tr><td>Adopción del personal</td><td>Que se siga avisando por fuera y la app quede a medias.</td><td>Checklist de «solo lo que está mal», «Tu siguiente paso» y ayuda de primera vez; el cumplimiento delata el abandono desde la primera semana.</td></tr>
+    <tr><td>Señal</td><td>Pasillos o cuartos sin cobertura.</td><td>Lo marcado se guarda y se sube solo. Revisar la señal o el wifi de la sucursal antes de arrancar.</td></tr>
+    <tr><td>Fotos</td><td>Las fotos no entran a la cola sin señal; un teléfono puede negar la cámara.</td><td>Tomarlas con conexión; probar la cámara de cada teléfono con la lista de QA.</td></tr>
+    <tr><td>Cuentas</td><td>Contraseñas olvidadas o cuentas bloqueadas tras 5 intentos.</td><td>La administración las entrega en persona y las cambia; la recuperación por correo está en la fase 4.</td></tr>
+    <tr><td>Reglas</td><td>Que la frecuencia del gerente o el conteo de la ama no cuadren con la operación.</td><td>Son interruptores por sucursal: se cambian desde Ajustes sin programar.</td></tr>
+  </table></div>
+
+  <h3>Lo que hace falta de Picasso para arrancar</h3>
+  <div class="dos">
+    <div class="caja crema"><span class="etiqueta">Decisiones</span><ul>
+      <li>La sucursal piloto y quién la coordina.</li>
+      <li>Las tres reglas: frecuencia del gerente, cómo contar a la ama y tipo de checklist.</li>
+      <li>Quién dará de alta cuartos y personal (administración).</li>
+    </ul></div>
+    <div class="caja crema"><span class="etiqueta">Datos y equipo</span><ul>
+      <li>Lista de cuartos de la sucursal, con jacuzzi, alberca, sauna o terraza.</li>
+      <li>El equipo de cada cuarto y el personal con su puesto y correo.</li>
+      <li>Dominio para la app (por ejemplo, inspecciones.motelpicasso.mx) y los teléfonos del personal.</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ===================================================================== 05 -->
+<section class="parte" id="ruta">
+  <div class="cabeza-int"><span class="sec-num">05</span><div class="sec-tit"><span class="sec-tema">Hoja de ruta</span><h2>Crecer por fases, cuando haga falta</h2></div><div class="sec-marca"><img src="../img/cometax-logo.svg" alt=""><small>Motel Picasso · Inspecciones</small></div></div>
+
+  <p class="lead">Son las fases de la documentación técnica. Cada una se apoya en la anterior y ninguna obliga a rehacer lo que ya funciona. La regla para crecer es simple: solo cuando una medición lo pida.</p>
+
+  <div class="fases">
+    <div class="fase"><span class="fase-n">1</span><b>Antes de producción</b><span>Servidor, dominio con HTTPS, respaldos y app sin modo demo.</span></div>
+    <div class="fase"><span class="fase-n">2</span><b>Piloto en una sucursal</b><span>Datos reales, reglas confirmadas y QA en los teléfonos.</span></div>
+    <div class="fase"><span class="fase-n">3</span><b>Las seis sucursales</b><span>Alta del resto, capacitación e indicadores al primer mes.</span></div>
+    <div class="fase"><span class="fase-n">4</span><b>Después</b><span>Avisos, fotos sin señal, contraseña por correo y, si hace falta, app de tienda.</span></div>
+  </div>
+
+  <div class="tabla"><table>
+    <tr><th>Fase</th><th>Qué gana Picasso</th><th>De qué depende</th><th>Tamaño</th></tr>
+    <tr><td>1 · Antes de producción</td><td>La app en su propio dominio con HTTPS, respaldos diarios fuera del servidor y secretos propios: lista para datos reales.</td><td>Servidor y dominio, acceso al DNS y repositorio del código.</td><td><span class="talla">S</span></td></tr>
+    <tr><td>2 · Piloto en una sucursal</td><td>La prueba con personas y cuartos reales, las reglas confirmadas y la línea base de los indicadores.</td><td>Fase 1; cuartos, equipo y personal de la sucursal; decisión de la dirección sobre las reglas; teléfonos del personal.</td><td><span class="talla">M</span></td></tr>
+    <tr><td>3 · Las seis sucursales</td><td>Toda la operación en un panel y las sucursales comparadas con los mismos indicadores.</td><td>Piloto aprobado; datos de las otras cinco sucursales; capacitación; foto de Vaqueritos.</td><td><span class="talla">M</span></td></tr>
+    <tr><td>4 · Avisos al gerente</td><td>El gerente se entera en cuanto la ama envía un cuarto con fallas, sin entrar a buscarlo.</td><td>La cola de trabajos ya está en la app; falta el aviso.</td><td><span class="talla">S–M</span></td></tr>
+    <tr><td>4 · Fotos en la cola sin señal</td><td>La foto tampoco se pierde sin señal: se sube sola al volver la conexión.</td><td>Hoy solo los puntos se guardan sin señal.</td><td><span class="talla">M</span></td></tr>
+    <tr><td>4 · Contraseña por correo</td><td>Cada persona recupera su acceso sin pedirlo a la administración.</td><td>Correo de salida con dominio verificado.</td><td><span class="talla">S–M</span></td></tr>
+    <tr><td>4 · App de tienda</td><td>App en App Store y Google Play, si se necesita cámara sin galería o avisos en iPhone sin instalar.</td><td>Solo si la PWA se queda corta; se envuelve el mismo front con Capacitor.</td><td><span class="talla">M–L</span></td></tr>
+  </table></div>
+  <p class="nota-pie">Tamaño relativo, sin montos. S: ajuste acotado. M: cambio de varias pantallas o un módulo. L: producto nuevo.</p>
+
+  <h3>Más adelante, cuando una medición lo pida</h3>
+  <div class="dos">
+    <div class="caja crema"><span class="etiqueta">Más carga</span><h4>Escalones sin reescribir</h4><p>Hoy un servidor de 2 a 4 vCPU sobra: con 180 cuartos se esperan unas 720 revisiones al día, menos de una petición por segundo. Si crece, primero un servidor más grande; después, varias copias de la API con las fotos en S3; y al final, una base de datos administrada. Los dos primeros escalones son de configuración, no de código. <span class="talla">S–M</span></p></div>
+    <div class="caja crema"><span class="etiqueta">Huéspedes</span><h4>App para los clientes del motel</h4><p>Por ejemplo, el QR de quejas y sugerencias que ya pide el checklist: el huésped escanea el QR del cuarto y su queja podría abrir un folio con historial. Entraría como un módulo nuevo con sus propios permisos, sin tocar la app del personal. <span class="talla">L</span></p></div>
+  </div>
+</section>
+
+<!-- ===================================================================== 06 -->
+<section class="parte" id="continuidad">
+  <div class="cabeza-int"><span class="sec-num">06</span><div class="sec-tit"><span class="sec-tema">Continuidad con CometaX</span><h2>Que siga funcionando y mejore cada mes</h2></div><div class="sec-marca"><img src="../img/cometax-logo.svg" alt=""><small>Motel Picasso · Inspecciones</small></div></div>
+
+  <p class="lead">Una app de operación diaria necesita cuidado después del lanzamiento: el servidor se actualiza, los certificados se renuevan, los respaldos se prueban y la operación pide ajustes. CometaX la construyó, conoce cada regla del documento y puede llevarla sin que nadie tenga que aprenderla de cero.</p>
+
+  <h3>Qué incluye la continuidad</h3>
+  <div class="dos">
+    <div class="caja"><span class="etiqueta">Soporte</span><h4>Atención de incidencias</h4><p>Un canal para reportar fallas de la app, con tiempos objetivo de atención por prioridad según el plan contratado.</p></div>
+    <div class="caja"><span class="etiqueta">Mantenimiento</span><h4>Que todo siga funcionando</h4><p>Actualizaciones de seguridad del servidor y de las piezas de la app, vigilancia del certificado HTTPS, revisión de rendimiento y respaldos verificados restaurando uno de prueba.</p></div>
+    <div class="caja"><span class="etiqueta">Mejoras</span><h4>La fase 4 y lo que pida la operación</h4><p>Avisos al gerente, fotos sin señal, recuperación de contraseña y las medidas por construir de la sección 03, en el orden que decida la dirección.</p></div>
+    <div class="caja oscura"><span class="etiqueta">Medición mensual</span><h4>Un reporte para decidir</h4><p>Cada mes: indicadores por sucursal contra la meta, folios más viejos, reincidencias y fallas frecuentes, qué se atendió y el plan del mes siguiente.</p></div>
+  </div>
+
+  <h3>Planes de CometaX</h3>
+  <p>Son los planes del catálogo de servicios de CometaX Company. La inversión de cada uno se confirma con CometaX.</p>
+  <div class="planes">
+    <div class="plan"><span class="nombre">Essential</span><span class="lema-plan">Que todo siga funcionando</span><span class="cuando">Para cuando las seis sucursales ya operan y no se necesitan funciones nuevas.</span><ul><li>Corrección de errores</li><li>Mantenimiento preventivo y actualizaciones</li><li>Verificación de respaldos</li><li>Atención de incidencias y reporte mensual</li></ul><span class="monto">Inversión: a confirmar con CometaX</span></div>
+    <div class="plan reco"><span class="reco-tag">Recomendado para Picasso</span><span class="nombre">Growth</span><span class="lema-plan">Que tu sistema mejore cada mes</span><span class="cuando">Para el piloto, la llegada a las seis sucursales y la fase 4.</span><ul><li>Todo lo de Essential</li><li>Mejoras a lo que ya existe</li><li>Automatización de procesos</li><li>Planeación mensual de mejoras y seguimiento</li></ul><span class="monto">Inversión: a confirmar con CometaX</span></div>
+    <div class="plan"><span class="nombre">Enterprise</span><span class="lema-plan">Tu área de tecnología, con dirección</span><span class="cuando">Si Picasso suma la app para huéspedes u otros sistemas y necesita dirección técnica.</span><ul><li>Todo lo de Growth</li><li>Dirección técnica y arquitectura</li><li>Planeación de escalabilidad</li><li>Evaluación de seguridad y calidad</li></ul><span class="monto">Inversión: a confirmar con CometaX</span></div>
+  </div>
+
+</section>
+
+<!-- ===================================================================== 07 -->
+<section class="parte" id="supuestos">
+  <div class="cabeza-int"><span class="sec-num">07</span><div class="sec-tit"><span class="sec-tema">Supuestos</span><h2>Lo que no se ha comprobado</h2></div><div class="sec-marca"><img src="../img/cometax-logo.svg" alt=""><small>Motel Picasso · Inspecciones</small></div></div>
+
+  <p class="lead">Para decidir con claridad, esto es lo que todavía es supuesto o no se ha probado, y cómo se comprueba.</p>
+
+  <div class="tabla"><table>
+    <tr><th>Tema</th><th>Lo que se supone o falta</th><th>Cómo se comprueba</th></tr>
+    <tr><td>Datos</td><td>Todo corre con datos de ejemplo: cuartos 101 a 112 por sucursal, personas y folios inventados. Las cifras de las capturas no son de Picasso.</td><td>Alta de cuartos, equipo y personal reales en el piloto; borrar los de ejemplo.</td></tr>
+    <tr><td>Carga</td><td>La estimación usa 30 cuartos por sucursal (180 en total, unas 720 revisiones al día).</td><td>Rehacerla con el número real de cuartos y medir el servidor durante el piloto.</td></tr>
+    <tr><td>Uso en campo</td><td>No se ha probado en los teléfonos del personal ni con la señal real de cada sucursal.</td><td>Lista de QA en los teléfonos del piloto.</td></tr>
+    <tr><td>Servidor</td><td>La configuración de producción está validada fuera del servidor definitivo; falta estrenarla con el dominio de Picasso.</td><td>Fase 1.</td></tr>
+    <tr><td>Reglas</td><td>Frecuencia del gerente, cómo contar a la ama y el checklist de «solo lo que está mal» están sin confirmar con la dirección.</td><td>Decisión de la dirección antes del piloto; se cambian desde Ajustes.</td></tr>
+    <tr><td>Fotos sin señal</td><td>Los puntos se guardan sin señal; las fotos no.</td><td>Fase 4, o tomar las fotos con conexión mientras tanto.</td></tr>
+    <tr><td>Contraseñas</td><td>No hay recuperación por correo; la administración las entrega y las cambia.</td><td>Fase 4.</td></tr>
+    <tr><td>Metas</td><td>Las metas de la sección 03 son propuesta de CometaX, no acuerdos.</td><td>Fijarlas con la línea base del piloto.</td></tr>
+    <tr><td>Beneficios</td><td>Menos tiempo por revisión y menos fallas perdidas o repetidas se esperan, pero no se han medido.</td><td>Indicadores del piloto contra la línea base.</td></tr>
+  </table></div>
+
+  <div class="nota bien"><p><b>Lo que sí está comprobado.</b> Las reglas del documento, los permisos por puesto y sucursal y los reportes PDF tienen pruebas automáticas que pasan (21), revisión estricta de tipos y una revisión de que los módulos no se mezclan. Los flujos completos se probaron en la demo con las cuentas de cada puesto.</p></div>
+
+  <div class="siguiente"><span class="flecha">→</span><div><span class="etiqueta">Para arrancar</span><b>Una reunión de 30 minutos con la dirección</b><p>Para elegir la sucursal piloto, confirmar las tres reglas y acordar el servidor y el dominio. Con eso empieza la fase 1.</p></div></div>
+</section>
+
+</main>
+</body>
+</html>

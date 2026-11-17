@@ -1,0 +1,310 @@
+import { defineStore } from 'pinia'
+
+import api, { plain } from '@/services/api.js'
+
+// Scoped to this app. localStorage is keyed by origin, and in development
+// every JFast frontend is on localhost -- a shared key means starting a second
+// frontend silently replaces the first one's session.
+const STORAGE_KEY = 'picasso-web.session'
+
+// Where a lost session lands. Named here rather than in the router because
+// `services/api.js` needs it too, and a second copy of the string is a second
+// place to forget when the route moves.
+export const LOGIN_ROUTE = '/login'
+
+// Where to go after signing in. The router guard and the 401 handler both
+// send people to the sign-in page with ?next, so they come back to the page
+// they asked for.
+//
+// Only a path, never an absolute URL: `next` comes from the address bar, and
+// following one that starts with a host is an open redirect.
+export function safeNext(next) {
+  return typeof next === 'string' && next.startsWith('/') && !next.startsWith('//') ? next : '/'
+}
+
+// Requests whose 401 is an answer ("wrong password"), not an expired session.
+// See the interceptor in services/api.js.
+const SIGN_IN = { skipAuthRefresh: true }
+
+function readStored() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || null
+  } catch {
+    // Corrupt value, or a context with no storage at all. A session that
+    // cannot be read is the same as no session.
+    return null
+  }
+}
+
+// The durable copy and the axios header move together. Split them and you get
+// a reload that renders as logged in and sends no Authorization header.
+function commit(session) {
+  if (session.token) {
+    api.defaults.headers.common.Authorization = `Bearer ${session.token}`
+  } else {
+    delete api.defaults.headers.common.Authorization
+  }
+
+  try {
+    if (session.token) {
+      const { token, refreshToken, user } = session
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ token, refreshToken, user }))
+    } else {
+      localStorage.removeItem(STORAGE_KEY)
+    }
+  } catch {
+    // Quota exceeded, or Safari private mode. The in-memory session keeps
+    // working; only surviving a reload is lost.
+  }
+}
+
+/**
+ * The session: who is logged in, and the token that proves it.
+ *
+ * **This store is the source of truth.** `src/services/api.js` reads no token
+ * of its own -- it has no request interceptor and never touches localStorage.
+ * The token reaches axios because this store pushes it onto that instance's
+ * default headers, so exactly one place decides what "logged in" means.
+ * localStorage holds a copy for one purpose, surviving a reload, and is read
+ * once by `restore()` from `main.js`. Nothing else reads it.
+ *
+ * The import runs both ways -- api.js imports `useAuthStore` for its 401
+ * handler, this file imports the instance -- and that is safe only because
+ * neither touches the other at module evaluation time. Keep it that way: a
+ * top-level `api.get(...)` here would read `api` before it exists.
+ *
+ * The session endpoints are the `accounts` plugin's (docs/accounts.md): a
+ * sign-in returns tokens only, so every path that ends in a session fetches
+ * the user from `GET /auth/account` afterwards. A sign-in can also stop short
+ * of a session -- a second factor owed, or a role that requires one and has
+ * none -- and `login()` says which, so the view can ask for the next step.
+ *
+ * The token lives in JavaScript rather than an httpOnly cookie because the
+ * backend's auth plugin verifies a bearer token in the Authorization header
+ * (docs/auth.md). That is a real XSS trade-off, and moving to cookies is a
+ * backend change first, not a change here.
+ */
+export const useAuthStore = defineStore('auth', {
+  state: () => ({
+    token: null,
+    refreshToken: null,
+    user: null,
+    // What the backend has turned on (GET /auth/features). Not persisted:
+    // read once per load, so a change on the server shows up on reload.
+    features: null,
+  }),
+
+  getters: {
+    isAuthenticated: (state) => state.token !== null,
+  },
+
+  actions: {
+    // Called once from main.js before mount, so the first render already knows
+    // whether there is a session instead of flashing the logged-out UI. A
+    // restored token can still be expired: the first 401 is what tells you,
+    // not this.
+    restore() {
+      const stored = readStored()
+      if (stored) {
+        this.$patch({ token: stored.token, refreshToken: stored.refreshToken, user: stored.user })
+      }
+      commit(this.$state)
+    },
+
+    /**
+     * Session endpoints are the one exception to "HTTP lives in Services/".
+     * Every module service depends on the token this store holds, so routing
+     * the login call back through a service would make that dependency
+     * circular.
+     */
+    async loadFeatures() {
+      if (this.features) return this.features
+      try {
+        const { data } = await api.get('/auth/features', SIGN_IN)
+        this.features = data
+      } catch {
+        // An older backend, or one without accounts: offer only what always
+        // exists. Nothing breaks for want of a link.
+        this.features = { registration: false, email_verification: 'off', password_reset: false, mfa: false }
+      }
+      return this.features
+    },
+
+    /**
+     * Resolves to what happened, because a correct password is not always a
+     * session:
+     *
+     * - `{ status: 'signed-in' }`
+     * - `{ status: 'mfa', mfaToken }` -- send a code to `completeMfa`
+     * - `{ status: 'enrol', mfaToken }` -- a role requires MFA: set it up first
+     *
+     * A wrong password rejects, with the backend's message on `error.message`.
+     * An unconfirmed address rejects with `error.code === 'email_not_verified'`.
+     */
+    async login(credentials) {
+      const { data } = await api.post('/auth/login', credentials, SIGN_IN).catch(withCode)
+      return this.afterFirstStep(data)
+    },
+
+    async afterFirstStep(data) {
+      if (data.mfa_required) return { status: 'mfa', mfaToken: data.mfa_token }
+      if (data.mfa_enrollment_required) return { status: 'enrol', mfaToken: data.mfa_token }
+      await this.startSession(data)
+      return { status: 'signed-in' }
+    },
+
+    async completeMfa(mfaToken, code) {
+      const { data } = await api
+        .post('/auth/login/mfa', { mfa_token: mfaToken, code }, SIGN_IN)
+        .catch(withCode)
+      await this.startSession(data)
+    },
+
+    // Tokens first, then who they belong to: /auth/login returns no user.
+    async startSession(pair) {
+      this.$patch({ token: pair.access_token, refreshToken: pair.refresh_token ?? null })
+      commit(this.$state)
+      await this.fetchAccount()
+    },
+
+    async fetchAccount() {
+      const { data } = await api.get('/auth/account')
+      this.user = data
+      commit(this.$state)
+      return data
+    },
+
+    /**
+     * `{ status: 'check-email' }` when the backend requires a confirmed address
+     * (202, no session yet -- and the same answer whether or not the address
+     * already had an account), otherwise the same results as `login()`.
+     */
+    async register(body) {
+      const response = await api.post('/auth/register', body, SIGN_IN).catch(withCode)
+      if (response.status === 202) return { status: 'check-email' }
+      return this.afterFirstStep(response.data)
+    },
+
+    async verifyEmail(token) {
+      await api.post('/auth/verify', { token }, SIGN_IN).catch(withCode)
+      if (this.user) this.user = { ...this.user, email_verified: true }
+      commit(this.$state)
+    },
+
+    // Both answer 202 whatever the address: the page says "if it has an
+    // account, an email is on its way" and nothing more.
+    async resendVerification(email) {
+      await api.post('/auth/verify/resend', { email }, SIGN_IN).catch(withCode)
+    },
+
+    async forgotPassword(email) {
+      await api.post('/auth/password/forgot', { email }, SIGN_IN).catch(withCode)
+    },
+
+    // Every session of the account ends on the server, this one included.
+    async resetPassword(token, newPassword) {
+      await api
+        .post('/auth/password/reset', { token, new_password: newPassword }, SIGN_IN)
+        .catch(withCode)
+      this.clear()
+    },
+
+    // Signed in: `{ password }`. At sign-in, for a role that requires MFA:
+    // `{ mfaToken }`. Resolves to `{ secret, otpauth_uri }`.
+    async mfaSetup({ password = null, mfaToken = null } = {}) {
+      const { data } = await api
+        .post('/auth/mfa/setup', { password, mfa_token: mfaToken }, SIGN_IN)
+        .catch(withCode)
+      return data
+    },
+
+    // Resolves to the recovery codes, shown once. Enrolling at sign-in also
+    // starts the session.
+    async mfaConfirm(code, mfaToken = null) {
+      const { data } = await api
+        .post('/auth/mfa/confirm', { code, mfa_token: mfaToken }, SIGN_IN)
+        .catch(withCode)
+      if (data.session) {
+        await this.startSession(data.session)
+      } else if (this.user) {
+        this.user = { ...this.user, mfa_enabled: true }
+        commit(this.$state)
+      }
+      return data.recovery_codes
+    },
+
+    async mfaDisable(password, code) {
+      await api.post('/auth/mfa/disable', { password, code }, SIGN_IN).catch(withCode)
+      if (this.user) this.user = { ...this.user, mfa_enabled: false }
+      commit(this.$state)
+    },
+
+    async newRecoveryCodes(password, code) {
+      const { data } = await api
+        .post('/auth/mfa/recovery-codes', { password, code }, SIGN_IN)
+        .catch(withCode)
+      return data.recovery_codes
+    },
+
+    // Revoke server-side first, while the header is still set: /auth/logout is
+    // authenticated. Its failure must never strand the user holding a token
+    // they were told is gone, so the local clear runs either way.
+    async logout() {
+      if (this.token) {
+        try {
+          await api.post('/auth/logout')
+        } catch {
+          // Already expired, or the backend is unreachable. Neither is
+          // usefully retryable from here.
+        }
+      }
+      this.clear()
+    },
+
+    // Every session this account has, on every device.
+    async logoutEverywhere() {
+      try {
+        await api.post('/auth/logout/all')
+      } finally {
+        this.clear()
+      }
+    },
+
+    // The local half of logout on its own. api.js calls this when a refresh is
+    // refused: there is nothing left to revoke, and a /auth/logout with a dead
+    // token would only produce the 401 that got us here.
+    clear() {
+      this.$patch({ token: null, refreshToken: null, user: null })
+      commit(this.$state)
+    },
+
+    // Access tokens are short-lived -- fifteen minutes by default. The 401
+    // handler in services/api.js calls this; see the single-flight note there
+    // before calling it from anywhere else. The new refresh token must replace
+    // the old one: they are rotated, and presenting a spent one revokes the
+    // whole session on purpose.
+    //
+    // `plain`, not `api`: this request must not pass through the interceptor
+    // that is waiting on it, or a refused refresh triggers another refresh.
+    async refresh() {
+      if (!this.refreshToken) {
+        throw new Error('no refresh token')
+      }
+      const { data } = await plain.post('/auth/refresh', {
+        refresh_token: this.refreshToken,
+      })
+      this.$patch({ token: data.access_token, refreshToken: data.refresh_token })
+      commit(this.$state)
+      return data.access_token
+    },
+  },
+})
+
+// The backend's machine-readable reason (`email_not_verified`,
+// `mfa_code_invalid`, `token_invalid`...) on the error, next to the message the
+// interceptor already copied from `detail`. Views branch on the code, never on
+// the wording.
+function withCode(error) {
+  error.code = error.response?.data?.code ?? error.code
+  throw error
+}

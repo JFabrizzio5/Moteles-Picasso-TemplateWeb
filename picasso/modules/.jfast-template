@@ -1,0 +1,20 @@
+{
+  "templates": {
+    "module_modular": {
+      "framework_version": "0.1.0a12",
+      "context": {
+        "module": "inspeccion",
+        "Module": "Inspeccion",
+        "module_title": "Inspeccion",
+        "module_plural": "inspecciones",
+        "table": "inspecciones",
+        "layout": "modular",
+        "ui": "api",
+        "modules_dir": "modules",
+        "access": "auth",
+        "example": false,
+        "bare": true
+      }
+    }
+  }
+}

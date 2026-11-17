@@ -1,0 +1,58 @@
+# Producción: se usa encima del docker-compose.yml generado por jfast, que es
+# el de desarrollo y no se edita a mano.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# Qué cambia respecto al de desarrollo:
+# - Ningún puerto publicado salvo 80 y 443 de Caddy. Docker abre los puertos
+#   publicados aunque el firewall (ufw) diga que no, así que Postgres, Redis y
+#   la API solo se alcanzan dentro de la red de compose.
+# - Redis con contraseña.
+# - Las fotos en un volumen (picasso_storage): sin él se guardan dentro del
+#   contenedor y se pierden al reconstruirlo. La imagen ya crea /app/storage
+#   con dueño appuser, y un volumen nuevo hereda ese dueño.
+# - Caddy con Caddyfile.prod (HTTPS automático para PICASSO_DOMINIO) y sus
+#   certificados en un volumen, para no pedirlos de nuevo en cada reinicio.
+#
+# Variables que lee de .env (junto a este archivo); ver .env.produccion.ejemplo.
+
+services:
+  picasso-database:
+    ports: !reset []
+
+  picasso-cache:
+    ports: !reset []
+    command: >-
+      redis-server --appendonly yes
+      --requirepass "${PICASSO_REDIS_PASSWORD:?falta PICASSO_REDIS_PASSWORD}"
+
+  picasso:
+    ports: !reset []
+    environment:
+      JFAST_ENV: prod
+      JFAST_CACHE_URL: "redis://:${PICASSO_REDIS_PASSWORD}@picasso-cache:6379/0"
+    volumes:
+      - "picasso_storage:/app/storage"
+
+  picasso-worker:
+    environment:
+      JFAST_ENV: prod
+      JFAST_CACHE_URL: "redis://:${PICASSO_REDIS_PASSWORD}@picasso-cache:6379/0"
+    volumes:
+      - "picasso_storage:/app/storage"
+
+  caddy:
+    environment:
+      PICASSO_DOMINIO: "${PICASSO_DOMINIO:?falta PICASSO_DOMINIO}"
+    volumes: !override
+      - "./Caddyfile.prod:/etc/caddy/Caddyfile:ro"
+      - "./picasso-web/dist:/srv:ro"
+      - "caddy_data:/data"
+      - "caddy_config:/config"
+    depends_on:
+      - picasso
+
+volumes:
+  picasso_storage:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Picasso · Inspecciones</title>
+    <meta name="description" content="Revisiones de mantenimiento y limpieza de las sucursales Picasso." />
+    <meta name="theme-color" content="#000000" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Picasso" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" type="image/png" href="/icono-192.png" />
+    <link rel="apple-touch-icon" href="/icono-180.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@300;400;500;600&family=Open+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      // Antes del primer cuadro, para no pintar un instante con el otro tema.
+      try {
+        var guardado = localStorage.getItem('picasso-web:theme')
+        if (guardado === 'dark' || guardado === 'light') {
+          document.documentElement.setAttribute('data-theme', guardado)
+        }
+      } catch (e) {}
+    </script>
+  </head>
+  <body class="h-full">
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

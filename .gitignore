@@ -1,0 +1,21 @@
+# Dependencias y compilados
+node_modules/
+dist/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.DS_Store
+
+# Secretos y datos locales: nunca al repo
+.env
+!picasso-web/.env
+.env.*.local
+*.local
+picasso/storage/
+pruebas-estres/resultados/
+CUENTAS-DE-PRUEBA.md
+docker-compose.generated.yml

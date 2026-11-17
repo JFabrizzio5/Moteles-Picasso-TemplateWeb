@@ -1,0 +1,90 @@
+import { computed, ref } from 'vue'
+
+// Light, dark, or whatever the operating system says. Three states rather than
+// two, because "follow the system" is the only one that stays right when the
+// machine switches at sunset -- and it is the default, so an app offering only
+// a light/dark switch has quietly taken that away.
+//
+// The choice lives in localStorage under one key and is applied by setting
+// `data-theme` on <html>. Everything else -- every colour in every component --
+// follows from the CSS variables that attribute selects, so nothing here has
+// to know what "dark" looks like.
+
+export const THEME_KEY = 'picasso-web:theme'
+export const THEMES = ['light', 'dark', 'system']
+
+const media = window.matchMedia('(prefers-color-scheme: dark)')
+
+export function storedTheme() {
+  try {
+    const value = localStorage.getItem(THEME_KEY)
+    return THEMES.includes(value) ? value : 'system'
+  } catch {
+    // Private browsing, or storage disabled by policy. The app still works;
+    // the choice just does not survive a reload.
+    return 'system'
+  }
+}
+
+export function applyTheme(theme) {
+  const root = document.documentElement
+  if (theme === 'system') {
+    root.removeAttribute('data-theme')
+  } else {
+    root.setAttribute('data-theme', theme)
+  }
+}
+
+// Module scope on purpose: one source of truth for the whole app, so a toggle
+// in the header and a radio group in a settings page cannot disagree.
+const theme = ref(storedTheme())
+
+// `media.matches` is a plain property and nothing re-reads it, so it is
+// mirrored into a ref the listener writes. One listener for the life of the
+// page, never removed: it belongs to the module, not to whoever called the
+// composable first.
+const systemDark = ref(media.matches)
+media.addEventListener('change', (event) => {
+  systemDark.value = event.matches
+})
+
+// `resolved` is what is on screen, which is a different question from what was
+// chosen: an icon showing a moon while the setting is "system" and the system
+// is light is lying about the current state.
+//
+// Out here with `theme`, and computed rather than a ref that something has to
+// remember to update. Built inside useTheme() it is one value per caller and
+// only the component that handled the click refreshes: a shared `theme` ref
+// does not help, because no component reads `theme` -- they all read this.
+const resolved = computed(() =>
+  theme.value === 'system' ? (systemDark.value ? 'dark' : 'light') : theme.value,
+)
+
+export function setTheme(next) {
+  if (!THEMES.includes(next)) return
+  theme.value = next
+  applyTheme(next)
+  try {
+    localStorage.setItem(THEME_KEY, next)
+  } catch {
+    // Nothing to do. The theme is applied; it just will not be remembered.
+  }
+}
+
+// Toggle flips what is currently on screen and pins it. Someone reaching for
+// the switch wants the other one now, not a three-way cycle that lands them
+// back where they started every third click.
+export function toggleTheme() {
+  setTheme(resolved.value === 'dark' ? 'light' : 'dark')
+}
+
+// The way back to the default. `toggleTheme` can only ever pin light or dark,
+// so without something in the UI calling this the first click is permanent and
+// the app has silently dropped one of its three states.
+export function followSystem() {
+  setTheme('system')
+}
+
+export function useTheme() {
+  return { theme, resolved, setTheme, toggleTheme, followSystem }
+}

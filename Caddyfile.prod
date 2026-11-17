@@ -1,0 +1,49 @@
+# Producción. El Caddyfile de al lado es el de desarrollo (lo genera jfast:
+# sin HTTPS y sin /storage); este lo monta docker-compose.prod.yml.
+#
+# PICASSO_DOMINIO es el dominio real (p. ej. inspecciones.motelpicasso.mx):
+# con un dominio, Caddy saca y renueva solo el certificado HTTPS. El DNS ya
+# debe apuntar al servidor y los puertos 80 y 443 deben estar abiertos.
+# PICASSO_API solo se cambia para probar este archivo fuera de compose.
+
+{$PICASSO_DOMINIO} {
+	encode zstd gzip
+
+	handle /api/* {
+		# route respeta el orden escrito: primero se cierran las rutas
+		# internas de la API (documentación, métricas, cola), luego se quita
+		# el /api y se pasa a la API.
+		route {
+			@internas path /api/docs* /api/redoc* /api/openapi.json /api/info /api/metrics* /api/queue/*
+			respond @internas 404
+			uri strip_prefix /api
+			reverse_proxy {$PICASSO_API:picasso:9800}
+		}
+	}
+
+	# Fotos: la API revisa la firma y la caducidad de cada liga
+	# (serve_local del plugin storage se queda en true).
+	handle /storage/* {
+		reverse_proxy {$PICASSO_API:picasso:9800}
+	}
+
+	# La PWA: archivos estáticos; cualquier otra ruta abre index.html para
+	# que el router de Vue resuelva la pantalla.
+	handle {
+		root * /srv
+		@sw path /sw.js /manifest.webmanifest /index.html /
+		header @sw Cache-Control "no-cache"
+		try_files {path} /index.html
+		file_server
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+
+	log {
+		output stdout
+		format json
+	}
+}

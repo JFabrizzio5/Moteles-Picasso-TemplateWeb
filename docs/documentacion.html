@@ -1,0 +1,1440 @@
+<title>Manual de Picasso Inspecciones</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@300;400;500;600&family=Open+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: barra negra de la marca arriba; índice fijo a la izquierda en escritorio
+   y píldoras desplazables en el celular; columna de lectura de ~760px. */
+:root {
+  --fondo: #f3f3f2;
+  --papel: #ffffff;
+  --papel-2: #f0efed;
+  --linea: #e2e1de;
+  --tinta: #1e1e1e;
+  --tinta-2: #545454;
+  --tinta-3: #8a8a88;
+  --coral: #fe7877;
+  --coral-tinta: #c8403d;
+  --coral-suave: rgb(254 120 119 / 0.14);
+  --barra: #000000;
+  --bien: #2e7d4f;
+  --bien-suave: #e6f2ea;
+  --mal: #d92d24;
+  --mal-suave: #fdecea;
+  --ambar: #9a6410;
+  --ambar-suave: #fbf0dc;
+  --codigo: #f5f4f1;
+  --f-titulo: 'Barlow Semi Condensed', 'Arial Narrow', sans-serif;
+  --f-texto: 'Open Sans', system-ui, sans-serif;
+  --f-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fondo: #0c0c0c; --papel: #171717; --papel-2: #202020; --linea: #2c2c2c;
+    --tinta: #f2f2f0; --tinta-2: #b6b6b2; --tinta-3: #80807c; --coral-tinta: #ff8f8e;
+    --coral-suave: rgb(254 120 119 / 0.16); --bien: #7cc495; --bien-suave: #13261a;
+    --mal: #ff7b74; --mal-suave: #2e1412; --ambar: #e2b064; --ambar-suave: #2a2112; --codigo: #1d1d1d;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --fondo: #0c0c0c; --papel: #171717; --papel-2: #202020; --linea: #2c2c2c;
+  --tinta: #f2f2f0; --tinta-2: #b6b6b2; --tinta-3: #80807c; --coral-tinta: #ff8f8e;
+  --coral-suave: rgb(254 120 119 / 0.16); --bien: #7cc495; --bien-suave: #13261a;
+  --mal: #ff7b74; --mal-suave: #2e1412; --ambar: #e2b064; --ambar-suave: #2a2112; --codigo: #1d1d1d;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--fondo); color: var(--tinta); font-family: var(--f-texto);
+  font-size: 15.5px; line-height: 1.65; margin: 0;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--barra); }
+a { color: var(--coral-tinta); text-underline-offset: 3px; }
+code, .mono { font-family: var(--f-mono); font-size: 0.86em; }
+code { background: var(--codigo); padding: 0.1em 0.4em; border-radius: 5px; border: 1px solid var(--linea); word-break: break-word; }
+h1, h2, h3 { font-family: var(--f-titulo); font-weight: 400; letter-spacing: -0.01em; text-wrap: balance; line-height: 1.05; margin: 0; }
+h2 { font-size: clamp(2rem, 5vw, 2.7rem); }
+h3 { font-size: 1.5rem; font-weight: 500; margin-top: 2.2rem; }
+h4 { font-family: var(--f-titulo); font-size: 1.15rem; font-weight: 600; margin: 1.6rem 0 0.4rem; letter-spacing: 0.01em; }
+p { margin: 0.7rem 0; max-width: 68ch; }
+ul, ol { padding-left: 1.3rem; max-width: 70ch; }
+li { margin: 0.25rem 0; }
+.etiqueta { font-family: var(--f-titulo); font-size: 13px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--tinta-3); }
+.etiqueta.coral { color: var(--coral-tinta); }
+
+/* barra superior */
+.barra { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--barra); color: #f5f7fa; }
+.barra .dentro { display: flex; align-items: center; gap: 16px; height: 62px; max-width: 1240px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.barra img { height: 38px; width: auto; }
+.barra .nombre { font-family: var(--f-titulo); font-size: 15px; letter-spacing: 0.14em; text-transform: uppercase; color: rgb(245 247 250 / 0.7); }
+.barra .version { margin-left: auto; font-family: var(--f-mono); font-size: 12px; color: rgb(245 247 250 / 0.55); white-space: nowrap; }
+
+/* portada */
+.portada { background: var(--barra); color: #f5f7fa; }
+.portada .dentro { max-width: 1240px; margin: 0 auto; padding-block: 28px 44px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.portada h1 { font-size: clamp(2.6rem, 8vw, 4.6rem); font-weight: 300; max-width: 16ch; }
+.portada h1 em { font-style: normal; color: var(--coral); font-weight: 400; }
+.portada p { color: rgb(245 247 250 / 0.72); font-size: 16px; }
+.datos { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.dato { border: 1px solid rgb(255 255 255 / 0.14); border-radius: 10px; padding: 8px 12px; font-size: 13px; color: rgb(245 247 250 / 0.8); }
+.dato b { color: #fff; font-weight: 600; }
+
+/* esqueleto */
+.marco { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 32px 80px; }
+nav.indice { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 82px); align-self: start; max-height: calc(100vh - 110px); overflow-y: auto; }
+nav.indice a { display: block; padding: 6px 10px; border-radius: 8px; color: var(--tinta-2); text-decoration: none; font-size: 14px; }
+nav.indice a:hover { background: var(--papel-2); color: var(--tinta); }
+nav.indice a.activo { background: var(--tinta); color: var(--fondo); }
+nav.indice .grupo { margin: 16px 10px 6px; }
+main { min-width: 0; max-width: 820px; }
+section.parte { padding-top: 12px; margin-bottom: 64px; scroll-margin-top: 90px; }
+section.parte > .etiqueta { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+section.parte > .etiqueta::before { content: ""; width: 22px; height: 2px; background: var(--coral); border-radius: 2px; }
+h3, h4 { scroll-margin-top: 90px; }
+
+@media (max-width: 980px) {
+  .marco { grid-template-columns: minmax(0, 1fr); gap: 0; padding-top: 0; }
+  nav.indice { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 62px); z-index: 15; max-height: none; display: flex; gap: 6px;
+    overflow-x: auto; background: var(--fondo); margin: 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))); padding: 10px max(16px, env(safe-area-inset-left, 0px));
+    border-bottom: 1px solid var(--linea); scrollbar-width: none; }
+  nav.indice::-webkit-scrollbar { display: none; }
+  nav.indice .grupo { display: none; }
+  nav.indice a { white-space: nowrap; border: 1px solid var(--linea); border-radius: 999px; padding: 5px 12px; font-size: 13px; }
+  main { padding-top: 24px; }
+  section.parte { scroll-margin-top: 120px; }
+  .barra .nombre { display: none; }
+}
+
+/* piezas */
+.caja { background: var(--papel); border: 1px solid var(--linea); border-radius: 14px; padding: 18px 20px; margin: 16px 0; }
+.nota { border-left: 3px solid var(--coral); background: var(--coral-suave); border-radius: 0 12px 12px 0; padding: 12px 16px; margin: 16px 0; font-size: 14.5px; }
+.nota.ambar { border-color: var(--ambar); background: var(--ambar-suave); }
+.nota.bien { border-color: var(--bien); background: var(--bien-suave); }
+.nota p { margin: 0.3rem 0; }
+.tabla { overflow-x: auto; margin: 16px 0; border: 1px solid var(--linea); border-radius: 12px; background: var(--papel); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th { text-align: left; font-family: var(--f-titulo); font-weight: 600; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: #f5f7fa; background: var(--barra); padding: 10px 12px; white-space: nowrap; }
+td { padding: 9px 12px; border-top: 1px solid var(--linea); vertical-align: top; }
+tr:nth-child(even) td { background: var(--papel-2); }
+td code { white-space: nowrap; }
+.si { color: var(--bien); font-weight: 700; }
+.no { color: var(--tinta-3); }
+.metodo { display: inline-block; min-width: 54px; font-family: var(--f-mono); font-size: 11.5px; font-weight: 500; padding: 2px 6px; border-radius: 5px; text-align: center; background: var(--papel-2); }
+.metodo.get { color: var(--bien); background: var(--bien-suave); }
+.metodo.post, .metodo.put { color: var(--coral-tinta); background: var(--coral-suave); }
+.metodo.patch { color: var(--ambar); background: var(--ambar-suave); }
+.metodo.delete { color: var(--mal); background: var(--mal-suave); }
+.diagrama { background: var(--papel); border: 1px solid var(--linea); border-radius: 14px; padding: 16px; margin: 16px 0; overflow-x: auto; }
+.diagrama pre.mermaid { margin: 0; background: transparent; text-align: center; }
+.diagrama .pie { font-size: 13px; color: var(--tinta-3); margin: 10px 4px 0; }
+.rejilla { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 16px 0; }
+.rejilla .caja { margin: 0; }
+.rejilla .caja h4 { margin-top: 0; }
+.cifra { font-family: var(--f-titulo); font-size: 2.3rem; font-weight: 300; line-height: 1; font-variant-numeric: tabular-nums; }
+.pasos { counter-reset: paso; list-style: none; padding: 0; }
+.pasos > li { counter-increment: paso; position: relative; padding-left: 44px; margin: 14px 0; }
+.pasos > li::before { content: counter(paso); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 50%;
+  background: var(--tinta); color: var(--fondo); display: grid; place-items: center; font-family: var(--f-titulo); font-weight: 600; font-size: 15px; }
+.guia { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 24px; align-items: start; }
+.guia figure { margin: 0; position: sticky; top: 100px; }
+.guia img, .captura { width: 100%; height: auto; border-radius: 18px; border: 1px solid var(--linea); box-shadow: 0 18px 36px -24px rgb(0 0 0 / 0.5); display: block; }
+.guia figcaption, figure.ancha figcaption { font-size: 12.5px; color: var(--tinta-3); margin-top: 8px; text-align: center; }
+figure.ancha { margin: 18px 0; }
+figure.ancha img { border-radius: 12px; }
+@media (max-width: 720px) {
+  .guia { grid-template-columns: minmax(0, 1fr); }
+  .guia figure { position: static; max-width: 260px; margin: 0 auto; }
+}
+.tira { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; margin: 16px 0; }
+.tira figure { margin: 0; flex: 0 0 170px; }
+.tira figcaption { font-size: 12px; color: var(--tinta-3); margin-top: 6px; text-align: center; }
+
+/* QA */
+.qa-resumen { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 14px 0; }
+.qa-resumen .pildora { border-radius: 999px; padding: 4px 12px; font-size: 13px; font-weight: 600; background: var(--papel-2); }
+.qa-resumen .pildora.pasa { background: var(--bien-suave); color: var(--bien); }
+.qa-resumen .pildora.falla { background: var(--mal-suave); color: var(--mal); }
+.qa-barra { height: 6px; border-radius: 999px; background: var(--linea); overflow: hidden; flex: 1 1 200px; }
+.qa-barra div { height: 100%; background: var(--bien); transition: width 0.4s; }
+.qa-grupo { margin: 22px 0 8px; }
+.qa-caso { display: grid; grid-template-columns: 74px minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 12px 14px; border-top: 1px solid var(--linea); background: var(--papel); }
+.qa-caso:first-of-type { border-top: 0; }
+.qa-lista { border: 1px solid var(--linea); border-radius: 12px; overflow: hidden; }
+.qa-id { font-family: var(--f-mono); font-size: 12px; color: var(--tinta-3); padding-top: 2px; }
+.qa-caso p { margin: 0; font-size: 14.5px; }
+.qa-caso .esperado { color: var(--tinta-2); font-size: 13.5px; margin-top: 3px; }
+.qa-boton { font: inherit; font-size: 12.5px; font-weight: 600; border-radius: 999px; padding: 5px 12px; border: 1px solid var(--linea); background: var(--papel-2); color: var(--tinta-2); cursor: pointer; white-space: nowrap; }
+.qa-boton:focus-visible, nav.indice a:focus-visible, .accion:focus-visible { outline: 2px solid var(--coral); outline-offset: 2px; }
+.qa-boton[data-estado="pasa"] { background: var(--bien-suave); color: var(--bien); border-color: transparent; }
+.qa-boton[data-estado="falla"] { background: var(--mal-suave); color: var(--mal); border-color: transparent; }
+.accion { font: inherit; font-size: 13.5px; font-weight: 600; border-radius: 10px; padding: 8px 14px; border: 0; background: var(--coral); color: #000; cursor: pointer; }
+.accion.borde { background: transparent; border: 1px solid var(--linea); color: var(--tinta); }
+@media (max-width: 520px) {
+  .qa-caso { grid-template-columns: minmax(0, 1fr) auto; }
+  .qa-id { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+/* pila con logos */
+.pila-grupo { font-family: var(--f-titulo); font-size: 13px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--tinta-3); margin: 18px 0 8px; }
+.tecs { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.tec { display: flex; gap: 12px; align-items: center; background: var(--papel); border: 1px solid var(--linea); border-radius: 12px; padding: 10px 12px; }
+.tec > img, .tec > .logo-letras { flex: none; width: 38px; height: 38px; padding: 8px; border-radius: 10px; background: #fff; border: 1px solid #ebe9e5; }
+.tec b { display: block; font-size: 14px; line-height: 1.2; }
+.tec span { display: block; font-size: 12.5px; color: var(--tinta-2); line-height: 1.35; }
+.tec > .logo-letras, .logo-letras { display: grid; place-items: center; font-family: var(--f-mono); font-size: 13px; font-weight: 500; color: #3b3b3b; padding: 0 !important; }
+
+/* mapa de arquitectura */
+.mapa { background: var(--papel); border: 1px solid var(--linea); border-radius: 14px; padding: 18px; margin: 16px 0; }
+.mapa img { width: 22px; height: 22px; }
+.mapa-zona { border-radius: 12px; }
+.mapa-zona.servidor { border: 1.5px dashed var(--linea); padding: 14px; }
+.mapa-rotulo { display: flex; align-items: center; gap: 6px; font-family: var(--f-titulo); font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--tinta-3); margin-bottom: 8px; }
+.mapa-rotulo img { width: 16px; height: 16px; }
+.nodo { background: var(--papel-2); border: 1px solid var(--linea); border-radius: 12px; padding: 12px 14px; }
+.nodo > b { display: block; font-size: 15px; margin-top: 6px; }
+.nodo > span { display: block; font-size: 13px; color: var(--tinta-2); line-height: 1.4; }
+.nodo-logos { display: flex; gap: 6px; }
+.nodo-logos img, .almacenes .nodo > img { padding: 4px; width: 30px; height: 30px; border-radius: 8px; background: #fff; border: 1px solid #ebe9e5; }
+.nodo.api { border-color: var(--coral); }
+.modulos { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; margin-top: 10px; }
+.modulo { background: var(--papel); border: 1px solid var(--linea); border-radius: 10px; padding: 8px 10px; }
+.modulo b { display: block; font-family: var(--f-mono); font-size: 13px; }
+.modulo span { font-size: 12.5px; color: var(--tinta-2); }
+.modulo-flecha { font-size: 12px; color: var(--tinta-3); text-align: center; }
+.modulo-flecha::after { content: " →"; }
+.plugins { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.plugins span { font-family: var(--f-mono); font-size: 11.5px; padding: 2px 8px; border-radius: 999px; background: var(--coral-suave); color: var(--coral-tinta); }
+.almacenes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.almacenes .nodo > b { font-size: 14px; }
+.mapa-flecha { position: relative; height: 34px; display: grid; place-items: center; }
+.mapa-flecha::before { content: ""; position: absolute; left: 50%; top: 2px; bottom: 6px; width: 2px; background: var(--tinta-3); }
+.mapa-flecha::after { content: ""; position: absolute; left: calc(50% - 5px); bottom: 0; border: 5px solid transparent; border-top: 7px solid var(--tinta-3); border-bottom: 0; }
+.mapa-flecha span { position: relative; background: var(--papel); font-family: var(--f-mono); font-size: 11.5px; color: var(--tinta-2); padding: 0 8px; }
+.mapa-flecha.corta { height: 24px; }
+.mapa .pie { font-size: 13px; color: var(--tinta-3); margin: 12px 4px 0; }
+@media (max-width: 720px) {
+  .modulos { grid-template-columns: 1fr; }
+  .modulo-flecha::after { content: " ↓"; }
+  .almacenes { grid-template-columns: 1fr 1fr; }
+}
+
+/* código en bloque */
+pre.codigo { background: var(--codigo); border: 1px solid var(--linea); border-radius: 12px; padding: 14px 16px; overflow-x: auto; font-family: var(--f-mono); font-size: 12.5px; line-height: 1.55; tab-size: 4; margin: 14px 0; }
+
+/* fases */
+.fases { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin: 14px 0; }
+.fase { background: var(--papel); border: 1px solid var(--linea); border-radius: 12px; padding: 14px; }
+.fase-n { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--coral); color: #000; font-family: var(--f-titulo); font-weight: 600; font-size: 16px; }
+.fase b { display: block; margin-top: 8px; font-size: 14.5px; }
+.fase span:last-child { display: block; font-size: 13px; color: var(--tinta-2); margin-top: 4px; line-height: 1.45; }
+
+/* modelo C4 */
+.c4 { background: var(--papel); border: 1px solid var(--linea); border-radius: 14px; padding: 18px; margin: 14px 0 18px; }
+.c4 img { width: 22px; height: 22px; }
+.c4-fila { display: grid; gap: 10px; }
+.c4-fila.cuatro { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.c4-fila.tres { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.c4-fila.dos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.c4-caja { background: var(--papel-2); border: 1px solid var(--linea); border-radius: 12px; padding: 12px 14px; text-align: center; }
+.c4-caja > b { display: block; font-size: 14.5px; line-height: 1.25; margin-top: 6px; }
+.c4-tipo { display: block; font-family: var(--f-mono); font-size: 11px; color: var(--tinta-3); margin-top: 2px; }
+.c4-texto { display: block; font-size: 12.5px; color: var(--tinta-2); line-height: 1.4; margin-top: 5px; }
+.c4-logos { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+.c4-logos img { width: 30px; height: 30px; padding: 4px; border-radius: 8px; background: #fff; border: 1px solid #ebe9e5; }
+.c4-caja.persona .c4-logos img { border-radius: 50%; }
+.c4-caja.sistema { background: #0b0b0b; border: 2px solid var(--coral); color: #f5f7fa; padding: 16px; }
+.c4-caja.sistema .c4-tipo { color: #a8a8a8; }
+.c4-caja.sistema .c4-texto { color: #cfcfcf; }
+.c4-caja.principal { border: 2px solid var(--coral); }
+.c4-caja.externo { background: transparent; border-style: dashed; }
+.c4-caja.futuro { border-style: dashed; border-color: var(--tinta-3); }
+.c4-caja.comp { text-align: left; }
+.c4-caja.comp > b { margin-top: 0; }
+.c4-zona { border: 1.5px dashed var(--linea); border-radius: 12px; padding: 12px; }
+.c4-rotulo { display: flex; align-items: center; gap: 6px; font-family: var(--f-titulo); font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--tinta-3); margin-bottom: 10px; }
+.c4-rotulo img { width: 16px; height: 16px; }
+.c4-rel { position: relative; height: 36px; display: grid; place-items: center; }
+.c4-rel::before { content: ""; position: absolute; left: 50%; top: 2px; bottom: 6px; width: 2px; background: var(--tinta-3); }
+.c4-rel::after { content: ""; position: absolute; left: calc(50% - 5px); bottom: 0; border: 5px solid transparent; border-top: 7px solid var(--tinta-3); border-bottom: 0; }
+.c4-rel span { position: relative; background: var(--papel); font-family: var(--f-mono); font-size: 11.5px; color: var(--tinta-2); padding: 0 8px; text-align: center; }
+.c4-zona .c4-rel span { background: var(--papel); }
+.c4-rel.corta { height: 24px; }
+.c4-columnas { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; align-items: center; }
+.c4-col { display: flex; flex-direction: column; }
+.c4-mod { font-family: var(--f-mono); font-size: 12px; color: var(--coral-tinta); margin-bottom: 6px; }
+.c4-puente { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; color: var(--tinta-3); }
+.c4-plugins { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.c4-plugins span { display: inline-flex; align-items: center; gap: 6px; font-family: var(--f-mono); font-size: 11.5px; padding: 4px 10px 4px 4px; border-radius: 999px; background: var(--papel-2); border: 1px solid var(--linea); }
+.c4-plugins img { width: 20px; height: 20px; padding: 2px; border-radius: 50%; background: #fff; }
+.c4-leyenda { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 14px; font-size: 12px; color: var(--tinta-3); }
+.c4-leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+.c4-leyenda span::before { content: ""; width: 14px; height: 10px; border-radius: 3px; border: 1px solid var(--linea); background: var(--papel-2); }
+.c4-leyenda .l-persona::before { border-radius: 50%; width: 10px; background: var(--coral-suave); border-color: var(--coral); }
+.c4-leyenda .l-sistema::before { background: #0b0b0b; border: 2px solid var(--coral); }
+.c4-leyenda .l-externo::before { background: transparent; border-style: dashed; border-color: var(--tinta-3); }
+.c4-leyenda .l-futuro::before { background: transparent; border: 1.5px dashed var(--tinta-3); }
+.nota-pie { font-size: 13px; color: var(--tinta-3); }
+@media (max-width: 720px) {
+  .c4-fila.cuatro, .c4-fila.tres { grid-template-columns: 1fr 1fr; }
+  .c4-columnas { grid-template-columns: 1fr; }
+  .c4-puente { flex-direction: row; }
+}
+
+/* módulo por módulo */
+.modmapa { border: 1px solid var(--linea); border-radius: 14px; overflow: hidden; margin: 14px 0 18px; background: var(--papel); }
+.mod-capa { display: grid; grid-template-columns: 150px minmax(0, 1fr) minmax(0, 1fr); border-top: 1px solid var(--linea); position: relative; }
+.mod-capa:first-child { border-top: 0; }
+.mod-capa.cabeza { background: var(--papel-2); }
+.mod-capa.cabeza .mod-celda b { font-family: var(--f-mono); font-size: 14px; color: var(--coral-tinta); }
+.mod-capa.cabeza small { display: block; font-size: 12px; color: var(--tinta-3); }
+.mod-nombre { padding: 10px 12px; background: var(--papel-2); border-right: 1px solid var(--linea); font-size: 12px; color: var(--tinta-3); }
+.mod-nombre code { display: inline-block; margin-bottom: 2px; }
+.mod-nombre small { display: block; }
+.mod-celda { padding: 10px 12px; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; align-content: center; font-size: 12.5px; color: var(--tinta-2); }
+.mod-celda + .mod-celda { border-left: 1px solid var(--linea); }
+.mod-capa.cabeza .mod-celda { display: block; }
+.mod-celda code { font-size: 11.5px; }
+.mod-dep { padding: 12px 14px; border-top: 1px solid var(--linea); background: var(--coral-suave); font-size: 13px; }
+.mod-dep span { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-family: var(--f-mono); }
+.mod-dep img { width: 18px; height: 18px; }
+.modmapa.web .mod-capa { grid-template-columns: 150px minmax(0, 1fr) minmax(0, 1fr); }
+@media (max-width: 720px) {
+  .mod-capa { grid-template-columns: 1fr; }
+  .mod-nombre { border-right: 0; }
+  .mod-celda + .mod-celda { border-left: 0; border-top: 1px dashed var(--linea); }
+}
+
+/* escalones */
+.escalones { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin: 14px 0; }
+.escalon { background: var(--papel); border: 1px solid var(--linea); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 4px; }
+.esc-n { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--coral); color: #000; font-family: var(--f-titulo); font-weight: 600; font-size: 16px; }
+.escalon > b { font-size: 15px; margin-top: 4px; }
+.esc-cuando { font-size: 12px; color: var(--coral-tinta); font-weight: 600; }
+.escalon p { font-size: 13px; color: var(--tinta-2); margin: 4px 0; }
+.escalon .c4-logos { justify-content: flex-start; margin-top: auto; }
+.escalon .c4-logos img { width: 28px; height: 28px; padding: 4px; border-radius: 8px; background: #fff; border: 1px solid #ebe9e5; }
+.escalon small { font-size: 11.5px; color: var(--tinta-3); }
+
+/* Solo en papel / PDF */
+.solo-impresion { display: none; }
+@media print {
+  @page {
+    size: letter; margin: 16mm 15mm 18mm;
+    @bottom-left { content: "Motel Picasso · Inspecciones · Documentación"; font-family: 'Open Sans', sans-serif; font-size: 7.5pt; color: #8a8a88; }
+    @bottom-right { content: "página " counter(page) " de " counter(pages); font-family: 'Open Sans', sans-serif; font-size: 7.5pt; color: #8a8a88; }
+  }
+  @page :first { margin: 0; @bottom-left { content: none; } @bottom-right { content: none; } }
+  :root:root:root {
+    --fondo: #ffffff; --papel: #ffffff; --papel-2: #f4f3f1; --linea: #dddcd8;
+    --tinta: #1e1e1e; --tinta-2: #4a4a4a; --tinta-3: #7a7a78; --coral-tinta: #c8403d;
+    --coral-suave: #ffeceb; --bien: #2e7d4f; --bien-suave: #e6f2ea; --mal: #d92d24; --mal-suave: #fdecea;
+    --ambar: #9a6410; --ambar-suave: #fbf0dc; --codigo: #f5f4f1; color-scheme: light;
+  }
+  html, body { background: #fff; }
+  body { font-size: 10pt; line-height: 1.5; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body::before, .barra, nav.indice, .qa-resumen, #qa-aviso, .solo-pantalla { display: none !important; }
+  .solo-impresion { display: block; }
+  span.solo-impresion { display: inline-flex; }
+
+  /* portada: una hoja negra completa */
+  .portada { height: 279.4mm; break-after: page; display: flex; }
+  .portada .dentro { display: flex; flex-direction: column; width: 100%; max-width: none; padding: 20mm 20mm 18mm; }
+  .portada .logo-portada { display: block; height: 22mm; width: auto; margin-bottom: auto; }
+  .portada h1 { font-size: 40pt; max-width: 15ch; margin-top: 6mm; }
+  .portada p { font-size: 11.5pt; max-width: 60ch; }
+  .portada .contenido { margin: 12mm 0 0; padding: 7mm 0 0; border-top: 1px solid rgb(255 255 255 / 0.18); columns: 2; column-gap: 12mm; list-style: none; counter-reset: cont; }
+  .portada .contenido li { counter-increment: cont; font-size: 10.5pt; color: rgb(245 247 250 / 0.85); margin: 0 0 2.2mm; break-inside: avoid; }
+  .portada .contenido li::before { content: counter(cont, decimal-leading-zero); font-family: var(--f-mono); font-size: 8.5pt; color: var(--coral); margin-right: 3mm; }
+  .portada .pie-portada { margin-top: 10mm; font-family: var(--f-mono); font-size: 8.5pt; color: rgb(245 247 250 / 0.55); }
+
+  .marco { display: block; max-width: none; padding: 0; }
+  main { max-width: none; padding: 0; }
+  section.parte { break-before: page; margin: 0; padding: 0; }
+  h2 { font-size: 26pt; margin-bottom: 2mm; }
+  h3 { font-size: 15pt; margin-top: 7mm; }
+  h4 { font-size: 11.5pt; margin-top: 5mm; }
+  h2, h3, h4, .etiqueta { break-after: avoid; }
+  p, li { orphans: 3; widows: 3; }
+  p, ul, ol { max-width: none; }
+
+  .tabla { overflow: visible; border-radius: 6px; }
+  table { font-size: 8.8pt; }
+  th { white-space: normal; padding: 6px 8px; font-size: 8.5pt; }
+  td { padding: 4px 8px; }
+  td code { white-space: normal; word-break: break-word; }
+  td:first-child code { white-space: nowrap; word-break: normal; }
+  tr, .caja, .nota, .rejilla .caja, .pasos > li, .qa-caso, figure { break-inside: avoid; }
+  thead { display: table-header-group; }
+
+  .rejilla { grid-template-columns: repeat(auto-fit, minmax(38mm, 1fr)); gap: 8px; }
+  .rejilla .caja { padding: 12px 14px; }
+  .diagrama { overflow: visible; break-inside: avoid; padding: 10px; }
+  .diagrama svg { max-width: 100% !important; height: auto; max-height: 172mm; }
+
+  .guia { grid-template-columns: minmax(0, 1fr) 50mm; gap: 8mm; break-inside: avoid; }
+  .guia figure { position: static; }
+  .guia img, .captura { box-shadow: none; border-radius: 10px; }
+  .tira { overflow: visible; break-inside: avoid; }
+  .tira figure { flex: 0 0 50mm; }
+  figure.ancha { break-inside: avoid; }
+  figure.ancha img { max-height: 150mm; width: auto; max-width: 100%; margin: 0 auto; }
+
+  /* QA en papel: casillas y renglón de notas */
+  .qa-datos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6mm; margin: 5mm 0 2mm; }
+  .qa-datos span { border-bottom: 1px solid var(--tinta-3); padding-top: 7mm; font-size: 8.5pt; color: var(--tinta-3); }
+  .qa-grupo { margin-top: 6mm; }
+  .qa-lista { break-inside: auto; }
+  .qa-caso { grid-template-columns: 15mm minmax(0, 1fr) auto; padding: 7px 10px; }
+  .qa-boton { display: none; }
+  .qa-casillas { gap: 2mm; align-items: center; font-size: 8.5pt; color: var(--tinta-2); white-space: nowrap; padding-top: 1px; }
+  .qa-casillas i { display: inline-block; width: 3.6mm; height: 3.6mm; border: 1.2px solid var(--tinta-2); border-radius: 1mm; margin-left: 2.5mm; }
+  .qa-casillas i:first-child { margin-left: 0; }
+  .qa-notas { margin-top: 4px !important; padding-bottom: 5mm; border-bottom: 1px dotted var(--tinta-3); font-size: 8pt !important; color: var(--tinta-3); }
+}
+</style>
+
+<header class="barra">
+  <div class="dentro">
+    <img src="img/logo.svg" alt="Motel Picasso">
+    <span class="nombre">Inspecciones · Documentación</span>
+    <span class="version">v0.1 · 11 nov 2026</span>
+  </div>
+</header>
+
+<div class="portada">
+  <div class="dentro">
+    <p class="etiqueta coral">Mantenimiento y limpieza de seis sucursales</p>
+    <h1>Cómo está hecho, cómo se instala <em>y cómo se usa.</em></h1>
+    <p>Arquitectura, base de datos, requerimientos de servidor, seguridad, guía de usuario por puesto y listas de QA de la app de inspecciones de Motel Picasso.</p>
+    <div class="datos">
+      <span class="dato"><b>PWA</b> Vue 3 + Vite</span>
+      <span class="dato"><b>API</b> JFastFramework 0.1.0a12 · FastAPI</span>
+      <span class="dato"><b>Datos</b> PostgreSQL 16 · Redis 7</span>
+      <span class="dato"><b>Estado</b> demo local con datos de ejemplo</span>
+    </div>
+  </div>
+</div>
+
+<div class="marco">
+  <nav class="indice" aria-label="Índice">
+    <p class="etiqueta grupo">Sistema</p>
+    <a href="#resumen">Resumen</a>
+    <a href="#arquitectura">Arquitectura</a>
+    <a href="#modulos">Módulos y código</a>
+    <a href="#datos">Base de datos</a>
+    <a href="#roles">Roles y permisos</a>
+    <a href="#reglas">Reglas de negocio</a>
+    <a href="#flujos">Flujos</a>
+    <a href="#api">API</a>
+    <a href="#escala">Escalamiento</a>
+    <p class="etiqueta grupo">Operación</p>
+    <a href="#servidor">Requerimientos de servidor</a>
+    <a href="#entorno">Variables de entorno</a>
+    <a href="#despliegue">Despliegue</a>
+    <a href="#operacion">Operación</a>
+    <a href="#seguridad">Seguridad</a>
+    <p class="etiqueta grupo">Uso</p>
+    <a href="#guia">Guía de usuario</a>
+    <a href="#qa">Listas de QA</a>
+    <a href="#pendientes">Pendientes</a>
+    <a href="#glosario">Glosario</a>
+  </nav>
+
+  <main>
+    <!-- ============================== RESUMEN -->
+    <section class="parte" id="resumen">
+      <p class="etiqueta">Resumen</p>
+      <h2>Qué es</h2>
+      <p>Una app para que el personal de las seis sucursales de Motel Picasso (Lerma, Toluca, Circuito, Churubusco, Periférico y Vaqueritos) revise cada cuarto desde el celular, documente lo que está mal con foto y le dé seguimiento hasta cerrarlo, y para que los propietarios vean las seis sucursales en un solo panel. Sigue el documento <em>Reportes Mantenimiento y Limpieza Picasso</em> (checklist de gerente de 25 puntos y de ama de llaves de 29).</p>
+      <div class="rejilla">
+        <div class="caja"><p class="etiqueta">Ama de llaves</p><p>Revisa el cuarto después de cada limpieza. Toca solo lo que está mal y lo envía al gerente.</p></div>
+        <div class="caja"><p class="etiqueta">Gerente</p><p>Revisa cada cuarto (diario o cada dos días), decide si se renta, atiende y cierra los folios.</p></div>
+        <div class="caja"><p class="etiqueta">Propietarios</p><p>Panel de las seis sucursales, folios con su expediente, indicadores y reportes en PDF.</p></div>
+        <div class="caja"><p class="etiqueta">Administración</p><p>Cuartos, equipo de cada cuarto, personal y reglas por sucursal.</p></div>
+      </div>
+      <h3>Pila tecnológica</h3>
+      <p>Piezas de uso común y gratuitas para este uso: no hay licencias que pagar por la plataforma. Las versiones son las que corren hoy.</p>
+      <div class="pila">
+        <p class="pila-grupo">App del personal</p>
+        <div class="tecs">
+          <div class="tec"><img src="img/tech/vuedotjs.svg" alt=""><div><b>Vue 3.5</b><span>Pantallas de la app; Pinia guarda el estado y Vue Router la navegación</span></div></div>
+          <div class="tec"><img src="img/tech/vite.svg" alt=""><div><b>Vite 6</b><span>Compila la app para producción</span></div></div>
+          <div class="tec"><img src="img/tech/tailwindcss.svg" alt=""><div><b>Tailwind CSS 4</b><span>Estilos, tema claro y oscuro</span></div></div>
+          <div class="tec"><img src="img/tech/axios.svg" alt=""><div><b>Axios 1.7</b><span>Llamadas a la API; renueva el token solo</span></div></div>
+          <div class="tec"><img src="img/tech/pwa.svg" alt=""><div><b>PWA</b><span>Se instala desde el navegador y aguanta poca señal</span></div></div>
+        </div>
+        <p class="pila-grupo">API</p>
+        <div class="tecs">
+          <div class="tec"><img src="img/tech/python.svg" alt=""><div><b>Python 3.12</b><span>Lenguaje de la API</span></div></div>
+          <div class="tec"><img src="img/tech/fastapi.svg" alt=""><div><b>FastAPI 0.162</b><span>Rutas HTTP y documentación automática</span></div></div>
+          <div class="tec"><img src="img/tech/jfast.svg" alt=""><div><b>JFastFramework 0.1</b><span>Módulos, plugins de cuentas, fotos, caché y cola; vigila las capas</span></div></div>
+          <div class="tec"><img src="img/tech/sqlalchemy.svg" alt=""><div><b>SQLAlchemy 2.1</b><span>Acceso a la base de datos</span></div></div>
+          <div class="tec"><img src="img/tech/pydantic.svg" alt=""><div><b>Pydantic 2.14</b><span>Valida lo que entra y sale de cada ruta</span></div></div>
+          <div class="tec"><span class="logo-letras" aria-hidden="true">Al</span><div><b>Alembic 1.20</b><span>Migraciones de la base</span></div></div>
+          <div class="tec"><span class="logo-letras" aria-hidden="true">RL</span><div><b>reportlab 5.1</b><span>Arma los cuatro reportes PDF</span></div></div>
+          <div class="tec"><img src="img/tech/jsonwebtokens.svg" alt=""><div><b>JWT + argon2</b><span>Tokens de sesión y contraseñas cifradas</span></div></div>
+        </div>
+        <p class="pila-grupo">Datos e infraestructura</p>
+        <div class="tecs">
+          <div class="tec"><img src="img/tech/postgresql.svg" alt=""><div><b>PostgreSQL 16</b><span>Datos y cola de trabajos</span></div></div>
+          <div class="tec"><img src="img/tech/redis.svg" alt=""><div><b>Redis 7</b><span>Caché, tokens revocados y límites de intentos</span></div></div>
+          <div class="tec"><img src="img/tech/docker.svg" alt=""><div><b>Docker</b><span>Cada pieza en su contenedor</span></div></div>
+          <div class="tec"><img src="img/tech/caddy.svg" alt=""><div><b>Caddy 2</b><span>HTTPS, sirve la app y manda /api a la API</span></div></div>
+          <div class="tec"><img src="img/tech/letsencrypt.svg" alt=""><div><b>Let's Encrypt</b><span>Certificado HTTPS que Caddy renueva solo</span></div></div>
+          <div class="tec"><img src="img/tech/ubuntu.svg" alt=""><div><b>Ubuntu 24.04 LTS</b><span>Sistema del servidor</span></div></div>
+          <div class="tec"><img src="img/tech/prometheus.svg" alt=""><div><b>Prometheus</b><span>Formato de las métricas en /metrics</span></div></div>
+        </div>
+        <p class="pila-grupo">Calidad</p>
+        <div class="tecs">
+          <div class="tec"><img src="img/tech/pytest.svg" alt=""><div><b>pytest 9.2</b><span>Pruebas automáticas</span></div></div>
+          <div class="tec"><img src="img/tech/ruff.svg" alt=""><div><b>Ruff 0.17</b><span>Estilo y errores comunes</span></div></div>
+          <div class="tec"><span class="logo-letras" aria-hidden="true">my</span><div><b>mypy 2.4</b><span>Revisión estricta de tipos</span></div></div>
+          <div class="tec"><img src="img/tech/mermaid.svg" alt=""><div><b>Mermaid</b><span>Diagramas de esta documentación</span></div></div>
+        </div>
+      </div>
+      <div class="nota ambar"><p><b>Estado al 11 de noviembre de 2026:</b> funciona en una Mac de desarrollo con datos de ejemplo (cuartos 101–112 por sucursal, personas y folios inventados). No está desplegada en un servidor ni en un repositorio git. La liga de prueba es un túnel temporal.</p></div>
+    </section>
+
+    <!-- ============================== ARQUITECTURA -->
+    <section class="parte" id="arquitectura">
+      <p class="etiqueta">Arquitectura</p>
+      <h2>Cómo está diagramado</h2>
+      <p>Un monolito modular: una sola API con dos módulos que no se tocan por dentro, una base de datos, un Redis, un disco para fotos y un worker para trabajos en segundo plano, todo en contenedores de Docker. El navegador del teléfono instala la app (PWA) y habla con todo por una sola dirección HTTPS.</p>
+      <h3>Modelo C4</h3>
+      <p>El modelo C4 dibuja el sistema con zoom: <b>contexto</b> (quién lo usa y con qué habla), <b>contenedores</b> (las piezas que se despliegan), <b>componentes</b> (lo que hay dentro de la API) y <b>código</b> (los archivos de cada módulo, en «Módulos y código»).</p>
+      <h4>Nivel 1 · Contexto</h4>
+      <div class="c4" role="img" aria-label="Cuatro puestos usan el sistema de inspecciones de Picasso; el sistema pide certificados a Let's Encrypt; el correo es un sistema futuro">
+        <div class="c4-fila cuatro">
+          <div class="c4-caja persona"><div class="c4-logos"><img src="img/tech/persona.svg" alt=""></div><b>Ama de llaves</b><span class="c4-tipo">[Persona]</span><span class="c4-texto">Revisa el cuarto después de cada limpieza y marca lo que está mal</span></div>
+          <div class="c4-caja persona"><div class="c4-logos"><img src="img/tech/persona.svg" alt=""></div><b>Gerente</b><span class="c4-tipo">[Persona]</span><span class="c4-texto">Revisa cuartos, decide la renta y atiende y cierra folios</span></div>
+          <div class="c4-caja persona"><div class="c4-logos"><img src="img/tech/persona.svg" alt=""></div><b>Propietarios</b><span class="c4-tipo">[Persona]</span><span class="c4-texto">Ven las seis sucursales, indicadores y reportes en PDF</span></div>
+          <div class="c4-caja persona"><div class="c4-logos"><img src="img/tech/persona.svg" alt=""></div><b>Administración</b><span class="c4-tipo">[Persona]</span><span class="c4-texto">Da de alta cuartos, equipo, personal y reglas</span></div>
+        </div>
+        <div class="c4-rel"><span>Usan la app desde el celular o la computadora · HTTPS</span></div>
+        <div class="c4-caja sistema"><div class="c4-logos"><img src="img/tech/pwa.svg" alt=""><img src="img/tech/fastapi.svg" alt=""><img src="img/tech/postgresql.svg" alt=""></div><b>Sistema de inspecciones Picasso</b><span class="c4-tipo">[Sistema de software]</span><span class="c4-texto">Checklists por cuarto, folios con fotos e historial, decisión de renta, panel de las seis sucursales y reportes PDF</span></div>
+        <div class="c4-rel"><span>Pide y renueva el certificado HTTPS · Avisaría por correo</span></div>
+        <div class="c4-fila dos">
+          <div class="c4-caja externo"><div class="c4-logos"><img src="img/tech/letsencrypt.svg" alt=""></div><b>Let's Encrypt</b><span class="c4-tipo">[Sistema externo]</span><span class="c4-texto">Emite el certificado HTTPS del dominio; Caddy lo renueva solo</span></div>
+          <div class="c4-caja externo futuro"><div class="c4-logos"><img src="img/tech/correo.svg" alt=""></div><b>Correo / avisos</b><span class="c4-tipo">[Sistema externo · futuro]</span><span class="c4-texto">Recuperación de contraseña y avisos al gerente; JFast ya trae el envío de correo</span></div>
+        </div>
+        <div class="c4-leyenda"><span class="l-persona">Persona</span><span class="l-sistema">Este sistema</span><span class="l-contenedor">Contenedor / componente</span><span class="l-externo">Externo</span><span class="l-futuro">Futuro</span></div>
+      </div>
+      <h4>Nivel 2 · Contenedores</h4>
+      <div class="c4" role="img" aria-label="La PWA en el teléfono habla por HTTPS con Caddy; Caddy pasa a la API; la API usa PostgreSQL, Redis y el disco de fotos; el worker toma trabajos de PostgreSQL">
+        <div class="c4-zona">
+          <span class="c4-rotulo"><img src="img/tech/celular.svg" alt=""> Teléfono o computadora · navegador</span>
+          <div class="c4-fila tres">
+            <div class="c4-caja "><div class="c4-logos"><img src="img/tech/vuedotjs.svg" alt=""><img src="img/tech/vite.svg" alt=""><img src="img/tech/tailwindcss.svg" alt=""></div><b>PWA Picasso</b><span class="c4-tipo">[Contenedor: Vue 3 · Vite · Tailwind]</span><span class="c4-texto">Pantallas de los cuatro puestos; instalable desde el navegador</span></div>
+            <div class="c4-caja "><div class="c4-logos"><img src="img/tech/pwa.svg" alt=""></div><b>Service worker</b><span class="c4-tipo">[Contenedor: JavaScript en el navegador]</span><span class="c4-texto">Guarda la app para abrir rápido; nunca guarda datos de /api</span></div>
+            <div class="c4-caja "><div class="c4-logos"><img src="img/tech/cola.svg" alt=""></div><b>Cola sin señal</b><span class="c4-tipo">[Almacén: localStorage]</span><span class="c4-texto">Toques pendientes por revisión; se suben solos al volver la señal</span></div>
+          </div>
+        </div>
+        <div class="c4-rel"><span>HTTPS 443 · JSON y fotos</span></div>
+        <div class="c4-zona">
+          <span class="c4-rotulo"><img src="img/tech/ubuntu.svg" alt=""><img src="img/tech/docker.svg" alt=""> Servidor · Ubuntu 24.04 con Docker</span>
+          <div class="c4-caja "><div class="c4-logos"><img src="img/tech/caddy.svg" alt=""><img src="img/tech/letsencrypt.svg" alt=""></div><b>Caddy</b><span class="c4-tipo">[Contenedor: Caddy 2]</span><span class="c4-texto">HTTPS automático · <code>/</code> la app · <code>/api</code> y <code>/storage</code> a la API · rutas internas cerradas</span></div>
+          <div class="c4-rel corta"><span>HTTP interno</span></div>
+          <div class="c4-caja principal"><div class="c4-logos"><img src="img/tech/python.svg" alt=""><img src="img/tech/fastapi.svg" alt=""><img src="img/tech/jfast.svg" alt=""></div><b>API Picasso</b><span class="c4-tipo">[Contenedor: Python 3.12 · FastAPI · JFastFramework]</span><span class="c4-texto">Módulos sucursal e inspeccion; tokens, permisos, reglas, fotos firmadas y PDF</span></div>
+          <div class="c4-rel corta"><span>SQL (asyncpg) · Redis · archivos</span></div>
+          <div class="c4-fila cuatro">
+            <div class="c4-caja "><div class="c4-logos"><img src="img/tech/postgresql.svg" alt=""></div><b>PostgreSQL</b><span class="c4-tipo">[Base de datos: PostgreSQL 16]</span><span class="c4-texto">Datos del negocio, cuentas y cola de trabajos</span></div>
+            <div class="c4-caja "><div class="c4-logos"><img src="img/tech/redis.svg" alt=""></div><b>Redis</b><span class="c4-tipo">[Caché: Redis 7]</span><span class="c4-texto">Tokens revocados, límites de intentos y caché</span></div>
+            <div class="c4-caja "><div class="c4-logos"><img src="img/tech/disco.svg" alt=""></div><b>Disco privado</b><span class="c4-tipo">[Archivos: volumen picasso_storage]</span><span class="c4-texto">Fotos de evidencia, servidas solo con liga firmada</span></div>
+            <div class="c4-caja "><div class="c4-logos"><img src="img/tech/jfast.svg" alt=""></div><b>Worker</b><span class="c4-tipo">[Contenedor: jfast worker]</span><span class="c4-texto">Toma trabajos de la cola en PostgreSQL; hoy sin tareas</span></div>
+          </div>
+        </div>
+        <div class="c4-leyenda"><span class="l-persona">Persona</span><span class="l-sistema">Este sistema</span><span class="l-contenedor">Contenedor / componente</span><span class="l-externo">Externo</span><span class="l-futuro">Futuro</span></div>
+      </div>
+      <h4>Nivel 3 · Componentes de la API</h4>
+      <div class="c4" role="img" aria-label="Dentro de la API: rutas, servicios, repositorios y validaciones de los módulos inspeccion y sucursal; inspeccion usa sucursal solo por su fachada public.py; los plugins de JFast dan sesión, cuentas, fotos, caché y cola">
+        <div class="c4-zona">
+          <span class="c4-rotulo"><img src="img/tech/python.svg" alt=""><img src="img/tech/fastapi.svg" alt=""><img src="img/tech/jfast.svg" alt=""> API Picasso · contenedor</span>
+          <div class="c4-columnas">
+            <div class="c4-col">
+              <span class="c4-mod">módulo inspeccion</span>
+              <div class="c4-caja comp"><b>Rutas</b><span class="c4-tipo">[FastAPI · api/]</span><span class="c4-texto">20 rutas de revisiones, folios, renta, panel e indicadores, y 4 de PDF</span></div>
+              <div class="c4-rel corta"></div>
+              <div class="c4-caja comp"><b>Servicios</b><span class="c4-tipo">[Python · services/]</span><span class="c4-texto">RevisionService, IncidenciaService, ReporteService y PdfService (reportlab)</span></div>
+              <div class="c4-rel corta"></div>
+              <div class="c4-caja comp"><b>Repositorio y reglas</b><span class="c4-tipo">[SQLAlchemy · repositories/ y validations/]</span><span class="c4-texto">Folio consecutivo, últimos chequeos, rentas vigentes; reglas del documento como funciones puras</span></div>
+            </div>
+            <div class="c4-puente"><span>usa solo</span><code>public.py</code><span>→</span></div>
+            <div class="c4-col">
+              <span class="c4-mod">módulo sucursal</span>
+              <div class="c4-caja comp"><b>Rutas</b><span class="c4-tipo">[FastAPI · api/]</span><span class="c4-texto">12 rutas de perfil, sucursales, cuartos, personal y equipo</span></div>
+              <div class="c4-rel corta"></div>
+              <div class="c4-caja comp"><b>Servicios</b><span class="c4-tipo">[Python · services/]</span><span class="c4-texto">SucursalService: permisos por puesto, cuartos, equipo y personal</span></div>
+              <div class="c4-rel corta"></div>
+              <div class="c4-caja comp"><b>Repositorios</b><span class="c4-tipo">[SQLAlchemy · repositories/]</span><span class="c4-texto">Sucursal, Habitacion, Personal y Equipo</span></div>
+            </div>
+          </div>
+          <div class="c4-rel corta"><span>Los dos usan los plugins de JFast</span></div>
+          <div class="c4-plugins">
+            <span><img src="img/tech/jsonwebtokens.svg" alt="">auth · tokens</span><span><img src="img/tech/jfast.svg" alt="">accounts · usuarios y roles</span><span><img src="img/tech/disco.svg" alt="">storage · fotos firmadas</span><span><img src="img/tech/redis.svg" alt="">cache · Redis</span><span><img src="img/tech/postgresql.svg" alt="">queue · trabajos</span><span><img src="img/tech/prometheus.svg" alt="">metrics · observability</span>
+          </div>
+        </div>
+        <div class="c4-rel corta"><span>SQLAlchemy 2 · asyncpg</span></div>
+        <div class="c4-caja "><div class="c4-logos"><img src="img/tech/postgresql.svg" alt=""></div><b>PostgreSQL</b><span class="c4-tipo">[Base de datos]</span><span class="c4-texto">12 tablas del negocio más las de cuentas</span></div>
+        <div class="c4-leyenda"><span class="l-persona">Persona</span><span class="l-sistema">Este sistema</span><span class="l-contenedor">Contenedor / componente</span><span class="l-externo">Externo</span><span class="l-futuro">Futuro</span></div>
+      </div>
+      <p class="nota-pie">Los PDF se arman en memoria con reportlab en un hilo aparte y se descargan; no se guardan.</p>
+      <h3>Puertos</h3>
+      <div class="tabla"><table>
+        <tr><th>Puerto</th><th>Servicio</th><th>Dónde</th></tr>
+        <tr><td class="mono">443 / 80</td><td>Caddy (app + /api + /storage)</td><td>Producción, lo único expuesto</td></tr>
+        <tr><td class="mono">9800</td><td>API Picasso</td><td>Interno</td></tr>
+        <tr><td class="mono">9801</td><td>PostgreSQL</td><td>Interno (en local publicado para herramientas)</td></tr>
+        <tr><td class="mono">9803</td><td>Redis</td><td>Interno (nunca publicado sin contraseña)</td></tr>
+        <tr><td class="mono">9810</td><td>Front en desarrollo (Vite)</td><td>Solo local</td></tr>
+        <tr><td class="mono">9811</td><td>Build de demo con <code>/api</code> por proxy (<code>npm run movil</code>)</td><td>Solo local / túnel de prueba</td></tr>
+      </table></div>
+
+      <h3>Cómo viaja un toque</h3>
+      <p>Lo que pasa cuando la ama de llaves marca «Regadera» como mal:</p>
+      <ol class="pasos">
+        <li><b>En el teléfono.</b> La PWA guarda el toque en una cola del teléfono (una por revisión) y lo manda a la API con su token.</li>
+        <li><b>Service worker.</b> No guarda en caché nada de <code>/api</code> ni de <code>/storage</code>: los datos siempre salen del servidor.</li>
+        <li><b>Caddy.</b> Recibe por HTTPS, quita el <code>/api</code> y pasa la petición a la API dentro del servidor.</li>
+        <li><b>Permisos.</b> La API revisa el token, el permiso del puesto (<code>revision:ama</code>) y que el cuarto sea de su sucursal. Si no, responde 403.</li>
+        <li><b>Regla.</b> El servicio aplica el documento: una falla abre un folio con consecutivo sin huecos (<code>PIC-LER-000245</code>) o se liga al folio abierto del mismo punto.</li>
+        <li><b>Base.</b> El repositorio escribe el punto, el folio y su historial en PostgreSQL en una sola transacción.</li>
+        <li><b>Respuesta.</b> La app quita el toque de la cola y pinta el tache rojo con su folio. Sin señal, lo reintenta sola al volver la conexión.</li>
+        <li><b>Token vencido.</b> Si pasaron más de 15 minutos, Axios renueva el token y repite la petición sin que la persona lo note.</li>
+      </ol>
+
+      <h3>Decisiones técnicas</h3>
+      <div class="tabla"><table>
+        <tr><th>Decisión</th><th>Por qué</th><th>Lo que se descartó</th></tr>
+        <tr><td>PWA</td><td>Se instala desde el navegador, abre la cámara trasera, aguanta poca señal y se actualiza sin pasar por tiendas.</td><td>App de tienda. Si después se necesita tienda, cámara sin acceso a galería o avisos en iPhone sin instalar, el mismo front se envuelve con Capacitor sin reescribirlo.</td></tr>
+        <tr><td>Un solo servicio con módulos</td><td>Seis sucursales y decenas de usuarios no justifican varios servicios. Los contratos de JFast impiden que los módulos se mezclen.</td><td>Microservicios</td></tr>
+        <tr><td>PostgreSQL</td><td>Datos con relaciones (sucursal → cuarto → revisión → folio), transacciones y folios consecutivos sin huecos.</td><td>Base de documentos</td></tr>
+        <tr><td>Fotos privadas con ligas firmadas</td><td>Son evidencia interna. Una liga que se comparte deja de servir a las 2 horas.</td><td>Carpeta pública</td></tr>
+        <tr><td>PDF al momento</td><td>Siempre muestran el estado actual y no ocupan disco.</td><td>Guardar cada PDF generado</td></tr>
+        <tr><td>Copia de sucursal y cuarto en cada folio</td><td>El expediente dice lo que decía el día que se levantó, aunque después cambie el nombre o el número.</td><td>Leerlo siempre de la tabla actual</td></tr>
+      </table></div>
+
+      <h3>Sin señal, fotos y reportes</h3>
+      <div class="rejilla">
+        <div class="caja"><p class="etiqueta">Sin señal</p><p>Cada toque queda en la cola del teléfono y se sube solo al volver la conexión; la pantalla avisa cuántos faltan. Las fotos no entran a la cola: se toman con conexión.</p></div>
+        <div class="caja"><p class="etiqueta">Fotos</p><p>El teléfono las reduce a 1,600 px y JPEG al 80 % antes de subirlas (de 3–6 MB a unos cientos de KB). El servidor rechaza más de 8 MB y las guarda en el disco privado.</p></div>
+        <div class="caja"><p class="etiqueta">Service worker</p><p>Guarda la app (HTML, JS, estilos, logos) para abrir rápido. La navegación va primero a la red y, sin señal, usa la copia.</p></div>
+        <div class="caja"><p class="etiqueta">Reportes PDF</p><p>Cuatro tipos: revisión, folio, expediente de cuarto y grupo por periodo. Se arman al pedirlos, con la marca de Picasso.</p></div>
+      </div>
+
+    </section>
+
+    <!-- ============================== MÓDULOS -->
+    <section class="parte" id="modulos">
+      <p class="etiqueta">Módulos y código</p>
+      <h2>Dónde vive cada cosa</h2>
+      <div class="tabla"><table>
+        <tr><th>Carpeta</th><th>Qué es</th></tr>
+        <tr><td><code>picasso/</code></td><td>API (servicio JFast). <code>main.py</code> monta los módulos; <code>jfast.toml</code> los plugins; <code>migrations/</code> Alembic.</td></tr>
+        <tr><td><code>picasso/modules/sucursal/</code></td><td>Sucursales, cuartos (con jacuzzi, alberca, sauna, terraza), personal (nombre, puesto, sucursal) y catálogo de equipo por cuarto.</td></tr>
+        <tr><td><code>picasso/modules/inspeccion/</code></td><td>Revisiones y sus puntos, folios con historial y evidencias, decisión de renta, panel, indicadores, expediente de cuarto y PDF.</td></tr>
+        <tr><td><code>…/inspeccion/models/catalogo_models.py</code></td><td>Los dos checklists del documento (G01–G25, A01–A29) y el texto de los puntos de equipo.</td></tr>
+        <tr><td><code>…/inspeccion/validations/</code></td><td>Reglas del documento como funciones puras (motivo de No aplica, folio, quién cierra, cumplimiento, conformidad).</td></tr>
+        <tr><td><code>…/inspeccion/services/pdf/</code></td><td>Los cuatro reportes PDF con la marca.</td></tr>
+        <tr><td><code>picasso/scripts/</code></td><td><code>sembrar.py</code> y <code>equipo_demo.py</code>: datos de ejemplo. No usar en producción.</td></tr>
+        <tr><td><code>picasso-web/</code></td><td>PWA: <code>src/views</code> (pantallas), <code>src/components</code>, <code>src/services/picasso.js</code> (todas las llamadas), <code>public/sw.js</code> (service worker) y <code>public/marca/</code> (logo oficial).</td></tr>
+      </table></div>
+      <h3>Módulo por módulo</h3>
+      <p>Las mismas capas en los dos módulos de la API, de arriba (HTTP) a abajo (tablas). Una capa solo llama a la de abajo; <code>jfast contracts check</code> lo revisa en cada cambio.</p>
+      <div class="modmapa" role="img" aria-label="Capas de los módulos sucursal e inspeccion, con sus archivos y tablas">
+        <div class="mod-capa cabeza"><span class="mod-nombre">Capa</span><div class="mod-celda"><b>sucursal</b><small>Sucursales, cuartos, personal y equipo</small></div><div class="mod-celda"><b>inspeccion</b><small>Revisiones, folios, renta, reportes y PDF</small></div></div>
+        <div class="mod-capa"><span class="mod-nombre"><code>api/</code><small>HTTP, sin SQL</small></span><div class="mod-celda"><code>routes.py</code><span>12 rutas</span></div><div class="mod-celda"><code>routes.py</code><code>pdf_routes.py</code><span>20 rutas + 4 PDF</span></div></div>
+        <div class="mod-capa"><span class="mod-nombre"><code>services/</code><small>reglas, sin FastAPI</small></span><div class="mod-celda"><code>SucursalService</code><span>permisos por puesto, cuartos, equipo y personal</span></div><div class="mod-celda"><code>RevisionService</code><code>IncidenciaService</code><code>ReporteService</code><code>PdfService</code><code>comun.py</code><span>y <code>pdf/</code>: revisión, folio, cuarto y grupo</span></div></div>
+        <div class="mod-capa"><span class="mod-nombre"><code>repositories/</code><small>SQL</small></span><div class="mod-celda"><code>SucursalRepository</code><code>HabitacionRepository</code><code>PersonalRepository</code><code>EquipoRepository</code></div><div class="mod-celda"><code>InspeccionRepository</code><span>folio consecutivo, últimos chequeos, rentas vigentes</span></div></div>
+        <div class="mod-capa"><span class="mod-nombre"><code>validations/</code><small>funciones puras</small></span><div class="mod-celda"><code>validar_asignacion</code><span>puesto ↔ sucursal</span></div><div class="mod-celda"><code>inspeccion_validation</code><span>No aplica, folio, quién cierra, cumplimiento, conformidad</span></div></div>
+        <div class="mod-capa"><span class="mod-nombre"><code>models/</code><small>entidades y esquemas</small></span><div class="mod-celda"><code>Sucursal</code><code>Habitacion</code><code>Personal</code><code>Equipo</code><code>HabitacionEquipo</code></div><div class="mod-celda"><code>Revision</code><code>ResultadoPunto</code><code>Incidencia</code><code>EventoIncidencia</code><code>Evidencia</code><code>DecisionRenta</code><code>ConsecutivoFolio</code><span>y el catálogo G01–G25 / A01–A29</span></div></div>
+        <div class="mod-capa"><span class="mod-nombre"><code>public.py</code><small>lo único que ven otros módulos</small></span><div class="mod-celda"><code>SucursalDTO</code><code>HabitacionDTO</code><code>EquipoDTO</code><code>PerfilDTO</code><span>sucursales(), habitaciones(), perfil_de(), equipos_por_habitacion()</span></div><div class="mod-celda"><span>Vacía: ningún módulo depende de inspeccion</span></div></div>
+        <div class="mod-capa"><span class="mod-nombre"><code>tasks.py</code><small>trabajos en segundo plano</small></span><div class="mod-celda"><span>Sin tareas todavía</span></div><div class="mod-celda"><span>Sin tareas todavía (lugar para avisos y PDF masivos)</span></div></div>
+        <div class="mod-capa"><span class="mod-nombre"><code>tablas</code><small>PostgreSQL</small></span><div class="mod-celda"><code>sucursales</code><code>habitaciones</code><code>personal</code><code>equipos</code><code>habitacion_equipos</code></div><div class="mod-celda"><code>revisiones</code><code>resultados_punto</code><code>incidencias</code><code>eventos_incidencia</code><code>evidencias</code><code>decisiones_renta</code><code>consecutivos_folio</code></div></div>
+        <div class="mod-dep"><span><img src="img/tech/jfast.svg" alt=""> inspeccion → sucursal</span> solo por <code>public.py</code>: guarda una copia de la clave de sucursal y el número de cuarto en cada revisión y folio, y nunca toca las tablas de sucursal.</div>
+      </div>
+      <h4>App del personal · <code>picasso-web</code></h4>
+      <div class="modmapa web" role="img" aria-label="Capas de la app Vue: router, marco, vistas, componentes, stores, servicios y librerías">
+        <div class="mod-capa"><span class="mod-nombre"><code>router/</code><small>rutas</small></span><div class="mod-celda"><code>index.js</code><span>pide sesión; carga cada pantalla al abrirla</span></div><div class="mod-celda"><span>Los permisos los decide la API; la app solo esconde lo que no aplica al puesto</span></div></div>
+        <div class="mod-capa"><span class="mod-nombre"><code>layouts/</code><small>marco</small></span><div class="mod-celda"><code>Marco.vue</code><span>barra negra, navegación abajo en el celular, transiciones</span></div><div class="mod-celda"></div></div>
+        <div class="mod-capa"><span class="mod-nombre"><code>views/</code><small>11 pantallas</small></span><div class="mod-celda"><code>LoginView</code><code>InicioView</code><code>TableroView</code><code>RevisionView</code><code>FoliosView</code><code>FolioView</code></div><div class="mod-celda"><code>HabitacionView</code><code>PanelView</code><code>ReportesView</code><code>PerfilView</code><code>AdminView</code></div></div>
+        <div class="mod-capa"><span class="mod-nombre"><code>components/</code><small>17 piezas</small></span><div class="mod-celda"><code>FilaMal</code><code>Hoja</code><code>BotonFoto</code><code>BotonPdf</code><code>Galeria</code><code>VisorFoto</code></div><div class="mod-celda"><code>EstadoChip</code><code>Numero</code><code>Barra</code><code>Avisos</code><code>Marca</code><code>DemoAccesos</code><span>…</span></div></div>
+        <div class="mod-capa"><span class="mod-nombre"><code>stores/</code><small>Pinia</small></span><div class="mod-celda"><code>auth.store</code><span>sesión y token</span></div><div class="mod-celda"><code>perfil.store</code><code>notification.store</code><span>puesto, sucursal y avisos</span></div></div>
+        <div class="mod-capa"><span class="mod-nombre"><code>services/</code><small>HTTP</small></span><div class="mod-celda"><code>api.js</code><span>Axios: token y renovación automática</span></div><div class="mod-celda"><code>picasso.js</code><span>todas las llamadas a la API</span></div></div>
+        <div class="mod-capa"><span class="mod-nombre"><code>lib/ y public/</code><small>utilidades</small></span><div class="mod-celda"><code>formato.js</code><code>fotos.js</code><code>demo.js</code></div><div class="mod-celda"><code>sw.js</code><code>manifest.webmanifest</code><span>service worker e instalación</span></div></div>
+      </div>
+      <h3>Capas de cada módulo</h3>
+      <p>Cada módulo sigue la misma forma y <code>jfast contracts check</code> la vigila: <code>api/</code> (HTTP, sin SQL) → <code>services/</code> (reglas, sin FastAPI) → <code>repositories/</code> (SQL) y <code>validations/</code> (funciones puras). Otro módulo solo puede usar su <code>public.py</code>, que devuelve datos simples y nunca entidades. Por eso <code>inspeccion</code> guarda una copia de la clave y nombre de la sucursal y del número de cuarto en cada revisión y folio: el expediente dice lo que decía el día que se levantó.</p>
+      <h3>Calidad</h3>
+      <div class="tabla"><table>
+        <tr><th>Chequeo</th><th>Comando</th><th>Estado</th></tr>
+        <tr><td>Estilo</td><td><code>ruff check . &amp;&amp; ruff format --check .</code></td><td class="si">pasa</td></tr>
+        <tr><td>Tipos</td><td><code>mypy .</code> (estricto)</td><td class="si">pasa</td></tr>
+        <tr><td>Pruebas</td><td><code>pytest -q</code></td><td class="si">20 pasan</td></tr>
+        <tr><td>Contratos de módulos</td><td><code>jfast contracts check</code></td><td class="si">sin violaciones</td></tr>
+        <tr><td>Front</td><td><code>vite build</code></td><td class="si">compila</td></tr>
+      </table></div>
+    </section>
+
+    <!-- ============================== DATOS -->
+    <section class="parte" id="datos">
+      <p class="etiqueta">Base de datos</p>
+      <h2>Modelo de datos</h2>
+      <p>PostgreSQL con 21 tablas: 12 del negocio (11 de datos y la de folios consecutivos), 7 de cuentas que crea el plugin <code>accounts</code>, la de la cola de trabajos (<code>jfast_jobs</code>) y la de versiones de Alembic. Toda tabla del negocio trae <code>tenant_id</code> (vacío hoy: hay un solo cliente) y la mayoría <code>created_at</code>/<code>updated_at</code>. Horas en UTC; el día y la hora que ve la gente se calculan en hora de CDMX.</p>
+      <div class="diagrama">
+<pre class="mermaid">
+erDiagram
+  SUCURSALES ||--o{ HABITACIONES : tiene
+  SUCURSALES ||--o{ PERSONAL : "trabaja en"
+  HABITACIONES ||--o{ HABITACION_EQUIPOS : tiene
+  EQUIPOS ||--o{ HABITACION_EQUIPOS : "asignado a"
+  JFAST_USERS ||--o| PERSONAL : "cuenta de"
+  HABITACIONES ||..o{ REVISIONES : "por id"
+  REVISIONES ||--o{ RESULTADOS_PUNTO : contiene
+  RESULTADOS_PUNTO }o--o| INCIDENCIAS : "abre o se vincula"
+  INCIDENCIAS ||--o{ EVENTOS_INCIDENCIA : historial
+  INCIDENCIAS ||--o{ EVIDENCIAS : fotos
+  REVISIONES ||--o{ EVIDENCIAS : fotos
+  HABITACIONES ||..o{ DECISIONES_RENTA : "por id"
+  INCIDENCIAS ||--o{ DECISIONES_RENTA : motiva
+  SUCURSALES ||..|| CONSECUTIVOS_FOLIO : "por id"
+</pre>
+        <p class="pie">Línea continua: llave foránea. Punteada: referencia por id entre módulos, sin llave foránea a propósito.</p>
+      </div>
+
+      <h3>Diccionario</h3>
+      <h4>Módulo sucursal</h4>
+      <div class="tabla"><table>
+        <tr><th>Tabla</th><th>Columnas</th><th>Notas</th></tr>
+        <tr><td><code>sucursales</code></td><td><code>clave</code> (3 letras, única), <code>nombre</code>, <code>foto</code>, <code>frecuencia_gerente_dias</code>, <code>ama_exigible</code>, <code>permite_bien_en_bloque</code>, <code>activa</code></td><td>Las tres últimas reglas son interruptores por sucursal.</td></tr>
+        <tr><td><code>habitaciones</code></td><td><code>sucursal_id</code>→sucursales, <code>numero</code>, <code>tiene_jacuzzi</code>, <code>tiene_alberca</code>, <code>tiene_sauna</code>, <code>tiene_terraza</code>, <code>activa</code></td><td>Único (sucursal, número). Sin la amenidad, su punto entra como No aplica.</td></tr>
+        <tr><td><code>personal</code></td><td><code>user_id</code> (único), <code>nombre</code>, <code>rol</code>, <code>sucursal_id</code>, <code>activo</code></td><td>La cuenta y contraseña viven en <code>jfast_users</code>.</td></tr>
+        <tr><td><code>equipos</code></td><td><code>nombre</code> (único), <code>categoria</code>, <code>activo</code></td><td>Catálogo: Netflix, sillón tántrico, minibar… Se edita en Ajustes.</td></tr>
+        <tr><td><code>habitacion_equipos</code></td><td><code>habitacion_id</code>, <code>equipo_id</code></td><td>Llave compuesta; se borra en cascada.</td></tr>
+      </table></div>
+      <h4>Módulo inspeccion</h4>
+      <div class="tabla"><table>
+        <tr><th>Tabla</th><th>Columnas</th><th>Notas</th></tr>
+        <tr><td><code>revisiones</code></td><td><code>sucursal_id</code>, <code>sucursal_clave</code>, <code>sucursal_nombre</code>, <code>habitacion_id</code>, <code>habitacion_numero</code>, <code>rol</code>, <code>responsable_id</code>, <code>responsable_nombre</code>, <code>estado</code> (en_curso | completa), <code>iniciada_en</code>, <code>completada_en</code></td><td><code>completada_en</code> es la hora del chequeo.</td></tr>
+        <tr><td><code>resultados_punto</code></td><td><code>revision_id</code>, <code>codigo</code> (G01, A05, E03), <code>orden</code>, <code>seccion</code>, <code>titulo</code>, <code>texto</code>, <code>resultado</code> (bien | falla | no_aplica | sin_revisar), <code>observacion</code>, <code>motivo_no_aplica</code>, <code>automatico</code>, <code>en_bloque</code>, <code>incidencia_id</code>, <code>revisado_en</code></td><td>Copia el texto del criterio. <code>en_bloque</code> = quedó bien al terminar sin tocarlo.</td></tr>
+        <tr><td><code>incidencias</code></td><td><code>folio</code> (único, PIC-LER-000245), copia de sucursal y cuarto, <code>codigo_punto</code>, <code>categoria</code>, <code>titulo</code>, <code>descripcion</code>, <code>origen_rol</code>, <code>origen_revision_id</code>, <code>reporto_*</code>, <code>reportada_en</code>, <code>prioridad</code>, <code>estado</code>, <code>responsable_atencion</code>, <code>correccion</code>, <code>cerrada_por_nombre</code>, <code>cerrada_en</code></td><td>La descripción original nunca se edita.</td></tr>
+        <tr><td><code>eventos_incidencia</code></td><td><code>incidencia_id</code>, <code>fecha</code>, <code>actor_*</code>, <code>accion</code>, <code>detalle</code></td><td>Solo se agrega: quién hizo qué y cuándo.</td></tr>
+        <tr><td><code>evidencias</code></td><td><code>tipo</code> (punto | avance | reparacion), <code>archivo</code> (llave en el disco), <code>revision_id</code>, <code>codigo_punto</code>, <code>incidencia_id</code>, <code>subida_por_*</code>, <code>nota</code>, <code>creada_en</code></td><td>Las fotos se sirven con ligas firmadas de 2 horas.</td></tr>
+        <tr><td><code>decisiones_renta</code></td><td>copia de sucursal y cuarto, <code>puede_rentarse</code>, <code>motivo</code>, <code>gerente_*</code>, <code>incidencia_id</code>, <code>decidida_en</code></td><td>Cada decisión es un renglón; la vigente es la más reciente.</td></tr>
+        <tr><td><code>consecutivos_folio</code></td><td><code>sucursal_id</code>, <code>ultimo</code></td><td>Un UPDATE atómico por folio: sin huecos ni repetidos.</td></tr>
+      </table></div>
+      <h4>Cuentas (plugin accounts)</h4>
+      <p><code>jfast_users</code>, <code>jfast_roles</code>, <code>jfast_role_permissions</code>, <code>jfast_user_roles</code>, <code>jfast_user_sessions</code>, <code>jfast_account_tokens</code>, <code>jfast_recovery_codes</code>; además <code>jfast_jobs</code> (cola) y <code>alembic_version</code>. Las contraseñas se guardan con argon2.</p>
+      <h3>Migraciones</h3>
+      <div class="tabla"><table>
+        <tr><th>Revisión</th><th>Qué hace</th></tr>
+        <tr><td class="mono">10a72d597e18</td><td>Tablas iniciales</td></tr>
+        <tr><td class="mono">d142773af0b8</td><td>Bien en bloque y su interruptor por sucursal</td></tr>
+        <tr><td class="mono">ca04ef335b92</td><td>Equipo de cuarto y su catálogo inicial (17 cosas en 4 categorías)</td></tr>
+      </table></div>
+    </section>
+
+    <!-- ============================== ROLES -->
+    <section class="parte" id="roles">
+      <p class="etiqueta">Roles y permisos</p>
+      <h2>Quién puede hacer qué</h2>
+      <p>El puesto viaja en el token de sesión; el servidor revisa además que la habitación o el folio sean de la sucursal de quien pregunta (si no, responde 403). Los permisos no viven solo en la pantalla.</p>
+      <div class="tabla"><table>
+        <tr><th>Acción</th><th>Ama de llaves</th><th>Gerente</th><th>Propietarios</th><th>Admin</th></tr>
+        <tr><td>Revisar cuartos (checklist)</td><td class="si">su sucursal</td><td class="si">su sucursal</td><td class="no">no</td><td class="no">no</td></tr>
+        <tr><td>Marcar lo que está mal y abrir folio</td><td class="si">sí</td><td class="si">sí</td><td class="no">no</td><td class="no">no</td></tr>
+        <tr><td>Decidir si el cuarto se renta</td><td class="no">no</td><td class="si">sí</td><td class="no">no</td><td class="no">no</td></tr>
+        <tr><td>Prioridad, responsable y avances del folio</td><td class="no">no</td><td class="si">sí</td><td class="no">consulta</td><td class="no">consulta</td></tr>
+        <tr><td>Cerrar folio (con foto y explicación)</td><td class="no">no</td><td class="si">sí</td><td class="no">no</td><td class="no">no</td></tr>
+        <tr><td>Ver folios</td><td class="si">su sucursal</td><td class="si">su sucursal</td><td class="si">las seis</td><td class="si">las seis</td></tr>
+        <tr><td>Panel, indicadores, expediente de cuarto</td><td class="no">no</td><td class="si">su sucursal</td><td class="si">las seis</td><td class="si">las seis</td></tr>
+        <tr><td>PDF de revisión</td><td class="si">sí</td><td class="si">sí</td><td class="si">sí</td><td class="si">sí</td></tr>
+        <tr><td>PDF de cuarto, folio y grupo</td><td class="no">folio sí</td><td class="si">su sucursal</td><td class="si">sí</td><td class="si">sí</td></tr>
+        <tr><td>Cuartos, equipo, personal y reglas</td><td class="no">no</td><td class="no">no</td><td class="no">no</td><td class="si">sí</td></tr>
+      </table></div>
+    </section>
+
+    <!-- ============================== REGLAS -->
+    <section class="parte" id="reglas">
+      <p class="etiqueta">Reglas de negocio</p>
+      <h2>Lo que el sistema hace cumplir</h2>
+      <ul>
+        <li><b>Cuatro resultados por punto:</b> Bien, Falla, No aplica, Sin revisar. Sin revisar nunca se presenta como Bien.</li>
+        <li><b>No aplica pide motivo.</b> Si el cuarto no tiene jacuzzi, alberca, sauna o terraza, el sistema marca esos puntos solo y escribe el motivo.</li>
+        <li><b>Falla pide qué falla</b> y abre un folio <code>PIC-&lt;SUC&gt;-000001</code>, o se vincula al folio abierto de la misma falla en ese cuarto.</li>
+        <li><b>Solo lo que está mal:</b> al terminar, lo que no se tocó queda Bien marcado «en bloque». Si no se marcó nada, la app pide confirmar «todo bien con el cuarto».</li>
+        <li><b>La renta la decide el gerente</b>, por separado del estado del folio. Cada decisión queda con motivo, fecha y nombre.</li>
+        <li><b>Solo el gerente cierra un folio</b>, con al menos una foto de la reparación tomada por un gerente y la explicación de la corrección. Si no es satisfactoria, sigue abierto.</li>
+        <li><b>El historial solo se agrega.</b> El reporte original, las evidencias, las fechas y quién hizo cada cambio se conservan.</li>
+        <li><b>Revisión cerrada no se edita.</b></li>
+      </ul>
+      <h3>Interruptores (Ajustes → Cuartos, por sucursal)</h3>
+      <div class="tabla"><table>
+        <tr><th>Interruptor</th><th>Opciones</th><th>Por qué es interruptor</th></tr>
+        <tr><td>Frecuencia de revisión del gerente</td><td>diaria · cada 2 días · cada 3 días</td><td>El documento dice «diaria o cada dos días».</td></tr>
+        <tr><td>Revisiones exigibles de ama de llaves</td><td>una por limpieza · una por cuarto al día</td><td>El documento no dice cómo contarlas.</td></tr>
+        <tr><td>Checklist</td><td>solo lo que está mal · cada punto ✓ o ✗</td><td>El documento pide revisar punto por punto; la operación pidió rapidez.</td></tr>
+      </table></div>
+      <h3>Indicadores</h3>
+      <div class="tabla"><table>
+        <tr><th>Indicador</th><th>Definición</th></tr>
+        <tr><td>Cumplimiento de revisión</td><td>Completas / exigibles, por puesto. Gerente: una por cuarto por ventana de frecuencia.</td></tr>
+        <tr><td>Conformidad de puntos</td><td>Bien / (Bien + Falla). No aplica y Sin revisar aparte.</td></tr>
+        <tr><td>Tiempo de solución</td><td>De la apertura al cierre del folio; también la antigüedad del abierto más viejo.</td></tr>
+        <tr><td>Reincidencia</td><td>La misma categoría en el mismo cuarto dos o más veces en el periodo.</td></tr>
+      </table></div>
+    </section>
+
+    <!-- ============================== FLUJOS -->
+    <section class="parte" id="flujos">
+      <p class="etiqueta">Flujos</p>
+      <h2>De la falla al cierre</h2>
+      <div class="diagrama">
+<pre class="mermaid">
+sequenceDiagram
+  actor Ama as Ama de llaves
+  participant App as PWA
+  participant API
+  actor Ger as Gerente
+  Ama->>App: Toca «Regadera» y escribe qué falla, toma foto
+  App->>API: PUT punto A05 = falla (+ foto)
+  API-->>App: Folio PIC-LER-000245 abierto
+  Ama->>App: Enviar al gerente
+  App->>API: resto-bien + completar
+  Ger->>App: Abre el folio
+  Ger->>API: Renta: no puede rentarse (motivo)
+  Ger->>API: En atención con Mantenimiento
+  Ger->>API: Foto de la reparación
+  Ger->>API: Cerrar con la corrección
+  Ger->>API: Renta: puede rentarse
+</pre>
+      </div>
+      <div class="diagrama">
+<pre class="mermaid">
+stateDiagram-v2
+  [*] --> Reportada: Falla en un punto
+  Reportada --> EnAtencion: el gerente pone quién atiende o anota avance
+  Reportada --> Anulada: el punto se corrige en la misma revisión
+  EnAtencion --> Cerrada: foto de reparación + explicación (solo gerente)
+  Reportada --> Cerrada: foto de reparación + explicación (solo gerente)
+  Cerrada --> [*]
+  Anulada --> [*]
+</pre>
+      </div>
+    </section>
+
+    <!-- ============================== API -->
+    <section class="parte" id="api">
+      <p class="etiqueta">API</p>
+      <h2>Rutas</h2>
+      <p>JSON sobre HTTPS. Toda ruta pide <code>Authorization: Bearer &lt;token&gt;</code> salvo el inicio de sesión. Los errores siguen RFC 7807 con <code>detail</code> en español. En producción van bajo <code>/api</code>. La lista completa con esquemas está en <code>/docs</code> (OpenAPI) del servidor.</p>
+      <div class="tabla"><table>
+        <tr><th>Método</th><th>Ruta</th><th>Para qué</th></tr>
+        <tr><td><span class="metodo post">POST</span></td><td><code>/auth/login</code></td><td>Entrar con correo y contraseña (token de 15 min + renovación)</td></tr>
+        <tr><td><span class="metodo post">POST</span></td><td><code>/auth/refresh</code> · <code>/auth/logout</code></td><td>Renovar y cerrar sesión</td></tr>
+        <tr><td><span class="metodo get">GET</span></td><td><code>/perfil</code></td><td>Puesto, nombre y sucursal de quien entra</td></tr>
+        <tr><td><span class="metodo get">GET</span></td><td><code>/sucursales</code> · <code>/sucursales/{id}/habitaciones</code></td><td>Sucursales y cuartos (con su equipo)</td></tr>
+        <tr><td><span class="metodo patch">PATCH</span></td><td><code>/sucursales/{id}</code> · <code>/habitaciones/{id}</code></td><td>Reglas de sucursal; amenidades o baja de cuarto (admin)</td></tr>
+        <tr><td><span class="metodo post">POST</span></td><td><code>/sucursales/{id}/habitaciones</code> · <code>/personal</code></td><td>Alta de cuarto y de persona con su cuenta (admin)</td></tr>
+        <tr><td><span class="metodo get">GET</span></td><td><code>/equipos</code></td><td>Catálogo de equipo</td></tr>
+        <tr><td><span class="metodo post">POST</span></td><td><code>/equipos</code> · <span class="metodo patch">PATCH</span> <code>/equipos/{id}</code></td><td>Agregar, renombrar o desactivar (admin)</td></tr>
+        <tr><td><span class="metodo put">PUT</span></td><td><code>/habitaciones/{id}/equipos</code></td><td>Qué tiene el cuarto (admin)</td></tr>
+        <tr><td><span class="metodo get">GET</span></td><td><code>/tablero</code></td><td>Cuartos con estado, último chequeo, folios y renta</td></tr>
+        <tr><td><span class="metodo post">POST</span></td><td><code>/revisiones</code></td><td>Abrir (o retomar) la revisión de un cuarto</td></tr>
+        <tr><td><span class="metodo get">GET</span></td><td><code>/revisiones/{id}</code></td><td>Puntos, fotos, folios, renta y último chequeo</td></tr>
+        <tr><td><span class="metodo put">PUT</span></td><td><code>/revisiones/{id}/puntos/{codigo}</code></td><td>Resultado de un punto</td></tr>
+        <tr><td><span class="metodo post">POST</span></td><td><code>/revisiones/{id}/puntos/{codigo}/fotos</code></td><td>Foto de un punto (JPG, PNG o WebP, máx. 8 MB)</td></tr>
+        <tr><td><span class="metodo post">POST</span></td><td><code>/revisiones/{id}/resto-bien</code> · <code>/completar</code></td><td>Lo demás queda bien; cerrar con la hora</td></tr>
+        <tr><td><span class="metodo post">POST</span></td><td><code>/habitaciones/{id}/renta</code></td><td>Decisión de renta (gerente)</td></tr>
+        <tr><td><span class="metodo get">GET</span></td><td><code>/incidencias</code> · <code>/incidencias/{id}</code></td><td>Folios con filtros; expediente completo</td></tr>
+        <tr><td><span class="metodo patch">PATCH</span></td><td><code>/incidencias/{id}</code></td><td>Prioridad, responsable, poner en atención (gerente)</td></tr>
+        <tr><td><span class="metodo post">POST</span></td><td><code>/incidencias/{id}/avances</code> · <code>/fotos</code> · <code>/cerrar</code></td><td>Avance, foto de reparación, cierre (gerente)</td></tr>
+        <tr><td><span class="metodo get">GET</span></td><td><code>/panel</code> · <code>/indicadores</code> · <code>/habitaciones/{id}/expediente</code></td><td>Propietarios y gerencia</td></tr>
+        <tr><td><span class="metodo get">GET</span></td><td><code>/reportes/revision/{id}.pdf</code> · <code>incidencia/{id}.pdf</code> · <code>habitacion/{id}.pdf</code> · <code>grupo.pdf?desde&amp;hasta</code></td><td>Reportes en PDF</td></tr>
+        <tr><td><span class="metodo get">GET</span></td><td><code>/health</code> · <code>/ready</code></td><td>Salud del servicio (para el monitoreo)</td></tr>
+      </table></div>
+    </section>
+
+    <!-- ============================== SERVIDOR -->
+    <!-- ============================== ESCALAMIENTO -->
+    <section class="parte" id="escala">
+      <p class="etiqueta">Escalamiento</p>
+      <h2>Arquitectura técnica y cómo crece</h2>
+      <p>La regla es crecer por escalones y solo cuando una medición lo pida: cada escalón reusa lo anterior y ninguno obliga a reescribir. Hoy la carga es chica. Con 180 cuartos son unas 720 revisiones y 22 mil puntos guardados al día: menos de una petición por segundo en promedio. Un servidor de 2–4 vCPU sobra para eso.</p>
+      <h3>La arquitectura técnica, en seis ideas</h3>
+      <div class="rejilla">
+        <div class="caja"><p class="etiqueta">Monolito modular</p><p>Una sola API con módulos que no se tocan por dentro. Se despliega fácil y, si un día hace falta, un módulo se separa en su propio servicio sin reescribir los demás.</p></div>
+        <div class="caja"><p class="etiqueta">API sin estado</p><p>La sesión vive en el token firmado; lo revocado y los límites de intentos, en Redis. Por eso se pueden correr varias copias de la API detrás de Caddy.</p></div>
+        <div class="caja"><p class="etiqueta">Capas vigiladas</p><p>Rutas → servicios → repositorios, con reglas en funciones puras. <code>jfast contracts check</code> impide atajos entre capas y módulos.</p></div>
+        <div class="caja"><p class="etiqueta">PostgreSQL al centro</p><p>Transacciones, folios consecutivos y la cola de trabajos en la misma base: una pieza menos que operar.</p></div>
+        <div class="caja"><p class="etiqueta">Plugins intercambiables</p><p>Fotos en disco o S3, cola en PostgreSQL, Redis o RabbitMQ: se cambian por configuración en <code>jfast.toml</code>.</p></div>
+        <div class="caja"><p class="etiqueta">Medible</p><p>Métricas Prometheus en <code>/metrics</code> y trazas OpenTelemetry listas: se encienden con una variable cuando haya dónde mandarlas.</p></div>
+      </div>
+      <h3>Escalones de carga</h3>
+      <div class="escalones">
+        <div class="escalon"><span class="esc-n">1</span><b>Hoy</b><span class="esc-cuando">Seis sucursales, decenas de usuarios</span><p>Un servidor con Docker: Caddy, API, worker, PostgreSQL y Redis.</p><div class="c4-logos"><img src="img/tech/docker.svg" alt=""><img src="img/tech/caddy.svg" alt=""><img src="img/tech/postgresql.svg" alt=""><img src="img/tech/redis.svg" alt=""></div><small>Sin cambios de código</small></div>
+        <div class="escalon"><span class="esc-n">2</span><b>Servidor más grande</b><span class="esc-cuando">CPU arriba de 70 % sostenido o respuestas lentas</span><p>Más vCPU y RAM. La API arranca un proceso por CPU (hasta 8) sin configurar nada.</p><div class="c4-logos"><img src="img/tech/ubuntu.svg" alt=""><img src="img/tech/python.svg" alt=""></div><small>Sin cambios de código</small></div>
+        <div class="escalon"><span class="esc-n">3</span><b>Varias copias de la API</b><span class="esc-cuando">Alta disponibilidad o más de un servidor</span><p>Caddy reparte entre copias. Las fotos pasan a S3 (JFast ya trae el driver) porque un disco local no se comparte entre servidores.</p><div class="c4-logos"><img src="img/tech/caddy.svg" alt=""><img src="img/tech/amazons3.svg" alt=""></div><small>Configuración: driver S3 y destinos de Caddy</small></div>
+        <div class="escalon"><span class="esc-n">4</span><b>Base y trabajos</b><span class="esc-cuando">Reportes pesados o avisos masivos</span><p>PostgreSQL administrado con respaldos automáticos, índices para los reportes y más workers; la cola puede ir a Redis o RabbitMQ.</p><div class="c4-logos"><img src="img/tech/postgresql.svg" alt=""><img src="img/tech/rabbitmq.svg" alt=""></div><small>Configuración; réplica de lectura sería un cambio menor</small></div>
+      </div>
+      <h3>Otros clientes (otros moteles u hoteles)</h3>
+      <p>Hay dos caminos y conviene empezar por el primero.</p>
+      <div class="tabla"><table>
+        <tr><th>Camino</th><th>Cómo funciona</th><th>Cuándo</th></tr>
+        <tr><td>Una instalación por cliente</td><td>La misma imagen con su propio servidor, base, dominio y respaldos. Aislamiento total y cero riesgo de mezclar datos.</td><td>Listo hoy. Para los primeros 2–5 clientes.</td></tr>
+        <tr><td>Multiempresa en una sola instalación</td><td>Todas las tablas del negocio ya traen <code>tenant_id</code> y los tokens ya tienen su campo. JFast trae <code>jfast tenancy enable</code> y un chequeo de preparación; hoy marca 32 puntos por corregir (23 en la app, 9 en los scripts de demo). Después, seguridad por renglón en PostgreSQL y fotos separadas por cliente en S3.</td><td>Cuando se venda como servicio a muchos clientes.</td></tr>
+      </table></div>
+      <div class="nota"><p><b>Lo que sería distinto por cliente:</b> los checklists de Picasso (G01–G25, A01–A29) hoy están en el código; para otro cliente habría que pasarlos a la base y editarlos desde Ajustes. Logo y colores de la app irían por cliente en la misma PWA.</p></div>
+      <h3>Apps para los clientes del motel</h3>
+      <p>Por ejemplo el QR de quejas y sugerencias que ya pide el checklist, o el estado de una reserva. Entrarían así, sin tocar la app del personal:</p>
+      <div class="c4" role="img" aria-label="Huésped con una app de clientes que entra por el mismo Caddy a la API, a un módulo nuevo de clientes que usa sucursal por su fachada; el personal sigue con su PWA">
+        <div class="c4-fila dos">
+          <div class="c4-caja persona"><div class="c4-logos"><img src="img/tech/huesped.svg" alt=""></div><b>Huésped</b><span class="c4-tipo">[Persona]</span><span class="c4-texto">Escanea el QR del cuarto o abre la app del motel</span></div>
+          <div class="c4-caja persona"><div class="c4-logos"><img src="img/tech/persona.svg" alt=""></div><b>Personal</b><span class="c4-tipo">[Persona]</span><span class="c4-texto">Sigue con su app de siempre</span></div>
+        </div>
+        <div class="c4-rel corta"><span>HTTPS</span></div>
+        <div class="c4-fila dos">
+          <div class="c4-caja futuro"><div class="c4-logos"><img src="img/tech/vuedotjs.svg" alt=""><img src="img/tech/capacitor.svg" alt=""></div><b>App de clientes</b><span class="c4-tipo">[Contenedor nuevo: PWA o app de tienda con Capacitor]</span><span class="c4-texto">Su propio dominio o ruta en Caddy; sin cuentas del personal</span></div>
+          <div class="c4-caja "><div class="c4-logos"><img src="img/tech/vuedotjs.svg" alt=""><img src="img/tech/pwa.svg" alt=""></div><b>PWA Picasso</b><span class="c4-tipo">[Contenedor actual]</span><span class="c4-texto">Checklists, folios y panel</span></div>
+        </div>
+        <div class="c4-rel corta"><span>Caddy reparte por dominio o ruta</span></div>
+        <div class="c4-zona">
+          <span class="c4-rotulo"><img src="img/tech/python.svg" alt=""><img src="img/tech/fastapi.svg" alt=""><img src="img/tech/jfast.svg" alt=""> API Picasso</span>
+          <div class="c4-fila tres">
+            <div class="c4-caja comp futuro"><b>Módulo clientes</b><span class="c4-tipo">[Componente nuevo]</span><span class="c4-texto">Rutas públicas con límite de intentos y permisos propios</span></div>
+            <div class="c4-caja comp"><b>sucursal</b><span class="c4-tipo">[Componente actual]</span><span class="c4-texto">Expone cuartos y sucursales por <code>public.py</code></span></div>
+            <div class="c4-caja comp"><b>inspeccion</b><span class="c4-tipo">[Componente actual]</span><span class="c4-texto">Una queja podría abrir un folio con su historial</span></div>
+          </div>
+        </div>
+        <div class="c4-leyenda"><span class="l-persona">Persona</span><span class="l-sistema">Este sistema</span><span class="l-contenedor">Contenedor / componente</span><span class="l-externo">Externo</span><span class="l-futuro">Futuro</span></div>
+      </div>
+      <ul>
+        <li><b>Primero como módulo</b> dentro de la misma API: comparte cuentas, fotos, colas y respaldos.</li>
+        <li><b>Permisos separados:</b> el huésped no recibe ningún permiso del personal; sus rutas tienen su propio límite de intentos.</li>
+        <li><b>Se separa en su propio servicio</b> solo si su tráfico es mucho mayor que el del personal o necesita otro ritmo de despliegue. Como solo habla por <code>public.py</code> y HTTP, se mueve sin reescribir el resto.</li>
+      </ul>
+      <h3>Cuándo separar en servicios</h3>
+      <div class="tabla"><table>
+        <tr><th>Señal</th><th>Qué se hace</th></tr>
+        <tr><td>Un módulo necesita escalar 10× más que el resto</td><td>Se saca a su propio contenedor con la misma imagen y solo ese módulo encendido.</td></tr>
+        <tr><td>Equipos distintos despliegan a ritmos distintos</td><td>Servicio aparte por equipo, con su repositorio y su base.</td></tr>
+        <tr><td>Un trabajo pesado frena las respuestas</td><td>Se pasa a <code>tasks.py</code> y lo corre el worker, no la petición.</td></tr>
+        <tr><td>Ninguna de las anteriores</td><td>Se queda en el monolito: es más barato de operar y de cambiar.</td></tr>
+      </table></div>
+    </section>
+
+    <section class="parte" id="servidor">
+      <p class="etiqueta">Requerimientos de servidor</p>
+      <h2>Qué servidor necesita</h2>
+      <div class="rejilla">
+        <div class="caja"><p class="etiqueta">Mínimo</p><p class="cifra">2 vCPU</p><p>4 GB RAM · 40 GB SSD · Ubuntu 24.04 LTS · Docker</p></div>
+        <div class="caja"><p class="etiqueta coral">Recomendado</p><p class="cifra">2–4 vCPU</p><p>8 GB RAM · 80 GB SSD · respaldo diario fuera del servidor</p></div>
+        <div class="caja"><p class="etiqueta">Red</p><p class="cifra">HTTPS</p><p>Dominio propio (p. ej. <code>inspecciones.motelpicasso.mx</code>) y certificado. Solo 80 y 443 abiertos.</p></div>
+      </div>
+      <h3>Cuánto va a crecer</h3>
+      <p>No sabemos cuántos cuartos tiene cada sucursal: la estimación usa 30 por sucursal y hay que rehacerla con la cifra real.</p>
+      <div class="tabla"><table>
+        <tr><th>Supuesto</th><th>Valor</th></tr>
+        <tr><td>Cuartos</td><td>6 sucursales × 30 = 180</td></tr>
+        <tr><td>Revisiones al día</td><td>3 de ama + 1 de gerente por cuarto ≈ 720</td></tr>
+        <tr><td>Puntos guardados al día</td><td>≈ 720 × 30 ≈ 21,600 renglones</td></tr>
+        <tr><td>Fotos al día</td><td>5 % de revisiones con falla × 1.5 fotos ≈ 55 fotos de ~300 KB ≈ 16 MB</td></tr>
+        <tr><td><b>Base de datos</b></td><td><b>≈ 0.3 GB al mes</b> (≈ 4 GB al año, con índices)</td></tr>
+        <tr><td><b>Fotos</b></td><td><b>≈ 0.5 GB al mes</b> (≈ 6 GB al año)</td></tr>
+        <tr><td>Concurrencia</td><td>Decenas de personas a la vez; cada toque es una petición corta. Holgado para 2 vCPU.</td></tr>
+      </table></div>
+      <p>Con 80 GB caben unos 7 años de datos y fotos. En la demo local, 145 revisiones con 3,971 puntos ocupan 10 MB de base y 36 fotos 1.1 MB.</p>
+      <h3>Software</h3>
+      <div class="tabla"><table>
+        <tr><th>Componente</th><th>Imagen / versión</th><th>Notas</th></tr>
+        <tr><td>API</td><td><code>python:3.12-slim</code> (Dockerfile del proyecto)</td><td>Un worker por CPU (hasta 8); healthcheck en <code>/health</code>.</td></tr>
+        <tr><td>Trabajos en segundo plano</td><td>misma imagen, <code>jfast worker</code></td><td>Hoy casi sin uso; queda listo para avisos.</td></tr>
+        <tr><td>PostgreSQL</td><td><code>pgvector/pgvector:pg16</code></td><td>Volumen persistente; <code>shm_size: 1gb</code>.</td></tr>
+        <tr><td>Redis</td><td><code>redis:7-alpine</code>, <code>--appendonly yes</code></td><td>Con contraseña y sin publicar el puerto.</td></tr>
+        <tr><td>Caddy</td><td><code>caddy:2-alpine</code> con <code>Caddyfile.prod</code></td><td>HTTPS automático, sirve el build de la PWA y manda <code>/api</code> y <code>/storage</code> a la API.</td></tr>
+        <tr><td>Build del front</td><td>Node 22 (solo para compilar)</td><td><code>npm ci &amp;&amp; npm run build</code> → <code>picasso-web/dist</code>.</td></tr>
+      </table></div>
+    </section>
+
+    <!-- ============================== ENTORNO -->
+    <section class="parte" id="entorno">
+      <p class="etiqueta">Variables de entorno</p>
+      <h2>Configuración y secretos</h2>
+      <p>Los valores viven en los <code>.env</code> del servidor (el de la raíz para compose y <code>picasso/.env</code> para la API) y nunca en git. Aquí solo los nombres; <code>.env.produccion.ejemplo</code> trae los de compose.</p>
+      <div class="tabla"><table>
+        <tr><th>Variable</th><th>Dónde</th><th>Para qué</th></tr>
+        <tr><td><code>JFAST_ENV</code></td><td>API</td><td><code>prod</code> en el servidor</td></tr>
+        <tr><td><code>JFAST_DB_DSN</code></td><td>API</td><td>Conexión a PostgreSQL</td></tr>
+        <tr><td><code>JFAST_CACHE_URL</code></td><td>API</td><td>Conexión a Redis (con contraseña)</td></tr>
+        <tr><td><code>JFAST_AUTH_SECRET</code></td><td>API</td><td>Firma de los tokens (32 bytes aleatorios)</td></tr>
+        <tr><td><code>JFAST_STORAGE_SIGNING_KEY</code></td><td>API</td><td>Firma de las ligas de fotos (32 bytes aleatorios)</td></tr>
+        <tr><td><code>JFAST_ACCOUNTS_BOOTSTRAP_ADMIN_PASSWORD</code></td><td>API</td><td>Solo el primer arranque: crea <code>admin@…</code>. Quitarla después.</td></tr>
+        <tr><td><code>JFAST_CORS_ORIGINS</code></td><td>API</td><td>Solo si front y API van en dominios distintos</td></tr>
+        <tr><td><code>PICASSO_DATABASE_PASSWORD</code></td><td>compose</td><td>Contraseña del usuario de Postgres</td></tr>
+        <tr><td><code>PICASSO_REDIS_PASSWORD</code></td><td>compose (producción)</td><td>Contraseña de Redis; va dentro de la URL de conexión, por eso solo letras y números</td></tr>
+        <tr><td><code>PICASSO_DOMINIO</code></td><td>compose (producción)</td><td>Dominio de la app; Caddy saca su certificado HTTPS</td></tr>
+        <tr><td><code>COMPOSE_FILE</code></td><td>compose (producción)</td><td><code>docker-compose.yml:docker-compose.prod.yml</code>, para no escribir <code>-f</code> en cada comando</td></tr>
+        <tr><td><code>VITE_API_URL</code></td><td>front (al compilar)</td><td><code>/api</code> en producción</td></tr>
+        <tr><td><code>VITE_DEMO</code>, <code>VITE_DEMO_CLAVE</code></td><td>front (al compilar)</td><td><b>Solo demo.</b> Muestran los accesos de un toque; nunca en producción.</td></tr>
+      </table></div>
+    </section>
+
+    <!-- ============================== DESPLIEGUE -->
+    <section class="parte" id="despliegue">
+      <p class="etiqueta">Despliegue</p>
+      <h2>Paso a paso</h2>
+      <p>Producción usa dos archivos encima de los de desarrollo, que genera jfast y no se editan a mano: <code>docker-compose.prod.yml</code> y <code>Caddyfile.prod</code>. Las variables vienen en <code>.env.produccion.ejemplo</code>.</p>
+      <ol class="pasos">
+        <li>Subir el proyecto a un repositorio git privado (hoy no está en git).</li>
+        <li>Crear el servidor (Ubuntu 24.04 con Docker), apuntar el dominio al servidor y abrir solo 80 y 443.</li>
+        <li>Copiar <code>.env.produccion.ejemplo</code> como <code>.env</code> y llenarlo: dominio y contraseñas nuevas de Postgres y Redis (<code>openssl rand -hex 32</code>). Ese <code>.env</code> trae <code>COMPOSE_FILE</code>, así que <code>docker compose</code> ya usa los dos archivos.</li>
+        <li>Poner en <code>picasso/.env</code> secretos nuevos: <code>JFAST_AUTH_SECRET</code>, <code>JFAST_STORAGE_SIGNING_KEY</code> y, solo para el primer arranque, <code>JFAST_ACCOUNTS_BOOTSTRAP_ADMIN_PASSWORD</code>. Nunca los de la demo.</li>
+        <li>Compilar la PWA sin modo demo: <code>cd picasso-web &amp;&amp; npm ci &amp;&amp; npm run build</code> (usa <code>.env.production</code>: <code>VITE_API_URL=/api</code> y sin modo demo).</li>
+        <li>Levantar: <code>docker compose up -d --build</code>. La API corre las migraciones sola al arrancar y Caddy saca el certificado HTTPS del dominio.</li>
+        <li>Entrar como <code>admin@…</code>, dar de alta los cuartos reales con su equipo y al personal real. <b>No</b> correr <code>sembrar.py</code> ni <code>equipo_demo.py</code>.</li>
+        <li>Quitar <code>JFAST_ACCOUNTS_BOOTSTRAP_ADMIN_PASSWORD</code> de <code>picasso/.env</code> y reiniciar.</li>
+        <li>Programar respaldos y monitoreo; correr la lista de QA completa.</li>
+      </ol>
+      <div class="nota"><p><b>Cada cambio de código:</b> compilar el front y <code>docker compose up -d --build</code>. Las migraciones corren solas al arrancar la API y el service worker toma la versión nueva al recargar.</p></div>
+      <h3>Qué cambia en producción</h3>
+      <div class="tabla"><table>
+        <tr><th>Pieza</th><th>Desarrollo</th><th>Producción</th></tr>
+        <tr><td>Puertos</td><td>Postgres 9801, Redis 9803 y API 9800 publicados</td><td>Solo 80 y 443 de Caddy. Docker abre los puertos publicados aunque el firewall diga que no.</td></tr>
+        <tr><td>Redis</td><td>Sin contraseña</td><td>Con contraseña (<code>PICASSO_REDIS_PASSWORD</code>)</td></tr>
+        <tr><td>Fotos</td><td>Dentro del contenedor</td><td>Volumen <code>picasso_storage</code> en <code>/app/storage</code>; sobreviven a reconstruir</td></tr>
+        <tr><td>Caddy</td><td>HTTP en localhost, sin <code>/storage</code></td><td>HTTPS automático para el dominio, <code>/storage</code> a la API, rutas internas cerradas, certificados en volumen</td></tr>
+        <tr><td>API</td><td><code>JFAST_ENV=dev</code></td><td><code>JFAST_ENV=prod</code>: apaga <code>/docs</code>, <code>/openapi.json</code>, <code>/info</code> y <code>/queue/stats</code></td></tr>
+      </table></div>
+      <h3>Cómo se probó</h3>
+      <ul>
+        <li><code>docker compose config</code> con los dos archivos: sin puertos salvo 80/443, Redis con contraseña y volumen de fotos en la API y el worker. Sin dominio o sin contraseña de Redis no arranca y dice cuál falta.</li>
+        <li><code>caddy validate</code> con Caddy 2.11: configuración válida.</li>
+        <li>Ese mismo Caddyfile, en un contenedor contra la API local: <code>/api/docs</code>, <code>/api/openapi.json</code>, <code>/api/info</code>, <code>/api/metrics</code> y <code>/api/queue/stats</code> dan 404; la app abre en cualquier ruta; entrar y bajar PDF funciona; una foto abre con su liga firmada y da 403 con la firma alterada o sin firma.</li>
+        <li>La API con <code>JFAST_ENV=prod</code> arranca y responde <code>/ready</code>.</li>
+      </ul>
+      <div class="nota ambar"><p><b>Falta probarlo en el servidor real:</b> el certificado HTTPS (necesita el dominio apuntando), levantar todo con <code>docker compose up</code> (en la Mac de desarrollo compose no puede crear su red) y la conexión a Redis con contraseña. Al arrancar, JFast avisa que la API sirve fotos de disco local en producción: es lo esperado, porque con disco privado la API es la que revisa la firma de cada liga. La alternativa es guardar las fotos en S3.</p></div>
+    </section>
+
+    <!-- ============================== OPERACIÓN -->
+    <section class="parte" id="operacion">
+      <p class="etiqueta">Operación</p>
+      <h2>Operación y mantenimiento</h2>
+      <p>Tareas de todos los días una vez en el servidor. Los comandos se corren en la carpeta del proyecto, con el <code>.env</code> de producción (su <code>COMPOSE_FILE</code> hace que <code>docker compose</code> use los dos archivos).</p>
+      <h3>Desde la app (administración)</h3>
+      <div class="tabla"><table>
+        <tr><th>Tarea</th><th>Dónde</th></tr>
+        <tr><td>Alta de una persona</td><td>Ajustes → Personal: nombre, correo, contraseña inicial (10 caracteres o más), puesto y sucursal. La contraseña se entrega en persona.</td></tr>
+        <tr><td>Alta o baja de un cuarto</td><td>Ajustes → Cuartos: número, amenidades y botón Baja/Activar. Lo revisado se conserva.</td></tr>
+        <tr><td>Equipo de un cuarto</td><td>Ajustes → Cuartos → Equipo. Entra a la siguiente revisión de ese cuarto.</td></tr>
+        <tr><td>Reglas de una sucursal</td><td>Ajustes → Cuartos, arriba: frecuencia del gerente, cómo contar a la ama y tipo de checklist.</td></tr>
+      </table></div>
+      <h3>En el servidor</h3>
+      <div class="tabla"><table>
+        <tr><th>Tarea</th><th>Comando</th></tr>
+        <tr><td>¿Está viva?</td><td><code>curl -fsS https://&lt;dominio&gt;/api/ready</code></td></tr>
+        <tr><td>Ver registros</td><td><code>docker compose logs -f --tail=200 picasso</code></td></tr>
+        <tr><td>Reiniciar la API</td><td><code>docker compose restart picasso picasso-worker</code></td></tr>
+        <tr><td>Respaldar la base</td><td><code>docker compose exec -T picasso-database pg_dump -U app -Fc app &gt; picasso-$(date +%F).dump</code></td></tr>
+        <tr><td>Restaurar la base</td><td><code>docker compose exec -T picasso-database pg_restore -U app -d app --clean &lt; archivo.dump</code></td></tr>
+        <tr><td>Respaldar las fotos</td><td>Copiar el volumen de <code>/app/storage</code> fuera del servidor cada noche (por ejemplo con <code>rsync</code> o a S3).</td></tr>
+        <tr><td>Versión nueva</td><td>Bajar el código, <code>npm ci &amp;&amp; npm run build</code> en <code>picasso-web</code> y <code>docker compose up -d --build</code>. Las migraciones corren solas al arrancar.</td></tr>
+      </table></div>
+      <h3>Respaldos y monitoreo</h3>
+      <div class="rejilla">
+        <div class="caja"><p class="etiqueta">Base</p><p><code>pg_dump</code> diario comprimido, 30 días de historial y copia fuera del servidor (otro proveedor o S3).</p></div>
+        <div class="caja"><p class="etiqueta">Fotos</p><p>Copiar el volumen de fotos a almacenamiento externo cada noche. Sin fotos, los folios pierden su evidencia.</p></div>
+        <div class="caja"><p class="etiqueta">Monitoreo</p><p>Revisar <code>/ready</code> cada minuto, métricas de <code>/metrics</code> solo desde la red interna y alerta de disco al 80 %.</p></div>
+        <div class="caja"><p class="etiqueta">Memoria</p><p>Con swap o con la caché de Postgres limitada: sin swap, el kernel mata procesos al llenarse la RAM.</p></div>
+      </div>
+      <h3>Qué vigilar</h3>
+      <div class="rejilla">
+        <div class="caja"><p class="etiqueta">Cada minuto</p><p><code>/api/ready</code> responde 200. Si no, revisar registros y reiniciar.</p></div>
+        <div class="caja"><p class="etiqueta">Cada día</p><p>Que el respaldo de la noche exista y pese parecido al anterior.</p></div>
+        <div class="caja"><p class="etiqueta">Cada semana</p><p>Disco por debajo del 80 % y errores 500 en los registros.</p></div>
+        <div class="caja"><p class="etiqueta">Cada mes</p><p>Restaurar un respaldo en un servidor de prueba y actualizar el sistema operativo.</p></div>
+      </div>
+      <div class="nota"><p><b>Cambiar secretos:</b> un <code>JFAST_AUTH_SECRET</code> nuevo cierra todas las sesiones (todos vuelven a entrar). Un <code>JFAST_STORAGE_SIGNING_KEY</code> nuevo invalida las ligas de fotos ya entregadas; la app pide ligas nuevas al recargar.</p></div>
+    </section>
+
+    <!-- ============================== SEGURIDAD -->
+    <section class="parte" id="seguridad">
+      <p class="etiqueta">Seguridad</p>
+      <h2>Qué está cubierto y qué falta</h2>
+      <h3>Cubierto, por capa</h3>
+      <div class="rejilla capas">
+        <div class="caja"><p class="etiqueta">Acceso</p><p>Contraseñas con argon2. La cuenta se bloquea 15 minutos tras 5 intentos fallidos, y hay límite de intentos por dirección y por cuenta.</p></div>
+        <div class="caja"><p class="etiqueta">Sesión</p><p>Tokens de 15 minutos con renovación rotativa: si alguien reusa un token viejo se cierra toda la sesión. Cerrar sesión los revoca.</p></div>
+        <div class="caja"><p class="etiqueta">Permisos</p><p>Por puesto y por sucursal, revisados en el servidor (403), no solo escondidos en la pantalla.</p></div>
+        <div class="caja"><p class="etiqueta">Fotos</p><p>Disco privado con ligas firmadas que caducan a las 2 horas. Se valida tipo y tamaño (máx. 8 MB) y la llave del archivo no admite rutas.</p></div>
+        <div class="caja"><p class="etiqueta">Historial</p><p>El historial de cada folio solo se agrega y la descripción original no se edita: queda quién hizo qué y cuándo.</p></div>
+        <div class="caja"><p class="etiqueta">Transporte</p><p>En producción todo va por HTTPS con certificado automático de Caddy; la base, Redis y la API no publican puertos y las rutas internas (<code>/docs</code>, <code>/metrics</code>…) quedan cerradas.</p></div>
+      </div>
+      <h3>Pendiente antes de producción</h3>
+      <ul>
+        <li>Levantar con <code>docker-compose.prod.yml</code> y <code>Caddyfile.prod</code> (puertos cerrados, Redis con contraseña, rutas internas cerradas); en desarrollo nada de eso aplica.</li>
+        <li>Compilar el front <b>sin</b> <code>VITE_DEMO</code>: el modo demo mete la contraseña de las cuentas de ejemplo en el JS.</li>
+        <li>Secretos nuevos para el servidor; nunca reusar los de la demo.</li>
+        <li>Recuperación de contraseña por correo (hoy la da la administración) y, si se quiere, segundo factor para administración.</li>
+        <li>Respaldos probados (restaurar uno de prueba).</li>
+      </ul>
+    </section>
+
+    <!-- ============================== GUÍA -->
+    <section class="parte" id="guia">
+      <p class="etiqueta">Guía de usuario</p>
+      <h2>Cómo se usa, por puesto</h2>
+      <h3 id="guia-entrar">Entrar e instalar</h3>
+      <div class="guia">
+        <div>
+          <ol class="pasos">
+            <li>Abre la dirección de la app en el navegador del celular.</li>
+            <li>Escribe tu correo y contraseña (te los da la administración). En la demo hay botones «Entra como…».</li>
+            <li>Instálala: en iPhone, Safari → Compartir → «Agregar a inicio»; en Android, Chrome → ⋮ → «Instalar app». Abre como una app, sin barra del navegador.</li>
+            <li>En Perfil eliges tema claro u oscuro y cierras sesión.</li>
+          </ol>
+        </div>
+        <figure><img src="img/entrada.jpg" alt="Pantalla de entrada con el logo de Motel Picasso y los accesos de demo" loading="lazy"><figcaption>Entrada (con accesos de demo)</figcaption></figure>
+      </div>
+
+      <h3 id="guia-ama">Ama de llaves</h3>
+      <div class="guia">
+        <div>
+          <ol class="pasos">
+            <li>En <b>Cuartos</b> ves los de tu sucursal con su estado y la hora del último chequeo.</li>
+            <li>Al terminar de limpiar, toca el cuarto y «Revisar el cuarto».</li>
+            <li>Toca <b>solo lo que está mal</b>: escribe qué pasa y toma la foto. Queda con un tache rojo y se abre un folio.</li>
+            <li>Si algo no aplica en ese cuarto, tócalo y elige «Este punto no aplica».</li>
+            <li>Toca <b>«Enviar al gerente»</b>. Si no marcaste nada, la app te pregunta si confirmas que todo está bien.</li>
+            <li>Si te quedas sin señal, sigue: lo marcado se sube solo al volver la conexión.</li>
+          </ol>
+        </div>
+        <figure><img src="img/checklist.jpg" alt="Checklist con una falla marcada con tache rojo" loading="lazy"><figcaption>Solo lo que está mal lleva tache rojo</figcaption></figure>
+      </div>
+
+      <h3 id="guia-gerente">Gerente</h3>
+      <div class="guia">
+        <div>
+          <ol class="pasos">
+            <li>Arriba, <b>«Tu siguiente paso»</b> te dice qué toca: cuartos que envió la ama, folios nuevos o cuartos por revisar hoy.</li>
+            <li>Revisa cada cuarto igual que la ama, con tu checklist de 25 puntos y el equipo del cuarto.</li>
+            <li>Al terminar, decide si el cuarto <b>puede rentarse</b> y escribe el motivo.</li>
+            <li>En cada folio: define prioridad, pon <b>quién lo atiende</b> y anota avances.</li>
+            <li>Cuando quede reparado, compruébalo y toma la <b>foto de la reparación</b>.</li>
+            <li><b>«Actualizar y cerrar»</b> con lo que se corrigió, y confirma la renta.</li>
+          </ol>
+        </div>
+        <figure><img src="img/inicio-gerente.jpg" alt="Inicio del gerente con su siguiente paso" loading="lazy"><figcaption>Inicio del gerente</figcaption></figure>
+      </div>
+      <div class="tira">
+        <figure><img class="captura" src="img/cuartos.jpg" alt="Cuartos con estado y último chequeo" loading="lazy"><figcaption>Cuartos y último chequeo</figcaption></figure>
+        <figure><img class="captura" src="img/folio.jpg" alt="Folio con siguiente paso" loading="lazy"><figcaption>Folio: siguiente paso</figcaption></figure>
+        <figure><img class="captura" src="img/confirmar.jpg" alt="Confirmar que todo está bien" loading="lazy"><figcaption>Confirmar «todo bien»</figcaption></figure>
+      </div>
+
+      <h3 id="guia-propietarios">Propietarios</h3>
+      <ol class="pasos">
+        <li>El <b>Panel</b> muestra las seis sucursales: revisiones completas contra exigibles, folios abiertos, cuartos sin rentar y último chequeo. Cambia el periodo arriba (hoy, ayer y hoy, 7 o 30 días).</li>
+        <li>Toca una sucursal para ver sus folios abiertos; en <b>Folios</b> filtras por estado, sucursal, fecha o texto.</li>
+        <li>Cada folio abre su expediente: reporte original, renta, atención, fotos e historial.</li>
+        <li>En <b>Reportes</b> ves cumplimiento, conformidad, tiempo de solución, reincidencias y fallas frecuentes, y descargas el PDF del periodo.</li>
+      </ol>
+      <figure class="ancha"><img class="captura" src="img/panel.jpg" alt="Panel de propietarios con las seis sucursales" loading="lazy"><figcaption>Panel de propietarios</figcaption></figure>
+
+      <h3 id="guia-admin">Administración</h3>
+      <div class="guia">
+        <div>
+          <ol class="pasos">
+            <li><b>Ajustes → Cuartos:</b> elige la sucursal, da de alta cuartos y marca jacuzzi, alberca, sauna o terraza.</li>
+            <li>Botón <b>«Equipo»</b> de cada cuarto: toca lo que tiene (Netflix, sillón tántrico, minibar…). Entra a su checklist.</li>
+            <li><b>Catálogo de equipo:</b> agrega cosas nuevas, renómbralas o desactívalas.</li>
+            <li>Arriba de los cuartos, las <b>reglas de la sucursal</b>: frecuencia del gerente, cómo contar a la ama y tipo de checklist.</li>
+            <li><b>Personal:</b> da de alta a cada persona con su puesto y sucursal; entrega la contraseña en persona.</li>
+          </ol>
+        </div>
+        <figure><img src="img/equipo.jpg" alt="Equipo de un cuarto por categorías" loading="lazy"><figcaption>¿Qué tiene el cuarto?</figcaption></figure>
+      </div>
+    </section>
+
+    <!-- ============================== QA -->
+    <section class="parte" id="qa">
+      <p class="etiqueta">Listas de QA</p>
+      <h2>Pruebas antes de liberar</h2>
+      <p class="solo-pantalla">Marca cada caso como <b>Pasa</b> o <b>Falla</b> (toca el botón para cambiarlo). Tu avance se guarda solo en este navegador; «Copiar resultados» lo deja listo para pegar en un chat o correo.</p>
+      <div class="qa-resumen">
+        <span class="pildora" id="qa-total">0 casos</span>
+        <span class="pildora pasa" id="qa-pasa">0 pasan</span>
+        <span class="pildora falla" id="qa-falla">0 fallan</span>
+        <div class="qa-barra" aria-hidden="true"><div id="qa-progreso" style="width:0%"></div></div>
+        <button class="accion" id="qa-copiar" type="button">Copiar resultados</button>
+        <button class="accion borde" id="qa-limpiar" type="button">Empezar de nuevo</button>
+      </div>
+      <p id="qa-aviso" class="etiqueta" hidden></p>
+      <p class="solo-impresion">Marca una casilla por caso y anota lo que veas. Los casos con <b>Falla</b> se reportan con su número (por ejemplo <span class="mono">QA&#8209;24</span>) y la nota.</p>
+      <div class="solo-impresion qa-datos"><span>Probó</span><span>Fecha</span><span>Versión o dirección</span><span>Teléfono y navegador</span></div>
+      <div id="qa-casos"></div>
+    </section>
+
+    <!-- ============================== PENDIENTES -->
+    <section class="parte" id="pendientes">
+      <p class="etiqueta">Pendientes</p>
+      <h2>Lo que falta y riesgos conocidos</h2>
+      <h3>Siguientes pasos sugeridos</h3>
+      <p>Propuesta de CometaX Company. Las fechas se acuerdan con la dirección.</p>
+      <div class="fases">
+        <div class="fase"><span class="fase-n">1</span><b>Antes de producción</b><span>Repositorio git, servidor y dominio, levantar con <code>docker-compose.prod.yml</code>, secretos nuevos, app compilada sin modo demo y respaldos programados.</span></div>
+        <div class="fase"><span class="fase-n">2</span><b>Piloto en una sucursal</b><span>Cuartos, equipo y personal reales; confirmar las reglas con la dirección y correr la lista de QA en los teléfonos del personal.</span></div>
+        <div class="fase"><span class="fase-n">3</span><b>Las seis sucursales</b><span>Alta del resto de sucursales, capacitación por puesto y revisión de indicadores al primer mes.</span></div>
+        <div class="fase"><span class="fase-n">4</span><b>Después</b><span>Avisos al gerente, fotos en la cola sin señal, recuperación de contraseña por correo y, si hace falta, app de tienda con Capacitor.</span></div>
+      </div>
+      <h3>Pendientes y riesgos conocidos</h3>
+      <div class="tabla"><table>
+        <tr><th>Tema</th><th>Detalle</th></tr>
+        <tr><td>Datos reales</td><td>Cuartos, equipo y personal reales por sucursal; borrar los de ejemplo.</td></tr>
+        <tr><td>Servidor y dominio</td><td>Desplegar con HTTPS; hoy solo hay un túnel temporal que depende de la Mac.</td></tr>
+        <tr><td>Repositorio</td><td>El código no está en git.</td></tr>
+        <tr><td>Producción sin estrenar</td><td><code>docker-compose.prod.yml</code> y <code>Caddyfile.prod</code> están validados y probados en local, pero falta levantarlos en el servidor real (certificado HTTPS y Redis con contraseña).</td></tr>
+        <tr><td>Reglas por confirmar</td><td>Frecuencia del gerente, exigibles de ama y checklist «solo lo que está mal» con la dirección.</td></tr>
+        <tr><td>Avisos</td><td>Notificar al gerente cuando la ama envía con fallas (la cola de trabajos ya está).</td></tr>
+        <tr><td>Fotos sin señal</td><td>Los puntos sí se encolan sin señal; las fotos no: hay que tomarlas de nuevo con conexión.</td></tr>
+        <tr><td>Equipo nuevo</td><td>Una revisión ya abierta no recibe el equipo agregado después; lo toma la siguiente.</td></tr>
+        <tr><td>Seguridad</td><td>Ver la lista «Pendiente antes de producción».</td></tr>
+        <tr><td>Pruebas</td><td>Las pruebas automáticas cubren reglas y PDF; faltan pruebas de rutas contra una base real y en teléfonos reales.</td></tr>
+      </table></div>
+    </section>
+
+    <!-- ============================== GLOSARIO -->
+    <section class="parte" id="glosario">
+      <p class="etiqueta">Glosario</p>
+      <h2>Palabras de la app</h2>
+      <div class="tabla"><table>
+        <tr><th>Término</th><th>Significado</th></tr>
+        <tr><td>Revisión o chequeo</td><td>Un recorrido del checklist en un cuarto por una persona. Termina con hora registrada.</td></tr>
+        <tr><td>Punto</td><td>Un criterio del checklist (G04 «Fugas en baño», A05 «Regadera y muros», E03 «Netflix»).</td></tr>
+        <tr><td>Folio</td><td>La incidencia que abre una falla: <code>PIC-LER-000245</code>. Tiene expediente e historial.</td></tr>
+        <tr><td>Bien en bloque</td><td>Punto que quedó bien al terminar sin tocarlo («solo lo que está mal»).</td></tr>
+        <tr><td>Decisión de renta</td><td>Lo que decide el gerente: puede o no puede rentarse, con motivo.</td></tr>
+        <tr><td>Exigible</td><td>Revisión que el periodo pide según las reglas de la sucursal.</td></tr>
+        <tr><td>Equipo del cuarto</td><td>Lo que tiene un cuarto según el catálogo (TV, Netflix, sillón tántrico…); entra a su checklist.</td></tr>
+        <tr><td>Service worker</td><td>Pieza de la PWA que guarda la app en el teléfono para abrir rápido y con poca señal.</td></tr>
+        <tr><td>Token</td><td>Llave de sesión que dura 15 minutos y se renueva sola mientras la app está abierta.</td></tr>
+        <tr><td>Liga firmada</td><td>Dirección de una foto que solo funciona 2 horas; después hay que pedir otra.</td></tr>
+      </table></div>
+    </section>
+  </main>
+</div>
+
+<script>
+// Casos de QA. Cada uno: id, qué hacer, qué debe pasar.
+const QA = [
+  { grupo: 'Acceso y permisos', casos: [
+    ['QA-01', 'Entrar con correo y contraseña correctos de cada puesto.', 'Cada puesto llega a su inicio: propietarios al panel, gerente y ama a sus cuartos, admin al panel con Ajustes.'],
+    ['QA-02', 'Entrar con contraseña equivocada 6 veces seguidas.', 'Mensaje de correo o contraseña incorrectos; al sexto, la cuenta queda bloqueada un rato.'],
+    ['QA-03', 'Dejar la app abierta más de 15 minutos y seguir usándola.', 'La sesión se renueva sola, sin volver a entrar.'],
+    ['QA-04', 'Cerrar sesión desde Perfil y usar Atrás del navegador.', 'Regresa a la entrada; no muestra datos.'],
+    ['QA-05', 'Gerente de Toluca abre la dirección de un folio de Lerma.', 'No lo ve (la app avisa que es de otra sucursal).'],
+    ['QA-06', 'Ama de llaves intenta abrir Reportes o el expediente de un cuarto.', 'No tiene acceso.'],
+  ]},
+  { grupo: 'Checklist de ama de llaves', casos: [
+    ['QA-10', 'Abrir un cuarto sin jacuzzi.', 'No salen los puntos de jacuzzi, alberca, sauna o terraza; abajo dice cuáles no aplican.'],
+    ['QA-11', 'Tocar un punto, escribir qué falla y «Está mal».', 'El punto queda con tache rojo, aparece su folio y arriba «✕ 1 mal».'],
+    ['QA-12', 'Tomar una foto en un punto con falla.', 'Se sube comprimida; el renglón muestra 📷 1.'],
+    ['QA-13', 'Quitar una falla con «Quitar (fue un error)».', 'El tache se quita; el folio queda anulado en su historial.'],
+    ['QA-14', 'Marcar un punto como «No aplica» con motivo.', 'El renglón queda tachado con el motivo.'],
+    ['QA-15', 'Enviar al gerente sin marcar nada.', 'Pregunta «¿Todo bien con el cuarto?»; al confirmar queda «Chequeo registrado · hoy HH:MM · Todo bien».'],
+    ['QA-16', 'Enviar con una falla.', 'Queda registrado con «1 cosa mal»; el cuarto muestra la hora y «1 mal».'],
+    ['QA-17', 'Salir a la mitad y volver a abrir el cuarto.', 'Retoma la misma revisión con lo ya marcado.'],
+    ['QA-18', 'Modo avión, marcar dos fallas, volver a tener señal.', 'Avisa «sin subir» y las sube solas al volver la señal.'],
+  ]},
+  { grupo: 'Gerente y folios', casos: [
+    ['QA-20', 'Ver «Tu siguiente paso» con cuartos enviados por la ama.', 'Dice cuántos y cuáles; el botón abre el primero.'],
+    ['QA-21', 'Revisar un cuarto con equipo (p. ej. Netflix, sillón).', 'Aparece la sección «Equipo del cuarto» con cada cosa.'],
+    ['QA-22', 'Al terminar, decidir «No rentar» con motivo y folio.', 'La tarjeta del cuarto dice «No rentar»; el folio muestra la decisión.'],
+    ['QA-23', 'En un folio: prioridad alta y «Poner en atención» con responsable.', 'Estado «En atención»; el historial lo registra con nombre y hora.'],
+    ['QA-24', 'Intentar cerrar un folio sin foto de reparación.', 'El botón no se habilita y dice qué falta.'],
+    ['QA-25', 'Tomar foto de reparación, cerrar con la corrección y confirmar renta.', 'Folio «Cerrada»; renta «Puede rentarse»; todo queda en el historial.'],
+    ['QA-26', 'La ama marca la misma falla en un cuarto con folio abierto.', 'No abre un folio nuevo: se vincula al abierto y lo anota en su historial.'],
+    ['QA-27', 'Abrir el expediente de un cuarto.', 'Muestra renta vigente, revisiones, pendientes y folios.'],
+  ]},
+  { grupo: 'Propietarios y reportes', casos: [
+    ['QA-30', 'Cambiar el periodo del panel (hoy, 7 y 30 días).', 'Cambian completas/exigibles; abiertas y sin rentar son el estado actual.'],
+    ['QA-31', 'Tocar una sucursal del panel.', 'Abre sus folios abiertos.'],
+    ['QA-32', 'Filtrar folios por estado, sucursal, fecha y texto, abrir uno y regresar.', 'Al regresar se conservan los filtros.'],
+    ['QA-33', 'Descargar el PDF del periodo en Reportes.', 'Baja un PDF con la tabla de sucursales e indicadores.'],
+    ['QA-34', 'Descargar el PDF de un folio cerrado.', 'Trae reporte original, historial, renta y fotos inicial y de reparación.'],
+    ['QA-35', 'Descargar el PDF de una revisión con «Bien en bloque».', 'Distingue los puntos marcados en bloque.'],
+    ['QA-36', 'Revisar indicadores contra conteos a mano en un periodo corto.', 'Cumplimiento, conformidad y reincidencias coinciden.'],
+  ]},
+  { grupo: 'Administración', casos: [
+    ['QA-40', 'Dar de alta un cuarto nuevo y marcar sus amenidades.', 'Aparece en Cuartos del gerente y la ama.'],
+    ['QA-41', 'Asignar equipo a un cuarto y abrir una revisión nueva.', 'El checklist trae ese equipo.'],
+    ['QA-42', 'Agregar «Consola de videojuegos» al catálogo; intentar repetirla.', 'La primera vez se agrega; la segunda avisa que ya existe.'],
+    ['QA-43', 'Desactivar un equipo del catálogo.', 'Deja de salir en checklists nuevos; lo revisado se conserva.'],
+    ['QA-44', 'Cambiar el checklist de una sucursal a «cada punto ✓ o ✗».', 'En esa sucursal no se puede terminar hasta marcar todo.'],
+    ['QA-45', 'Dar de alta a una persona de gerente en Toluca y entrar con ella.', 'Ve solo Toluca.'],
+  ]},
+  { grupo: 'PWA, teléfonos y rendimiento', casos: [
+    ['QA-50', 'Instalar en iPhone (Safari) y en Android (Chrome).', 'Ícono de Picasso en el inicio; abre sin barra del navegador.'],
+    ['QA-51', 'Tomar foto con la cámara trasera en ambos teléfonos.', 'Abre la cámara; la foto sube en segundos con señal normal.'],
+    ['QA-52', 'Probar en un teléfono de gama baja con datos 4G.', 'El checklist responde al toque; ninguna pantalla tarda más de 3 s.'],
+    ['QA-53', 'Tema claro y oscuro en Perfil.', 'Todo se lee bien en ambos.'],
+    ['QA-54', 'Desplegar una versión nueva con la app instalada abierta.', 'Al recargar toma la versión nueva.'],
+  ]},
+  { grupo: 'Seguridad y operación', casos: [
+    ['QA-60', 'Abrir /docs, /info, /metrics y /queue/stats en producción sin sesión.', 'No responden (bloqueados).'],
+    ['QA-61', 'Revisar el JS publicado en producción y la pantalla de entrada.', 'El JS no contiene la contraseña de demo y la entrada no muestra los accesos «Entra como…».'],
+    ['QA-62', 'Abrir la liga de una foto después de 2 horas.', 'Ya no abre (liga caducada).'],
+    ['QA-63', 'Conectarse a Redis y Postgres desde fuera del servidor.', 'No hay conexión.'],
+    ['QA-64', 'Restaurar un respaldo en un servidor de prueba.', 'La app arranca con los datos y fotos del respaldo.'],
+  ]},
+]
+
+const CLAVE = 'picasso-qa-v1'
+let estado = {}
+try { estado = JSON.parse(localStorage.getItem(CLAVE)) || {} } catch { estado = {} }
+const guardar = () => { try { localStorage.setItem(CLAVE, JSON.stringify(estado)) } catch {} }
+const ETIQUETA = { pendiente: 'Pendiente', pasa: 'Pasa', falla: 'Falla' }
+const SIGUIENTE = { pendiente: 'pasa', pasa: 'falla', falla: 'pendiente' }
+
+function pintar() {
+  const raiz = document.getElementById('qa-casos')
+  raiz.innerHTML = ''
+  for (const g of QA) {
+    const titulo = document.createElement('h4')
+    titulo.className = 'qa-grupo'
+    titulo.textContent = g.grupo
+    raiz.appendChild(titulo)
+    const lista = document.createElement('div')
+    lista.className = 'qa-lista'
+    for (const [id, hacer, esperado] of g.casos) {
+      const fila = document.createElement('div')
+      fila.className = 'qa-caso'
+      const e = estado[id] || 'pendiente'
+      fila.innerHTML = `<span class="qa-id">${id}</span><div><p>${hacer}</p><p class="esperado">Debe: ${esperado}</p><p class="qa-notas solo-impresion">Notas:</p></div><span class="qa-casillas solo-impresion" aria-hidden="true"><i></i>Pasa<i></i>Falla</span>`
+      const b = document.createElement('button')
+      b.type = 'button'
+      b.className = 'qa-boton'
+      b.id = 'qa-' + id
+      b.dataset.estado = e
+      b.textContent = ETIQUETA[e]
+      b.setAttribute('aria-label', `${id}: ${ETIQUETA[e]}. Toca para cambiar.`)
+      b.addEventListener('click', () => {
+        estado[id] = SIGUIENTE[estado[id] || 'pendiente']
+        guardar()
+        b.dataset.estado = estado[id]
+        b.textContent = ETIQUETA[estado[id]]
+        resumen()
+      })
+      fila.appendChild(b)
+      lista.appendChild(fila)
+    }
+    raiz.appendChild(lista)
+  }
+  resumen()
+}
+
+function resumen() {
+  const ids = QA.flatMap((g) => g.casos.map((c) => c[0]))
+  const pasa = ids.filter((i) => estado[i] === 'pasa').length
+  const falla = ids.filter((i) => estado[i] === 'falla').length
+  document.getElementById('qa-total').textContent = `${ids.length} casos`
+  document.getElementById('qa-pasa').textContent = `${pasa} pasan`
+  document.getElementById('qa-falla').textContent = `${falla} fallan`
+  document.getElementById('qa-progreso').style.width = `${Math.round(((pasa + falla) / ids.length) * 100)}%`
+}
+
+document.getElementById('qa-copiar').addEventListener('click', async () => {
+  const lineas = ['QA Picasso Inspecciones']
+  for (const g of QA) {
+    lineas.push('', g.grupo)
+    for (const [id, hacer] of g.casos) lineas.push(`${ETIQUETA[estado[id] || 'pendiente'].padEnd(9)} ${id} ${hacer}`)
+  }
+  const texto = lineas.join('\n')
+  const aviso = document.getElementById('qa-aviso')
+  try {
+    await navigator.clipboard.writeText(texto)
+    aviso.textContent = 'Resultados copiados.'
+  } catch {
+    aviso.textContent = 'No se pudo copiar automáticamente; selecciona la lista y cópiala a mano.'
+  }
+  aviso.hidden = false
+  setTimeout(() => (aviso.hidden = true), 4000)
+})
+document.getElementById('qa-limpiar').addEventListener('click', () => {
+  estado = {}
+  guardar()
+  pintar()
+})
+
+// Índice: marca la sección visible.
+const enlaces = [...document.querySelectorAll('nav.indice a')]
+const partes = enlaces.map((a) => document.querySelector(a.getAttribute('href'))).filter(Boolean)
+const observador = new IntersectionObserver((entradas) => {
+  for (const e of entradas) {
+    if (!e.isIntersecting) continue
+    enlaces.forEach((a) => a.classList.toggle('activo', a.getAttribute('href') === '#' + e.target.id))
+  }
+}, { rootMargin: '-30% 0px -60% 0px' })
+partes.forEach((p) => observador.observe(p))
+
+pintar()
+</script>
+<script type="module">
+// Diagramas: mermaid con los colores de la página (claro u oscuro). Al imprimir
+// siempre sale el claro.
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs'
+// Sin esto, mermaid dibuja solo con su tema al cargar la página mientras se esperan las fuentes.
+mermaid.initialize({ startOnLoad: false })
+const tema = document.documentElement.dataset.theme
+const oscuro = !matchMedia('print').matches &&
+  (tema === 'dark' || (tema !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches))
+// generar-pdfs.cjs puede mandar otra paleta y fuente (window.TEMA_DIAGRAMAS).
+const otro = window.TEMA_DIAGRAMAS
+if (otro?.css) {
+  const liga = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: otro.css })
+  await new Promise((listo) => { liga.onload = liga.onerror = listo; document.head.append(liga) })
+  await document.fonts.load(`14px "${otro.fuente}"`)
+}
+const c = otro?.colores ?? (oscuro
+  ? { fondo: '#171717', caja: '#202020', tinta: '#f2f2f0', borde: '#80807c', linea: '#b6b6b2', suave: '#3a2020', grupo: '#1b1b1b', grupoBorde: '#3a3a3a' }
+  : { fondo: '#ffffff', caja: '#f6f5f3', tinta: '#1e1e1e', borde: '#8a8a88', linea: '#545454', suave: '#ffe9e8', grupo: '#fbfaf8', grupoBorde: '#e2e1de' })
+mermaid.initialize({
+  startOnLoad: false,
+  securityLevel: 'strict',
+  theme: 'base',
+  fontFamily: otro?.fuente ? `'${otro.fuente}', sans-serif` : "'Open Sans', system-ui, sans-serif",
+  themeVariables: {
+    fontSize: '14px',
+    background: c.fondo,
+    primaryColor: c.caja,
+    primaryTextColor: c.tinta,
+    primaryBorderColor: c.borde,
+    secondaryColor: c.suave,
+    tertiaryColor: c.grupo,
+    lineColor: c.linea,
+    textColor: c.tinta,
+    clusterBkg: c.grupo,
+    clusterBorder: c.grupoBorde,
+    edgeLabelBackground: c.fondo,
+    noteBkgColor: c.suave,
+    noteBorderColor: c.acento ?? '#fe7877',
+    actorBkg: c.caja,
+    actorTextColor: c.tinta,
+    actorBorder: c.acento ?? '#fe7877',
+    actorLineColor: c.borde,
+    signalColor: c.tinta,
+    signalTextColor: c.tinta,
+    labelBoxBkgColor: c.caja,
+    labelBoxBorderColor: c.borde,
+  },
+})
+try {
+  await mermaid.run({ querySelector: 'pre.mermaid' })
+} finally {
+  document.documentElement.dataset.diagramas = 'listos'
+}
+</script>

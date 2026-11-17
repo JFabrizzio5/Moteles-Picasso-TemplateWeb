@@ -1,0 +1,161 @@
+# Picasso configuration.
+# Committed to git -- never put secrets here. Secrets come from the
+# environment and are typed SecretStr, which keeps them out of
+# `jfast describe` and the /info endpoint.
+#
+# This file wins over the environment for the shape of the service. For the
+# settings that depend on where it runs -- env, debug, the log format, mail,
+# LLM budgets, addresses, the tenant domain -- the environment wins, and a
+# value written here is only the default. Those lines say so. The full table
+# is in docs/deploy.md, "Which wins"; a disagreement is a WARNING at boot.
+
+[app]
+name = "picasso"
+version = "0.1.0"
+# No `env` here on purpose: it is a property of the deployment, not of the
+# code. It defaults to "local"; a deployment sets JFAST_ENV=prod, which also
+# wins over an `env` written in this file. See docs/deploy.md.
+port = 9800
+# The *business* zone: what "today" means for a report, an invoice period or a
+# daily quota. Not the server's zone and not the container's -- rows are stored
+# in UTC and every database session computes in UTC, so this is the only place
+# a local day is decided. An unknown IANA name stops the boot.
+timezone = "America/Mexico_City"
+# Not set, so the kernel defaults apply: a 2 MiB body limit, a 30s request
+# timeout, security headers on every response, and X-Forwarded-For believed
+# only from loopback and the private ranges -- where the generated Caddy
+# sits. max_body_bytes = 0 lifts the limit; see docs/deploy.md first.
+# The frontends' dev servers (VITE_API_URL points here): two origins, so
+# the browser needs this. Written by jfast; production serves one origin.
+# Default for development; JFAST_CORS_ORIGINS wins over it.
+cors_origins = ["http://localhost:9810", "http://127.0.0.1:9810"]
+# Las fotos se comprimen en el celular (~300 KB), pero una foto sin comprimir
+# de un teléfono viejo puede pasar de los 2 MiB por defecto.
+max_body_bytes = 10485760
+
+[plugins]
+enabled = ["observability", "metrics", "database", "cache", "queue", "telemetry", "auth", "accounts", "storage"]
+disabled = []
+
+[plugin.observability]
+# Development defaults: JFAST_LOG_LEVEL and JFAST_LOG_JSON_LOGS win over both.
+# A deployment sets JFAST_LOG_JSON_LOGS=true.
+level = "INFO"
+json_logs = false   # readable in a dev terminal
+
+[plugin.database]
+# Per process, and the generated image runs one worker per CPU up to eight --
+# so what this service can hold is (pool_size + max_overflow) x workers, 80
+# here. server_max_connections is what the other end accepts; `jfast check`
+# fails when the product goes past it, because the symptom otherwise is
+# `FATAL: sorry, too many clients already`, raised against whichever service
+# connected after this one rather than this one. 0 turns that check off.
+pool_size = 5
+max_overflow = 5
+server_max_connections = 100
+# DSN comes from JFAST_DB_DSN, not from here.
+# Every session computes in this zone whatever the server is set to, so
+# date_trunc('day', ...) and CURRENT_DATE answer the same on every replica.
+# Change it only if something outside this service guarantees the server's.
+session_timezone = "America/Mexico_City"
+
+[plugin.cache]
+default_ttl = 300
+
+[plugin.queue]
+backend = "postgres"   # postgres | redis | rabbitmq
+name = "jfast_jobs"
+max_attempts = 3
+
+[plugin.telemetry]
+# Exports nothing until OTEL_EXPORTER_OTLP_ENDPOINT is set, so it is free in
+# development. Point it at a collector, Jaeger, Tempo, Honeycomb or Datadog.
+
+
+# Not enabled. Add the name to [plugins].enabled, and install its extra if
+# it has one:
+#   mongo         pip install "jfastframework[mongo]"
+#   qdrant        pip install "jfastframework[qdrant]"
+#   rag           pip install "jfastframework[rag]"
+#   llm           pip install "jfastframework[llm]"
+#   outbox        pip install "jfastframework[db]"
+#   idempotency   pip install "jfastframework[db]"
+#   auth          pip install "jfastframework[auth]"
+#   accounts      pip install "jfastframework[accounts]"
+#   ratelimit     pip install "jfastframework[cache]"
+#   channels      no extra needed
+#   websocket     pip install "jfastframework[server]"
+#   events        pip install "jfastframework[kafka]"
+#   web           pip install "jfastframework[web]"
+#   sentry        pip install "jfastframework[sentry]"
+#   gateway       pip install "jfastframework[gateway]"
+#   http          pip install "jfastframework[http]"
+#   storage       pip install "jfastframework[storage]"
+#   tenancy       no extra needed
+#   notifications pip install "jfastframework[fcm]"
+#   mail          pip install "jfastframework[mail]"
+
+# How `jfast new module` names tables: "en" (orders) or "es" (camiones,
+# sucursales). --table overrides either for one module.
+[scaffold]
+language = "es"
+
+# How each module was generated, so later commands know where a
+# new file belongs. Written by `jfast new module`.
+
+[plugin.auth]
+# jwks       : fetch public keys from an identity service. Right for more than
+#              one service -- no shared secret to leak.
+# public_key : a pinned PEM. Same trust model, no network dependency.
+# secret     : HMAC. Simple, and every holder can also MINT tokens.
+# Picasso es un solo servicio: él mismo emite y verifica sus tokens.
+mode = "secret"
+algorithms = ["HS256"]
+issue_tokens = true
+# El secreto viene de JFAST_AUTH_SECRET.
+# Without an audience, a token for any sibling service is accepted. A default:
+# JFAST_AUTH_AUDIENCE wins over it.
+audience = "picasso"
+# With the cache plugin, revoked tokens are looked up in Redis. When Redis does
+# not answer: true accepts the token and logs it, so a cache outage does not
+# sign everyone out; false answers 503 -- for when a logout that lags an outage
+# is worse than the outage.
+revocation_fail_open = true
+
+[plugin.accounts]
+# The first admin is created on the first start; its password comes from
+# JFAST_ACCOUNTS_BOOTSTRAP_ADMIN_PASSWORD and never from this file.
+bootstrap_admin_email = "admin@picasso.mx"
+allow_registration = false
+# With the cache plugin: 20 sign-ins per IP and 10 per account every five
+# minutes, then 429. Behind a proxy, trust its X-Forwarded-For, or every user
+# shares one address and one budget.
+rate_limit = true
+
+[plugin.storage]
+default = "public"
+# Default for development; JFAST_STORAGE_SERVE_LOCAL wins over it. In
+# production Caddy or a CDN serves the files: set it to false there.
+serve_local = true
+# signing_key comes from JFAST_STORAGE_SIGNING_KEY. Without it, private disks
+# cannot produce a temporary URL and every download link fails.
+
+[plugin.storage.disks.public]
+driver = "local"
+root = "storage/public"
+visibility = "public"   # permanent URLs
+
+[plugin.storage.disks.private]
+driver = "local"
+root = "storage/private"
+visibility = "private"  # signed URLs that expire
+
+# How each module was generated, so later commands know where a
+# new file belongs. Written by `jfast new module`.
+[modules.sucursal]
+layout = "modular"
+ui = "api"
+
+[modules.inspeccion]
+layout = "modular"
+ui = "api"
