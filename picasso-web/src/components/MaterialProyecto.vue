@@ -38,7 +38,7 @@ const LIGAS = [
       </span>
       <span class="min-w-0 flex-1">
         <span class="block text-[15px] font-semibold">Ver el video promocional</span>
-        <span class="block text-[12.5px] opacity-75">La app en poco más de un minuto</span>
+        <span class="block text-[12.5px] opacity-75">La app en menos de dos minutos</span>
       </span>
     </button>
 
