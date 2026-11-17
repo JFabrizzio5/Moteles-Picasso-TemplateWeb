@@ -219,10 +219,17 @@ async function guardar() {
         </div>
         <ul v-if="folios.length" class="mb-2 space-y-1.5">
           <li v-for="f in folios" :key="f.incidencia_id" class="flex items-center justify-between gap-2 rounded-[10px] bg-[var(--superficie-2)] px-3 py-2">
-            <span class="min-w-0 text-[13.5px]">
-              <span class="folio-codigo">{{ f.folio }}</span>
+            <!-- Al folio: corrigiendo, se cierra la hoja; registrando, se abre aparte para no perder lo capturado. -->
+            <RouterLink
+              :to="`/folios/${f.incidencia_id}`"
+              :target="g ? undefined : '_blank'"
+              class="min-w-0 flex-1 text-[13.5px] hover:underline"
+              :title="g ? 'Ir a la incidencia' : 'Abrir la incidencia en otra pestaña'"
+              @click="g && emit('cerrar')"
+            >
+              <span class="folio-codigo">{{ f.folio }} ↗</span>
               <span class="block truncate">{{ f.titulo }}<template v-if="f.habitacion_numero"> · Hab. {{ f.habitacion_numero }}</template></span>
-            </span>
+            </RouterLink>
             <button type="button" class="shrink-0 text-[var(--texto-3)]" :aria-label="`Quitar ${f.folio}`" @click="quitarFolio(f.incidencia_id)">
               <Icono :path="mdiClose" :size="18" />
             </button>

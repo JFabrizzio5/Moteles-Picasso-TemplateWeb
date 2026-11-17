@@ -314,7 +314,13 @@ onMounted(async () => {
           <p class="mt-2 line-clamp-2 text-[13px] text-[var(--texto-2)]">{{ g.partidas.map((p) => `${p.descripcion} ×${Number(p.cantidad)} ${p.unidad}`).join(' · ') }}</p>
           <div class="mt-3 flex flex-wrap items-center gap-2 text-[12px]">
             <span class="estado estado-pendiente">{{ CATEGORIA_GASTO[g.categoria] }}</span>
-            <span v-for="f in g.incidencias" :key="f.incidencia_id" class="estado estado-falla">{{ f.folio }}</span>
+            <span
+              v-for="f in g.incidencias"
+              :key="f.incidencia_id"
+              class="estado estado-falla cursor-pointer hover:underline"
+              :title="`Ir a ${f.folio}`"
+              @click.stop="router.push(`/folios/${f.incidencia_id}`)"
+            >{{ f.folio }} ↗</span>
             <span v-if="g.exportado_en" class="estado estado-bien">En E-Cont</span>
             <span v-if="g.archivos.length" class="text-[var(--texto-3)]">📎 {{ g.archivos.length }}</span>
             <span class="text-[var(--texto-3)]">{{ dia(g.fecha) }} · {{ g.capturo_nombre }}</span>
