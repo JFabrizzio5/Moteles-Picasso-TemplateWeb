@@ -97,7 +97,7 @@ def _fila(**cambios: object) -> econt.FilaEcont:
         categoria="mantenimiento",
         concepto="Compresor del aire acondicionado",
         sucursal_nombre="Picasso Vaqueritos",
-        incidencia_folio="PIC-VAQ-000003",
+        incidencias=["PIC-VAQ-000003"],
         nota=None,
     )
     base.update(cambios)
@@ -175,3 +175,47 @@ def test_la_nota_para_e_cont_lleva_el_desglose() -> None:
     )
     assert "Lechuga 10 pza $150.00" in f.nota
     assert "Jitomate 2.5 kg $87.50" in f.nota
+
+
+def test_el_reporte_pdf_se_arma() -> None:
+    from datetime import datetime
+
+    from modules.finanzas.enums import CategoriaGasto
+    from modules.finanzas.models import (
+        AnalisisGastos,
+        GastoPorArticulo,
+        GastoPorCategoria,
+        GastoPorPersona,
+    )
+    from modules.finanzas.services.reporte_pdf import DatosReporte, construir_finanzas
+
+    analisis = AnalisisGastos(
+        desde=date(2026, 11, 1),
+        hasta=date(2026, 11, 16),
+        total=Decimal("700"),
+        gastos=1,
+        por_persona=[
+            GastoPorPersona(
+                capturo_nombre="Laura", capturo_rol=Rol.GERENTE, sucursal_nombre="Picasso Lerma",
+                gastos=1, total=Decimal("700"), categoria_mayor=CategoriaGasto.FRUTAS_VERDURAS,
+            )
+        ],
+        por_categoria=[
+            GastoPorCategoria(
+                categoria=CategoriaGasto.FRUTAS_VERDURAS, partidas=2, total=Decimal("700"),
+                por_sucursal={"Picasso Lerma": Decimal("700")},
+            )
+        ],
+        por_articulo=[
+            GastoPorArticulo(
+                articulo="Lechuga", unidad="pza", categoria=CategoriaGasto.FRUTAS_VERDURAS, veces=2,
+                cantidad=Decimal("20"), total=Decimal("400"), precio_promedio=Decimal("20"),
+                precio_minimo=Decimal("15"), precio_maximo=Decimal("25"), sucursales=["Lerma"],
+            )
+        ],
+    )  # fmt: skip
+    datos = construir_finanzas(
+        DatosReporte(date(2026, 11, 1), date(2026, 11, 16), "Picasso Lerma", None, analisis, []),
+        datetime(2026, 11, 17, 12, 0),
+    )
+    assert datos.startswith(b"%PDF")

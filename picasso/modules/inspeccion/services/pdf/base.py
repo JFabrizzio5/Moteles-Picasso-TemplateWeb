@@ -386,11 +386,19 @@ def galeria(fotos: Sequence[FotoPdf], columnas: int = 3) -> Table | Spacer:
 class _Lienzo(canvas.Canvas):  # type: ignore[misc]
     """Dibuja banda y pie al final, cuando ya se sabe cuántas páginas hay."""
 
-    def __init__(self, *args: Any, titulo: str, generado: datetime, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        *args: Any,
+        titulo: str,
+        generado: datetime,
+        banda: str = "Mantenimiento y limpieza",
+        **kwargs: Any,
+    ) -> None:
         super().__init__(*args, **kwargs)
         self._paginas: list[dict[str, Any]] = []
         self._titulo = titulo
         self._generado = generado
+        self._banda = banda
 
     def showPage(self) -> None:
         self._paginas.append(dict(self.__dict__))
@@ -421,7 +429,7 @@ class _Lienzo(canvas.Canvas):  # type: ignore[misc]
         self.drawRightString(ancho - MARGEN, alto - 30, self._titulo.upper())
         self.setFillColor(CORAL)
         self.setFont("Helvetica", 7.5)
-        self.drawRightString(ancho - MARGEN, alto - 42, "MANTENIMIENTO Y LIMPIEZA")
+        self.drawRightString(ancho - MARGEN, alto - 42, self._banda.upper())
         self.setFillColor(TEXTO_3)
         self.setFont("Helvetica", 7.5)
         self.drawString(
@@ -442,6 +450,7 @@ def documento(
     contenido: Callable[[], list[Flowable]],
     *,
     asunto: str = "",
+    banda: str = "Mantenimiento y limpieza",
 ) -> bytes:
     """Arma el PDF completo y devuelve sus bytes."""
     salida = io.BytesIO()
@@ -457,5 +466,7 @@ def documento(
         subject=asunto or titulo,
         creator="Picasso · Inspecciones",
     )
-    doc.build(contenido(), canvasmaker=partial(_Lienzo, titulo=titulo, generado=generado))
+    doc.build(
+        contenido(), canvasmaker=partial(_Lienzo, titulo=titulo, generado=generado, banda=banda)
+    )
     return salida.getvalue()

@@ -13,6 +13,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from jfastframework.errors import NotFoundError
 
 from .repositories import InspeccionRepository
+from .services.pdf import base as pdf
+
+#: Las piezas de los reportes PDF (banda con el logo, tablas, tarjetas, pie),
+#: para que los reportes de otros módulos se vean igual que los de inspección.
+__all__ = ["IncidenciaDTO", "incidencia", "pdf"]
 
 
 @dataclass(frozen=True, slots=True)

@@ -10,7 +10,8 @@ import EstadoChip from '@/components/EstadoChip.vue'
 import Icono from '@/components/Icono.vue'
 import Vacio from '@/components/Vacio.vue'
 import { useToast } from '@/composables/useToast.js'
-import { corto, fecha, hoyISO, mensajeError, PRIORIDAD, PRIORIDAD_LISTA, PRIORIDADES, relativo, ROLES } from '@/lib/formato.js'
+import { corto, fecha, hoyISO, mensajeError, pesos, PRIORIDAD, PRIORIDAD_LISTA, PRIORIDADES, relativo, ROLES } from '@/lib/formato.js'
+import * as finanzas from '@/services/finanzas.js'
 import * as picasso from '@/services/picasso.js'
 import { usePerfilStore } from '@/stores/perfil.store.js'
 
@@ -22,6 +23,8 @@ const avisos = useToast()
 const lista = ref([])
 const cargando = ref(true)
 const conteo = ref([])
+// Lo gastado en cada folio (gastos ligados); la ama de llaves no lo ve.
+const costos = ref(new Map())
 const buscar = ref(ruta.query.buscar || '')
 
 const ESTADOS = [
@@ -84,6 +87,16 @@ async function cargar() {
   }
 }
 
+async function cargarCostos() {
+  if (perfil.esAma) return
+  try {
+    const filas = await finanzas.costosFolios({ sucursal_id: filtros.value.sucursal || undefined })
+    costos.value = new Map(filas.map((c) => [c.incidencia_id, c]))
+  } catch {
+    costos.value = new Map()
+  }
+}
+
 async function cargarConteo() {
   try {
     conteo.value = await picasso.conteoFolios(parametros(filtros.value))
@@ -120,11 +133,15 @@ watch(buscar, (v) => {
   espera = setTimeout(() => cambiar({ buscar: v || undefined }), 350)
 })
 watch(filtros, cargar)
-watch(filtrosConteo, cargarConteo)
+watch(filtrosConteo, () => {
+  cargarConteo()
+  cargarCostos()
+})
 onMounted(async () => {
   await perfil.cargar().catch(() => {})
   cargar()
   cargarConteo()
+  cargarCostos()
 })
 </script>
 
@@ -254,6 +271,9 @@ onMounted(async () => {
           <p class="mt-1 text-sm text-[var(--texto-2)]">
             {{ f.sucursal_nombre }} · Hab. {{ f.habitacion_numero }} ·
             <span class="font-semibold" :style="{ color: PRIORIDAD[f.prioridad]?.color }">{{ PRIORIDADES[f.prioridad] }}</span>
+          </p>
+          <p v-if="costos.get(f.id)" class="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[var(--vino-suave)] px-2.5 py-0.5 text-[12.5px] font-semibold text-[var(--vino-texto)]">
+            Gastado {{ pesos(costos.get(f.id).total) }} · {{ costos.get(f.id).gastos }} {{ costos.get(f.id).gastos === 1 ? 'gasto' : 'gastos' }}
           </p>
           <p class="mt-2 text-[13px] text-[var(--texto-3)]">
             {{ ROLES[f.origen_rol] }} · {{ fecha(f.reportada_en) }} · {{ f.estado === 'cerrada' ? `cerrado ${relativo(f.cerrada_en)}` : relativo(f.reportada_en) }}

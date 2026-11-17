@@ -129,9 +129,6 @@ class Gasto(Base, TimestampMixin, TenantMixin):
     referencia: Mapped[str | None] = mapped_column(String(40), default=None)
     importe: Mapped[Decimal] = mapped_column(DINERO)
     nota: Mapped[str | None] = mapped_column(Text, default=None)
-    incidencia_id: Mapped[int | None] = mapped_column(index=True, default=None)
-    incidencia_folio: Mapped[str | None] = mapped_column(String(24), default=None)
-    incidencia_titulo: Mapped[str | None] = mapped_column(String(160), default=None)
     capturo_id: Mapped[str] = mapped_column(String(64))
     capturo_nombre: Mapped[str] = mapped_column(String(120))
     capturo_rol: Mapped[str] = mapped_column(String(20))
@@ -160,6 +157,25 @@ class GastoPartida(Base, TimestampMixin, TenantMixin):
     precio_unitario: Mapped[Decimal] = mapped_column(Numeric(12, 4))
     importe: Mapped[Decimal] = mapped_column(DINERO)
     categoria: Mapped[str] = mapped_column(String(20), index=True)
+
+
+class GastoIncidencia(Base, TimestampMixin, TenantMixin):
+    """Folio de mantenimiento al que se carga un gasto. Un gasto puede ir a varios
+    (una compra de ferretería para tres cuartos) y un folio tener varios gastos.
+
+    Del folio se guarda una copia del código, el título y el cuarto: los módulos
+    no se unen por SQL.
+    """
+
+    __tablename__ = "gasto_incidencias"
+    __table_args__ = (UniqueConstraint("gasto_id", "incidencia_id", name="uq_gasto_incidencias"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    gasto_id: Mapped[int] = mapped_column(ForeignKey("gastos.id", ondelete="CASCADE"), index=True)
+    incidencia_id: Mapped[int] = mapped_column(index=True)
+    folio: Mapped[str] = mapped_column(String(24))
+    titulo: Mapped[str] = mapped_column(String(160))
+    habitacion_numero: Mapped[str] = mapped_column(String(10))
 
 
 class GastoArchivo(Base, TimestampMixin, TenantMixin):

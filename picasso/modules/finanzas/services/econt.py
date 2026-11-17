@@ -72,7 +72,7 @@ def fila_de_gasto(
     categoria: str,
     concepto: str,
     sucursal_nombre: str,
-    incidencia_folio: str | None,
+    incidencias: Sequence[str],
     nota: str | None,
     partidas: Sequence[tuple[str, Decimal, str, Decimal]] = (),
 ) -> FilaEcont:
@@ -82,8 +82,9 @@ def fila_de_gasto(
         NOMBRE_CATEGORIA.get(CategoriaGasto(categoria), categoria),
         concepto,
     ]
-    if incidencia_folio:
-        partes.append(f"Incidencia {incidencia_folio}")
+    if incidencias:
+        etiqueta = "Incidencia" if len(incidencias) == 1 else "Incidencias"
+        partes.append(f"{etiqueta} {', '.join(incidencias)}")
     if partidas:
         # descripción, cantidad, unidad, importe: el desglose viaja en la nota.
         partes.append("; ".join(f"{d} {c.normalize():f} {u} ${i:,.2f}" for d, c, u, i in partidas))

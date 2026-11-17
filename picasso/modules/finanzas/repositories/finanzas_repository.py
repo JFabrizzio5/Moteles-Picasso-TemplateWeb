@@ -7,7 +7,7 @@ from datetime import date
 from decimal import Decimal
 from typing import Any
 
-from sqlalchemy import delete, func, or_, select
+from sqlalchemy import delete, exists, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from jfastframework.errors import NotFoundError
@@ -16,6 +16,7 @@ from ..models import (
     FuenteKairos,
     Gasto,
     GastoArchivo,
+    GastoIncidencia,
     GastoPartida,
     IngresoDia,
     IngresoTarifa,
@@ -152,10 +153,11 @@ class FinanzasRepository:
             query = query.where(Gasto.fecha >= desde)
         if hasta is not None:
             query = query.where(Gasto.fecha <= hasta)
+        ligas = select(GastoIncidencia.id).where(GastoIncidencia.gasto_id == Gasto.id)
         if incidencia_id is not None:
-            query = query.where(Gasto.incidencia_id == incidencia_id)
+            query = query.where(exists(ligas.where(GastoIncidencia.incidencia_id == incidencia_id)))
         if sin_incidencia:
-            query = query.where(Gasto.incidencia_id.is_(None))
+            query = query.where(~exists(ligas))
         if categoria:
             query = query.where(Gasto.categoria == categoria)
         if not incluir_anulados:
@@ -170,7 +172,12 @@ class FinanzasRepository:
                     Gasto.concepto.ilike(patron),
                     Gasto.proveedor.ilike(patron),
                     Gasto.referencia.ilike(patron),
-                    Gasto.incidencia_folio.ilike(patron),
+                    exists(
+                        select(GastoIncidencia.id).where(
+                            GastoIncidencia.gasto_id == Gasto.id,
+                            GastoIncidencia.folio.ilike(patron),
+                        )
+                    ),
                 )
             )
         query = query.order_by(Gasto.fecha.desc(), Gasto.id.desc()).limit(limite)
@@ -200,6 +207,39 @@ class FinanzasRepository:
         for f in filas:
             por_gasto.setdefault(f.gasto_id, []).append(f)
         return por_gasto
+
+    async def incidencias(self, gasto_ids: Sequence[int]) -> dict[int, list[GastoIncidencia]]:
+        if not gasto_ids:
+            return {}
+        filas = await self._todas(
+            select(GastoIncidencia)
+            .where(GastoIncidencia.gasto_id.in_(list(gasto_ids)))
+            .order_by(GastoIncidencia.gasto_id, GastoIncidencia.folio)
+        )
+        por_gasto: dict[int, list[GastoIncidencia]] = {}
+        for f in filas:
+            por_gasto.setdefault(f.gasto_id, []).append(f)
+        return por_gasto
+
+    async def costos_por_folio(self, sucursal_id: int | None) -> list[tuple[int, int, Decimal]]:
+        query = (
+            select(GastoIncidencia.incidencia_id, func.count(), func.sum(Gasto.importe))
+            .join(Gasto, Gasto.id == GastoIncidencia.gasto_id)
+            .where(Gasto.estado != "anulado")
+            .group_by(GastoIncidencia.incidencia_id)
+        )
+        if sucursal_id is not None:
+            query = query.where(Gasto.sucursal_id == sucursal_id)
+        return [
+            (i, int(n), Decimal(t or 0)) for i, n, t in (await self.session.execute(query)).all()
+        ]
+
+    async def reemplazar_incidencias(self, gasto_id: int, filas: Sequence[GastoIncidencia]) -> None:
+        await self.session.execute(
+            delete(GastoIncidencia).where(GastoIncidencia.gasto_id == gasto_id)
+        )
+        self.session.add_all(list(filas))
+        await self.session.flush()
 
     async def partidas(self, gasto_ids: Sequence[int]) -> dict[int, list[GastoPartida]]:
         if not gasto_ids:

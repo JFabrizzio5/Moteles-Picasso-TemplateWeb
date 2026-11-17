@@ -5,6 +5,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { mdiDownload, mdiFileExcelOutline, mdiMagnify, mdiPlus, mdiRefresh } from '@mdi/js'
 
+import BotonPdf from '@/components/BotonPdf.vue'
 import Cargando from '@/components/Cargando.vue'
 import GastoHoja from '@/components/GastoHoja.vue'
 import Icono from '@/components/Icono.vue'
@@ -40,12 +41,22 @@ const PERIODOS = [
   { valor: 'mes', texto: 'Este mes' },
   { valor: 'pasado', texto: 'Mes pasado' },
   { valor: '30', texto: '30 días' },
+  { valor: 'rango', texto: 'Elegir fechas' },
 ]
 
 const vista = computed(() => (VISTAS.some((v) => v.valor === ruta.query.vista) ? ruta.query.vista : 'ingresos'))
 const periodo = computed(() => (PERIODOS.some((p) => p.valor === ruta.query.periodo) ? ruta.query.periodo : 'mes'))
 const sucursal = computed(() => ruta.query.sucursal || '')
-const rango = computed(() => periodoDe(periodo.value))
+const rango = computed(() => {
+  if (periodo.value !== 'rango') return periodoDe(periodo.value)
+  const [d, h] = periodoDe('mes')
+  const desde = ruta.query.desde || d
+  const hasta = ruta.query.hasta || h
+  return desde <= hasta ? [desde, hasta] : [hasta, desde]
+})
+const rutaPdf = computed(
+  () => `/finanzas/reporte.pdf?desde=${rango.value[0]}&hasta=${rango.value[1]}${sucursal.value ? `&sucursal_id=${sucursal.value}` : ''}`,
+)
 const parametros = computed(() => ({ desde: rango.value[0], hasta: rango.value[1], sucursal_id: sucursal.value || undefined }))
 const cambiar = (c) => router.replace({ query: { ...ruta.query, ...c } })
 
@@ -170,7 +181,14 @@ onMounted(async () => {
         <option value="">Todas las sucursales</option>
         <option v-for="s in perfil.sucursales" :key="s.id" :value="s.id">{{ s.nombre }}</option>
       </select>
-      <p class="text-[13px] text-[var(--texto-3)]">Del {{ dia(rango[0]) }} al {{ dia(rango[1]) }}</p>
+      <div v-if="periodo === 'rango'" class="grid max-w-md grid-cols-2 gap-2">
+        <label class="text-sm font-semibold">Desde<input type="date" class="campo mt-1" :value="rango[0]" @change="cambiar({ desde: $event.target.value })" /></label>
+        <label class="text-sm font-semibold">Hasta<input type="date" class="campo mt-1" :value="rango[1]" @change="cambiar({ hasta: $event.target.value })" /></label>
+      </div>
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <p class="text-[13px] text-[var(--texto-3)]">Del {{ dia(rango[0]) }} al {{ dia(rango[1]) }}</p>
+        <BotonPdf :ruta="rutaPdf" :nombre="`Finanzas-Picasso-${rango[0]}-a-${rango[1]}.pdf`" texto="Imprimir reporte" />
+      </div>
     </div>
 
     <Cargando v-if="cargando && !resumen && !lista.length && !analisis" texto="Sumando" />
@@ -296,7 +314,7 @@ onMounted(async () => {
           <p class="mt-2 line-clamp-2 text-[13px] text-[var(--texto-2)]">{{ g.partidas.map((p) => `${p.descripcion} ×${Number(p.cantidad)} ${p.unidad}`).join(' · ') }}</p>
           <div class="mt-3 flex flex-wrap items-center gap-2 text-[12px]">
             <span class="estado estado-pendiente">{{ CATEGORIA_GASTO[g.categoria] }}</span>
-            <span v-if="g.incidencia_folio" class="estado estado-falla">{{ g.incidencia_folio }}</span>
+            <span v-for="f in g.incidencias" :key="f.incidencia_id" class="estado estado-falla">{{ f.folio }}</span>
             <span v-if="g.exportado_en" class="estado estado-bien">En E-Cont</span>
             <span v-if="g.archivos.length" class="text-[var(--texto-3)]">📎 {{ g.archivos.length }}</span>
             <span class="text-[var(--texto-3)]">{{ dia(g.fecha) }} · {{ g.capturo_nombre }}</span>

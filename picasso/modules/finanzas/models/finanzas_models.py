@@ -164,11 +164,12 @@ class GastoCrear(BaseModel):
     referencia: str | None = Field(None, max_length=40)
     partidas: list[PartidaCrear] = Field(min_length=1, max_length=100)
     nota: str | None = Field(None, max_length=1000)
-    incidencia_id: int | None = None
+    #: Folios de mantenimiento de la misma sucursal a los que se carga el gasto.
+    incidencia_ids: list[int] = Field(default_factory=list, max_length=50)
 
 
 class GastoActualizar(BaseModel):
-    """Parcial. `incidencia_id` = 0 quita la liga con el folio."""
+    """Parcial. `incidencia_ids` reemplaza los folios ligados ([] los quita todos)."""
 
     fecha: date | None = None
     categoria: CategoriaGasto | None = None
@@ -182,7 +183,24 @@ class GastoActualizar(BaseModel):
     #: Si llega, reemplaza todas las partidas (y con ellas el total).
     partidas: list[PartidaCrear] | None = Field(None, min_length=1, max_length=100)
     nota: str | None = Field(None, max_length=1000)
-    incidencia_id: int | None = None
+    incidencia_ids: list[int] | None = Field(None, max_length=50)
+
+
+class FolioDelGasto(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    incidencia_id: int
+    folio: str
+    titulo: str
+    habitacion_numero: str
+
+
+class CostoFolio(BaseModel):
+    """Lo gastado en un folio de mantenimiento (suma de los gastos ligados)."""
+
+    incidencia_id: int
+    gastos: int
+    total: Decimal
 
 
 class GastoRead(BaseModel):
@@ -202,9 +220,7 @@ class GastoRead(BaseModel):
     referencia: str | None
     importe: Decimal
     nota: str | None
-    incidencia_id: int | None
-    incidencia_folio: str | None
-    incidencia_titulo: str | None
+    incidencias: list[FolioDelGasto] = []
     capturo_nombre: str
     capturo_rol: Rol
     estado: str

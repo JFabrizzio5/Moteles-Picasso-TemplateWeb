@@ -14,6 +14,9 @@ export const analisisGastos = (params) => datos(api.get('/gastos/analisis', { pa
 export const gasto = (id) => datos(api.get(`/gastos/${id}`))
 export const crearGasto = (cuerpo) => datos(api.post('/gastos', cuerpo))
 export const actualizarGasto = (id, cuerpo) => datos(api.patch(`/gastos/${id}`, cuerpo))
+export const ligarFolio = (id, incidenciaId) => datos(api.post(`/gastos/${id}/incidencias/${incidenciaId}`))
+export const desligarFolio = (id, incidenciaId) => datos(api.delete(`/gastos/${id}/incidencias/${incidenciaId}`))
+export const costosFolios = (params) => datos(api.get('/gastos/costos-folios', { params }))
 export const anularGasto = (id) => datos(api.post(`/gastos/${id}/anular`))
 export const quitarComprobante = (id, archivoId) => datos(api.delete(`/gastos/${id}/archivos/${archivoId}`))
 

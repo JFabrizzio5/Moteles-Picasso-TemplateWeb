@@ -17,11 +17,14 @@ from ..models import (
     Actor,
     AnalisisGastos,
     ArchivoRead,
+    CostoFolio,
     ExportarEcont,
+    FolioDelGasto,
     Gasto,
     GastoActualizar,
     GastoArchivo,
     GastoCrear,
+    GastoIncidencia,
     GastoPartida,
     GastoPorArticulo,
     GastoPorCategoria,
@@ -54,11 +57,14 @@ BuscarFolio = Callable[[int], Awaitable["FolioLigado | None"]]
 
 
 class FolioLigado:
-    def __init__(self, id: int, folio: str, titulo: str, sucursal_id: int) -> None:
+    def __init__(
+        self, id: int, folio: str, titulo: str, sucursal_id: int, habitacion_numero: str = ""
+    ) -> None:
         self.id = id
         self.folio = folio
         self.titulo = titulo
         self.sucursal_id = sucursal_id
+        self.habitacion_numero = habitacion_numero
 
 
 class GastosService:
@@ -80,19 +86,24 @@ class GastosService:
             raise ValidationError("Esa sucursal no existe o está inactiva.")
         return s
 
-    async def _ligar(self, gasto: Gasto, incidencia_id: int | None) -> None:
-        if not incidencia_id:
-            gasto.incidencia_id = None
-            gasto.incidencia_folio = None
-            gasto.incidencia_titulo = None
-            return
-        folio = await self.buscar_folio(incidencia_id)
-        if folio is None:
-            raise NotFoundError("Ese folio no existe.")
-        liga_de_incidencia(gasto.sucursal_id, folio.sucursal_id)
-        gasto.incidencia_id = folio.id
-        gasto.incidencia_folio = folio.folio
-        gasto.incidencia_titulo = folio.titulo[:160]
+    async def _ligar(self, gasto: Gasto, incidencia_ids: Sequence[int]) -> None:
+        """Deja ligado el gasto exactamente a esos folios (de su misma sucursal)."""
+        filas: list[GastoIncidencia] = []
+        for incidencia_id in dict.fromkeys(incidencia_ids):
+            folio = await self.buscar_folio(incidencia_id)
+            if folio is None:
+                raise NotFoundError(f"El folio {incidencia_id} no existe.")
+            liga_de_incidencia(gasto.sucursal_id, folio.sucursal_id)
+            filas.append(
+                GastoIncidencia(
+                    gasto_id=gasto.id,
+                    incidencia_id=folio.id,
+                    folio=folio.folio,
+                    titulo=folio.titulo[:160],
+                    habitacion_numero=folio.habitacion_numero[:10],
+                )
+            )
+        await self.repo.reemplazar_incidencias(gasto.id, filas)
 
     def _partidas(
         self, gasto: Gasto, partidas: Sequence[PartidaCrear]
@@ -124,10 +135,20 @@ class GastosService:
         ids = [g.id for g in gastos]
         archivos = await self.repo.archivos(ids)
         partidas = await self.repo.partidas(ids)
-        return [await self._read(g, archivos.get(g.id, []), partidas.get(g.id, [])) for g in gastos]
+        folios = await self.repo.incidencias(ids)
+        return [
+            await self._read(
+                g, archivos.get(g.id, []), partidas.get(g.id, []), folios.get(g.id, [])
+            )
+            for g in gastos
+        ]
 
     async def _read(
-        self, g: Gasto, archivos: list[GastoArchivo], partidas: list[GastoPartida]
+        self,
+        g: Gasto,
+        archivos: list[GastoArchivo],
+        partidas: list[GastoPartida],
+        folios: list[GastoIncidencia],
     ) -> GastoRead:
         return GastoRead(
             id=g.id,
@@ -146,9 +167,7 @@ class GastosService:
             referencia=g.referencia,
             importe=g.importe,
             nota=g.nota,
-            incidencia_id=g.incidencia_id,
-            incidencia_folio=g.incidencia_folio,
-            incidencia_titulo=g.incidencia_titulo,
+            incidencias=[FolioDelGasto.model_validate(f, from_attributes=True) for f in folios],
             capturo_nombre=g.capturo_nombre,
             capturo_rol=Rol(g.capturo_rol),
             estado=g.estado,
@@ -225,11 +244,11 @@ class GastosService:
             capturo_rol=actor.rol.value,
             estado="registrado",
         )
-        await self._ligar(g, payload.incidencia_id)
         await self.repo.agregar(g)
         g.folio = f"GTO-{sucursal.clave}-{g.id:06d}"
         filas, g.importe = self._partidas(g, payload.partidas)
         await self.repo.reemplazar_partidas(g.id, filas)
+        await self._ligar(g, payload.incidencia_ids)
         return (await self.leer([g]))[0]
 
     async def actualizar(self, actor: Actor, gasto_id: int, payload: GastoActualizar) -> GastoRead:
@@ -237,8 +256,9 @@ class GastosService:
         exigir_gasto_de(actor, g.sucursal_id)
         exigir_editable(g.estado)
         cambios = payload.model_dump(exclude_unset=True)
-        if "incidencia_id" in cambios:
-            await self._ligar(g, cambios.pop("incidencia_id"))
+        if cambios.get("incidencia_ids") is not None:
+            await self._ligar(g, cambios["incidencia_ids"])
+        cambios.pop("incidencia_ids", None)
         if "fecha" in cambios and cambios["fecha"] is not None:
             no_en_el_futuro(cambios["fecha"], hoy())
         if "rfc_proveedor" in cambios:
@@ -264,6 +284,25 @@ class GastosService:
             await self.repo.reemplazar_partidas(g.id, filas)
         await self.repo.session.flush()
         return (await self.leer([g]))[0]
+
+    async def ligar_folio(
+        self, actor: Actor, gasto_id: int, incidencia_id: int, *, ligar: bool
+    ) -> GastoRead:
+        """Agregar o quitar un folio sin tocar los demás (desde la vista del folio)."""
+        g = await self.repo.gasto(gasto_id)
+        exigir_gasto_de(actor, g.sucursal_id)
+        exigir_editable(g.estado)
+        actuales = [f.incidencia_id for f in (await self.repo.incidencias([g.id])).get(g.id, [])]
+        nuevos = (
+            [*actuales, incidencia_id] if ligar else [i for i in actuales if i != incidencia_id]
+        )
+        await self._ligar(g, nuevos)
+        return (await self.leer([g]))[0]
+
+    async def costos_por_folio(self, actor: Actor, sucursal_id: int | None) -> list[CostoFolio]:
+        """Cuánto se ha gastado en cada folio, para mostrarlo en la lista de folios."""
+        filas = await self.repo.costos_por_folio(sucursal_visible(actor, sucursal_id))
+        return [CostoFolio(incidencia_id=i, gastos=n, total=t) for i, n, t in filas]
 
     async def anular(self, actor: Actor, gasto_id: int) -> GastoRead:
         g = await self.repo.gasto(gasto_id)
@@ -321,6 +360,7 @@ class GastosService:
     async def exportar_excel(self, actor: Actor, pedido: ExportarEcont) -> tuple[bytes, int]:
         filas = await self._para_exportar(actor, pedido)
         partidas = await self.repo.partidas([g.id for g in filas])
+        folios = await self.repo.incidencias([g.id for g in filas])
         contenido = econt.excel(
             [
                 econt.fila_de_gasto(
@@ -336,7 +376,7 @@ class GastosService:
                     categoria=g.categoria,
                     concepto=g.concepto,
                     sucursal_nombre=g.sucursal_nombre,
-                    incidencia_folio=g.incidencia_folio,
+                    incidencias=[f.folio for f in folios.get(g.id, [])],
                     nota=g.nota,
                     partidas=[
                         (p.descripcion, p.cantidad, p.unidad, p.importe)

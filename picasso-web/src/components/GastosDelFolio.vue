@@ -24,6 +24,7 @@ const datosFolio = computed(() => ({
   folio: props.folio.folio,
   titulo: props.folio.titulo,
   sucursal_id: props.folio.sucursal_id,
+  habitacion_numero: props.folio.habitacion_numero,
 }))
 
 async function cargar() {
@@ -36,16 +37,19 @@ async function cargar() {
 async function abrirLigar() {
   hoja.value = 'ligar'
   try {
-    sueltos.value = await finanzas.gastos({ sucursal_id: props.folio.sucursal_id, sin_incidencia: true })
+    // Los de la sucursal que aún no están en este folio (pueden estar en otros).
+    const todos = await finanzas.gastos({ sucursal_id: props.folio.sucursal_id })
+    sueltos.value = todos.filter((g) => !g.incidencias.some((f) => f.incidencia_id === props.folio.id))
   } catch (e) {
     avisos.error(mensajeError(e))
   }
 }
-async function ligar(g, incidenciaId) {
+async function ligar(g, ligar) {
   ocupado.value = true
   try {
-    await finanzas.actualizarGasto(g.id, { incidencia_id: incidenciaId })
-    avisos.success(incidenciaId ? `${g.folio} quedó ligado al folio.` : `${g.folio} ya no está ligado.`)
+    if (ligar) await finanzas.ligarFolio(g.id, props.folio.id)
+    else await finanzas.desligarFolio(g.id, props.folio.id)
+    avisos.success(ligar ? `${g.folio} quedó ligado al folio.` : `${g.folio} ya no está ligado a este folio.`)
     hoja.value = null
     await cargar()
   } catch (e) {
@@ -80,7 +84,7 @@ onMounted(cargar)
         </button>
         <div class="flex shrink-0 flex-col items-end gap-1">
           <span class="font-semibold tabular-nums">{{ pesos(g.importe) }}</span>
-          <button class="inline-flex items-center gap-1 text-[12px] text-[var(--texto-3)]" :disabled="ocupado" @click="ligar(g, 0)">
+          <button class="inline-flex items-center gap-1 text-[12px] text-[var(--texto-3)]" :disabled="ocupado" @click="ligar(g, false)">
             <Icono :path="mdiLinkVariantOff" :size="14" /> Desligar
           </button>
         </div>
@@ -95,10 +99,10 @@ onMounted(cargar)
     <GastoHoja v-if="hoja === 'nuevo'" :folio="datosFolio" @cerrar="hoja = null" @guardado="guardado" />
     <GastoHoja v-else-if="hoja?.gasto" :gasto="hoja.gasto" @cerrar="hoja = null" @guardado="guardado" />
     <Hoja v-else-if="hoja === 'ligar'" titulo="Ligar un gasto" :etiqueta="folio.folio" @cerrar="hoja = null">
-      <p class="mb-3 text-sm text-[var(--texto-2)]">Gastos de la sucursal que todavía no tienen folio.</p>
+      <p class="mb-3 text-sm text-[var(--texto-2)]">Gastos de la misma sucursal que todavía no están en este folio.</p>
       <ul v-if="sueltos.length" class="divide-y divide-[var(--linea)]">
         <li v-for="g in sueltos" :key="g.id">
-          <button class="flex w-full items-center justify-between gap-3 py-3 text-left" :disabled="ocupado" @click="ligar(g, folio.id)">
+          <button class="flex w-full items-center justify-between gap-3 py-3 text-left" :disabled="ocupado" @click="ligar(g, true)">
             <span class="min-w-0">
               <span class="block font-semibold">{{ g.concepto }}</span>
               <span class="block text-[13px] text-[var(--texto-3)]">{{ g.folio }} · {{ dia(g.fecha) }} · {{ g.proveedor }}</span>
@@ -107,7 +111,7 @@ onMounted(cargar)
           </button>
         </li>
       </ul>
-      <p v-else class="text-sm text-[var(--texto-3)]">No hay gastos sin folio en esta sucursal.</p>
+      <p v-else class="text-sm text-[var(--texto-3)]">No hay más gastos de esta sucursal para ligar.</p>
     </Hoja>
   </section>
 </template>

@@ -2,20 +2,20 @@
 // Registrar o corregir un gasto, cosa por cosa. El total no se escribe: es la
 // suma de las partidas (cantidad × precio), para poder auditar qué se compró.
 import { computed, onMounted, reactive, ref, watch } from 'vue'
-import { mdiDeleteOutline, mdiPaperclip, mdiPlus } from '@mdi/js'
+import { mdiClose, mdiDeleteOutline, mdiLinkVariant, mdiPaperclip, mdiPlus } from '@mdi/js'
 
+import ElegirFolios from '@/components/ElegirFolios.vue'
 import Hoja from '@/components/Hoja.vue'
 import Icono from '@/components/Icono.vue'
 import { useToast } from '@/composables/useToast.js'
 import { CATEGORIAS_GASTO, FORMAS_PAGO, hoyISO, mensajeError, pesos, TIPOS_OPERACION } from '@/lib/formato.js'
 import * as finanzas from '@/services/finanzas.js'
-import * as picasso from '@/services/picasso.js'
 import { usePerfilStore } from '@/stores/perfil.store.js'
 
 const props = defineProps({
   /** Para corregir uno que ya existe. */
   gasto: { type: Object, default: null },
-  /** Para registrarlo desde un folio: { id, folio, titulo, sucursal_id }. */
+  /** Para registrarlo desde un folio: { id, folio, titulo, sucursal_id, habitacion_numero }. */
   folio: { type: Object, default: null },
 })
 const emit = defineEmits(['cerrar', 'guardado'])
@@ -38,7 +38,6 @@ const form = reactive({
   rfc_proveedor: g?.rfc_proveedor ?? '',
   banco: g?.banco ?? '',
   nota: g?.nota ?? '',
-  incidencia_id: g?.incidencia_id ?? props.folio?.id ?? null,
   partidas: g?.partidas?.length
     ? g.partidas.map((p) => ({ ...p, cantidad: Number(p.cantidad), precio_unitario: Number(p.precio_unitario) }))
     : [nuevaPartida()],
@@ -47,22 +46,29 @@ const masDatos = ref(Boolean(g?.rfc_proveedor || g?.banco || g?.referencia || g?
 const archivos = ref([])
 const guardando = ref(false)
 
-// Folios de la sucursal para ligar el gasto (los abiertos primero).
-const folios = ref([])
-const folioElegido = computed(() => folios.value.find((f) => f.id === form.incidencia_id))
-async function cargarFolios() {
-  if (!form.sucursal_id) return (folios.value = [])
-  try {
-    folios.value = await picasso.folios({ estado: 'todas', sucursal_id: form.sucursal_id })
-  } catch {
-    folios.value = []
-  }
+// Folios de incidencia a los que se carga el gasto (varios, de la misma sucursal).
+const folios = ref(
+  g?.incidencias?.length
+    ? [...g.incidencias]
+    : props.folio
+      ? [{ incidencia_id: props.folio.id, folio: props.folio.folio, titulo: props.folio.titulo, habitacion_numero: props.folio.habitacion_numero ?? '' }]
+      : [],
+)
+const eligiendo = ref(false)
+const sucursalNombre = computed(() => perfil.sucursales?.find((s) => s.id === Number(form.sucursal_id))?.nombre ?? '')
+function quitarFolio(id) {
+  folios.value = folios.value.filter((f) => f.incidencia_id !== id)
 }
-watch(() => form.sucursal_id, cargarFolios)
+// Otra sucursal, otros folios: los elegidos dejan de valer.
+watch(
+  () => form.sucursal_id,
+  (nueva, vieja) => {
+    if (vieja && nueva !== vieja) folios.value = []
+  },
+)
 onMounted(async () => {
   await perfil.cargar().catch(() => {})
   if (!form.sucursal_id && perfil.miSucursal) form.sucursal_id = perfil.miSucursal.id
-  cargarFolios()
 })
 
 const importe = (p) => Math.round(Number(p.cantidad || 0) * Number(p.precio_unitario || 0) * 100) / 100
@@ -111,7 +117,7 @@ async function guardar() {
     rfc_proveedor: form.rfc_proveedor.trim() || null,
     banco: form.banco.trim() || null,
     nota: form.nota.trim() || null,
-    incidencia_id: form.incidencia_id || (g ? 0 : null),
+    incidencia_ids: folios.value.map((f) => f.incidencia_id),
     partidas: form.partidas.map((p) => ({
       descripcion: p.descripcion.trim(),
       cantidad: Number(p.cantidad),
@@ -137,9 +143,10 @@ async function guardar() {
   <Hoja :titulo="g ? 'Corregir gasto' : 'Registrar gasto'" :etiqueta="g?.folio || folio?.folio || 'Egresos'" @cerrar="emit('cerrar')">
     <div class="space-y-4">
       <div class="grid grid-cols-2 gap-3">
-        <div v-if="perfil.veTodas && !g" class="col-span-2">
+        <div v-if="!g" class="col-span-2">
           <label class="mb-1.5 block text-sm font-semibold">Sucursal</label>
-          <select v-model="form.sucursal_id" class="campo" :disabled="Boolean(folio)">
+          <!-- El gerente registra en la suya; quien ve todas elige. -->
+          <select v-model="form.sucursal_id" class="campo" :disabled="Boolean(folio) || !perfil.veTodas">
             <option value="" disabled>Elige la sucursal</option>
             <option v-for="s in perfil.sucursales" :key="s.id" :value="s.id">{{ s.nombre }}</option>
           </select>
@@ -204,15 +211,36 @@ async function guardar() {
         </div>
       </section>
 
-      <!-- Folio de mantenimiento -->
+      <!-- Folios de mantenimiento -->
       <div>
-        <label class="mb-1.5 block text-sm font-semibold">Folio de incidencia (opcional)</label>
-        <select v-model="form.incidencia_id" class="campo" :disabled="Boolean(folio)">
-          <option :value="null">Sin folio</option>
-          <option v-if="folio && !folioElegido" :value="folio.id">{{ folio.folio }} · {{ folio.titulo }}</option>
-          <option v-for="f in folios" :key="f.id" :value="f.id">{{ f.folio }} · {{ f.titulo }} · Hab. {{ f.habitacion_numero }}</option>
-        </select>
+        <div class="mb-1.5 flex items-baseline justify-between">
+          <label class="text-sm font-semibold">Folios de incidencia (opcional)</label>
+          <span v-if="folios.length" class="text-[12px] text-[var(--texto-3)]">{{ folios.length }} vinculado{{ folios.length === 1 ? '' : 's' }}</span>
+        </div>
+        <ul v-if="folios.length" class="mb-2 space-y-1.5">
+          <li v-for="f in folios" :key="f.incidencia_id" class="flex items-center justify-between gap-2 rounded-[10px] bg-[var(--superficie-2)] px-3 py-2">
+            <span class="min-w-0 text-[13.5px]">
+              <span class="folio-codigo">{{ f.folio }}</span>
+              <span class="block truncate">{{ f.titulo }}<template v-if="f.habitacion_numero"> · Hab. {{ f.habitacion_numero }}</template></span>
+            </span>
+            <button type="button" class="shrink-0 text-[var(--texto-3)]" :aria-label="`Quitar ${f.folio}`" @click="quitarFolio(f.incidencia_id)">
+              <Icono :path="mdiClose" :size="18" />
+            </button>
+          </li>
+        </ul>
+        <button type="button" class="boton boton-borde w-full" :disabled="!form.sucursal_id" @click="eligiendo = true">
+          <Icono :path="mdiLinkVariant" :size="18" /> {{ folios.length ? 'Cambiar folios vinculados' : 'Vincular folios' }}
+        </button>
+        <p v-if="!form.sucursal_id" class="mt-1 text-[12px] text-[var(--texto-3)]">Elige primero la sucursal.</p>
       </div>
+      <ElegirFolios
+        v-if="eligiendo"
+        :sucursal-id="form.sucursal_id"
+        :sucursal-nombre="sucursalNombre"
+        :elegidos="folios"
+        @cerrar="eligiendo = false"
+        @listo="(lista) => ((folios = lista), (eligiendo = false))"
+      />
 
       <!-- Comprobantes: recuadro para arrastrar o tocar -->
       <div>

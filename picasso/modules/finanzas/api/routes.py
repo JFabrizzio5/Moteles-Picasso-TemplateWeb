@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from datetime import date, timedelta
 
 from fastapi import APIRouter, Depends, File, Query, Request, Response, UploadFile, status
@@ -18,6 +19,7 @@ from modules.sucursal import public as sucursal_publica
 from ..models import (
     Actor,
     AnalisisGastos,
+    CostoFolio,
     ExportarEcont,
     FuenteActualizar,
     FuenteRead,
@@ -30,7 +32,17 @@ from ..models import (
     TarifaRead,
 )
 from ..repositories import FinanzasRepository
-from ..services import Comprobantes, FolioLigado, GastosService, IngresosService, Sucursal, hoy
+from ..services import (
+    Comprobantes,
+    DatosReporte,
+    FolioLigado,
+    GastosService,
+    IngresosService,
+    Sucursal,
+    ahora,
+    construir_finanzas,
+    hoy,
+)
 from ..validations import exigir_finanzas, exigir_quien_ve_todas, rango
 
 router = APIRouter(tags=["finanzas"], dependencies=[Depends(require_auth)])
@@ -65,7 +77,9 @@ async def gastos(request: Request, session: DbSession) -> GastosService:
 
     async def buscar_folio(incidencia_id: int) -> FolioLigado | None:
         f = await inspeccion_publica.incidencia(session, incidencia_id)
-        return None if f is None else FolioLigado(f.id, f.folio, f.titulo, f.sucursal_id)
+        if f is None:
+            return None
+        return FolioLigado(f.id, f.folio, f.titulo, f.sucursal_id, f.habitacion_numero)
 
     return GastosService(
         FinanzasRepository(session),
@@ -120,6 +134,43 @@ async def tarifas(
 ) -> list[TarifaRead]:
     inicio, fin = _periodo(desde, hasta)
     return await service.tarifas(actor, desde=inicio, hasta=fin, sucursal_id=sucursal_id)
+
+
+@router.get("/finanzas/reporte.pdf", summary="Reporte de finanzas en PDF")
+async def reporte_pdf(
+    desde: date | None = Query(None),
+    hasta: date | None = Query(None),
+    sucursal_id: int | None = Query(None),
+    actor: Actor = Depends(get_actor),
+    ingresos_srv: IngresosService = Depends(ingresos),
+    gastos_srv: GastosService = Depends(gastos),
+) -> Response:
+    inicio, fin = _periodo(desde, hasta)
+    resumen = await ingresos_srv.resumen(actor, desde=inicio, hasta=fin, sucursal_id=sucursal_id)
+    analisis = await gastos_srv.analisis(actor, desde=inicio, hasta=fin, sucursal_id=sucursal_id)
+    lista = await gastos_srv.listar(
+        actor,
+        sucursal_id=sucursal_id,
+        desde=inicio,
+        hasta=fin,
+        incidencia_id=None,
+        sin_incidencia=False,
+        categoria=None,
+        buscar=None,
+        incluir_anulados=False,
+    )
+    alcance = resumen.sucursales[0].nombre if len(resumen.sucursales) == 1 else "Seis sucursales"
+    contenido = await asyncio.to_thread(
+        construir_finanzas,
+        DatosReporte(inicio, fin, alcance, resumen, analisis, lista),
+        ahora(),
+    )
+    nombre = f"Finanzas-Picasso-{inicio.isoformat()}-a-{fin.isoformat()}.pdf"
+    return Response(
+        contenido,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{nombre}"'},
+    )
 
 
 @router.get("/finanzas/fuentes", response_model=list[FuenteRead], summary="Kairos de cada motel")
@@ -218,6 +269,15 @@ async def crear_gasto(
     return await service.crear(actor, payload)
 
 
+@router.get("/gastos/costos-folios", response_model=list[CostoFolio], summary="Costo por folio")
+async def costos_folios(
+    sucursal_id: int | None = Query(None),
+    actor: Actor = Depends(get_actor),
+    service: GastosService = Depends(gastos),
+) -> list[CostoFolio]:
+    return await service.costos_por_folio(actor, sucursal_id)
+
+
 _XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
 
@@ -281,6 +341,34 @@ async def actualizar_gasto(
     service: GastosService = Depends(gastos),
 ) -> GastoRead:
     return await service.actualizar(actor, gasto_id, payload)
+
+
+@router.post(
+    "/gastos/{gasto_id}/incidencias/{incidencia_id}",
+    response_model=GastoRead,
+    summary="Ligar un folio al gasto",
+)
+async def ligar_folio(
+    gasto_id: int,
+    incidencia_id: int,
+    actor: Actor = Depends(get_actor),
+    service: GastosService = Depends(gastos),
+) -> GastoRead:
+    return await service.ligar_folio(actor, gasto_id, incidencia_id, ligar=True)
+
+
+@router.delete(
+    "/gastos/{gasto_id}/incidencias/{incidencia_id}",
+    response_model=GastoRead,
+    summary="Quitar un folio del gasto",
+)
+async def desligar_folio(
+    gasto_id: int,
+    incidencia_id: int,
+    actor: Actor = Depends(get_actor),
+    service: GastosService = Depends(gastos),
+) -> GastoRead:
+    return await service.ligar_folio(actor, gasto_id, incidencia_id, ligar=False)
 
 
 @router.post("/gastos/{gasto_id}/anular", response_model=GastoRead, summary="Anular un gasto")
