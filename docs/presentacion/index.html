@@ -757,61 +757,6 @@
   if (auto) setTimeout(correrCine, 1500)
   else setTimeout(() => { if (!tocado && !cine.activo && scrollY < 40) correrCine() }, 8000)
 
-  // ---------- un capítulo por gesto ----------
-  // La rueda y el trackpad mandan decenas de eventos por gesto (y siguen por inercia):
-  // sin esto el recorrido brinca varios capítulos. Del inicio al final de la galería,
-  // cada gesto avanza o regresa exactamente una parada, con su animación completa.
-  // Rápido y encadenable: cada cambio dura ~0.6 s y un gesto nuevo, aunque siga
-  // moviéndose, sigue a la parada siguiente sin esperar a que termine.
-  let animando = false, meta = -1, ultimoGesto = 0, gestoUsado = false, tocY = null
-  const finZona = () => topGal + altoGal - vh
-  const enZona = () => scrollY < finZona() - 4 || animando
-  function pasoRelativo(dir) {
-    const s = paradas()
-    let i
-    if (animando && meta >= 0) {
-      i = meta + dir
-    } else {
-      i = 0
-      s.forEach((p, k) => { if (Math.abs(p - scrollY) < Math.abs(s[i] - scrollY)) i = k })
-      // si quedó entre dos paradas y la más cercana ya está en esa dirección, va a esa
-      const adelante = dir > 0 ? s[i] > scrollY + 8 : s[i] < scrollY - 8
-      if (!adelante) i += dir
-    }
-    meta = Math.max(0, Math.min(s.length - 1, i))
-    const destino = s[meta]
-    if (destino == null || Math.abs(destino - scrollY) < 4) return
-    animando = true
-    const ms = quieto ? 0 : Math.min(750, Math.max(480, Math.abs(destino - scrollY) * 0.45))
-    const t = ++cine.token  // un gesto también cancela el recorrido automático (y la animación anterior)
-    deslizarA(destino, ms, t).then((completo) => { if (completo) { animando = false; meta = -1 } })
-  }
-  addEventListener('wheel', (e) => {
-    if (!enZona() || e.ctrlKey) return
-    e.preventDefault()
-    // Un gesto termina cuando dejan de llegar eventos por 180 ms; la inercia del
-    // trackpad llega cada ~16 ms, así que cuenta como el mismo gesto.
-    const ahora = performance.now()
-    if (ahora - ultimoGesto > 180) gestoUsado = false
-    ultimoGesto = ahora
-    if (gestoUsado || Math.abs(e.deltaY) < 3) return
-    gestoUsado = true
-    pasoRelativo(e.deltaY > 0 ? 1 : -1)
-  }, { passive: false })
-  addEventListener('touchstart', (e) => { tocY = enZona() ? e.touches[0].clientY : null }, { passive: true })
-  addEventListener('touchmove', (e) => { if (tocY !== null && enZona()) e.preventDefault() }, { passive: false })
-  addEventListener('touchend', (e) => {
-    if (tocY === null) return
-    const dy = tocY - e.changedTouches[0].clientY
-    tocY = null
-    if (Math.abs(dy) > 30) pasoRelativo(dy > 0 ? 1 : -1)
-  }, { passive: true })
-  addEventListener('keydown', (e) => {
-    if (!enZona()) return
-    if (['ArrowDown', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); pasoRelativo(1) }
-    else if (['ArrowUp', 'PageUp'].includes(e.key)) { e.preventDefault(); pasoRelativo(-1) }
-  })
-
   // el video de inicio solo corre mientras se ve
   const vi = $('videoInicio')
   new IntersectionObserver(([e]) => { if (e.isIntersecting) { const p = vi.play(); if (p) p.catch(() => {}) } else vi.pause() }).observe(vi)
