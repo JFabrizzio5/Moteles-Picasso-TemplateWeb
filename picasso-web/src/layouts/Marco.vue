@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import {
   mdiAccountOutline,
   mdiBedKingOutline,
+  mdiCashMultiple,
   mdiChartLine,
   mdiCogOutline,
   mdiFileDocumentAlertOutline,
@@ -31,6 +32,7 @@ const menu = computed(() => {
   if (perfil.veTodas) items.push({ a: '/', texto: 'Panel', icono: mdiViewGridOutline })
   else items.push({ a: '/', texto: 'Cuartos', icono: mdiBedKingOutline })
   items.push({ a: '/folios', texto: 'Folios', icono: mdiFileDocumentAlertOutline })
+  if (rol !== 'ama_llaves') items.push({ a: '/finanzas', texto: 'Finanzas', icono: mdiCashMultiple })
   if (rol !== 'ama_llaves') items.push({ a: '/reportes', texto: 'Reportes', icono: mdiChartLine })
   if (rol === 'admin') items.push({ a: '/admin', texto: 'Ajustes', icono: mdiCogOutline })
   items.push({ a: '/perfil', texto: 'Perfil', icono: mdiAccountOutline })

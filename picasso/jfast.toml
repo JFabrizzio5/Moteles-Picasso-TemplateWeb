@@ -66,6 +66,9 @@ default_ttl = 300
 backend = "postgres"   # postgres | redis | rabbitmq
 name = "jfast_jobs"
 max_attempts = 3
+# Tareas con horario (finanzas.importar_noche lee Kairos a las 04:30). Corre en
+# cada proceso; el turno se reparte por la tabla jfast_schedule_ticks.
+scheduler = true
 
 [plugin.telemetry]
 # Exports nothing until OTEL_EXPORTER_OTLP_ENDPOINT is set, so it is free in
@@ -157,5 +160,9 @@ layout = "modular"
 ui = "api"
 
 [modules.inspeccion]
+layout = "modular"
+ui = "api"
+
+[modules.finanzas]
 layout = "modular"
 ui = "api"

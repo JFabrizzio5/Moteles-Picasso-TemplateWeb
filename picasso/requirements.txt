@@ -10,3 +10,6 @@ reportlab==5.1.0
 # llegaba por jfastframework[dev]; sin esta línea la imagen de producción no
 # arrancaba («email-validator is not installed»).
 email-validator==2.3.0
+
+# Exportación de gastos a la plantilla de movimientos de E-Cont (modules/finanzas).
+openpyxl==3.1.5

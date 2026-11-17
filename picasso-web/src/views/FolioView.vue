@@ -10,6 +10,7 @@ import BotonPdf from '@/components/BotonPdf.vue'
 import Cargando from '@/components/Cargando.vue'
 import EstadoChip from '@/components/EstadoChip.vue'
 import Galeria from '@/components/Galeria.vue'
+import GastosDelFolio from '@/components/GastosDelFolio.vue'
 import Hoja from '@/components/Hoja.vue'
 import Icono from '@/components/Icono.vue'
 import { useToast } from '@/composables/useToast.js'
@@ -240,6 +241,8 @@ async function decidir() {
             <p v-if="f.correccion" class="mt-2 text-[15px]">{{ f.correccion }}</p>
             <p v-if="f.cerrada_en" class="mt-3 text-sm text-[var(--texto-2)]">Verificó y cerró: {{ f.cerrada_por_nombre }} · {{ fechaHora(f.cerrada_en) }}</p>
           </section>
+          <!-- Lo que costó: gastos registrados desde aquí o ligados después (no para la ama de llaves). -->
+          <GastosDelFolio v-if="perfil.perfil && !perfil.esAma" :folio="f" />
           <section class="tarjeta p-5">
             <p class="etiqueta etiqueta-vino">Evidencias del folio</p>
             <div class="mt-3 space-y-4">

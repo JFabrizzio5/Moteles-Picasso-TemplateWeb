@@ -106,3 +106,56 @@ export function cuando(iso) {
   if (dia === hoyISO(1)) return `ayer ${hora(iso)}`
   return fechaHora(iso)
 }
+
+// -- finanzas ---------------------------------------------------------------------
+
+/** Una fecha sin hora («2026-11-16») como «16-nov», sin correrla por la zona horaria. */
+export function dia(iso) {
+  if (!iso) return ''
+  const [y, m, d] = String(iso).slice(0, 10).split('-').map(Number)
+  return fecha(new Date(y, m - 1, d).toISOString().slice(0, 10) + 'T12:00:00')
+}
+
+const MONEDA = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 2 })
+const MONEDA_CERRADA = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 })
+
+/** «$12,345.50»; con `cerrado`, sin centavos (para tarjetas grandes). */
+export function pesos(valor, cerrado = false) {
+  const n = Number(valor ?? 0)
+  return (cerrado ? MONEDA_CERRADA : MONEDA).format(Number.isFinite(n) ? n : 0)
+}
+
+// Mismas opciones que la plantilla de movimientos de E-Cont.
+export const FORMAS_PAGO = [
+  { valor: 'efectivo', texto: 'Efectivo' },
+  { valor: 'transferencia', texto: 'Transferencia' },
+  { valor: 'debito', texto: 'Débito' },
+  { valor: 'cheque', texto: 'Cheque' },
+  { valor: 'domiciliacion', texto: 'Domiciliación' },
+  { valor: 'compensacion', texto: 'Compensación' },
+  { valor: 'falta_de_CFDI', texto: 'Falta de CFDI' },
+]
+export const FORMA_PAGO = Object.fromEntries(FORMAS_PAGO.map((f) => [f.valor, f.texto]))
+
+export const TIPOS_OPERACION = [
+  { valor: 'gasto', texto: 'Gasto' },
+  { valor: 'compra', texto: 'Compra' },
+  { valor: 'proveedores', texto: 'Proveedores' },
+  { valor: 'nomina', texto: 'Nómina' },
+  { valor: 'impuestos', texto: 'Impuestos (CFDI)' },
+  { valor: 'gasto_compra_sin_cfdi', texto: 'Gasto/Compra (Sin CFDI)' },
+  { valor: 'no_deducible', texto: 'No deducible' },
+  { valor: 'otro', texto: 'Otro' },
+]
+
+export const CATEGORIAS_GASTO = [
+  { valor: 'mantenimiento', texto: 'Mantenimiento y reparaciones' },
+  { valor: 'limpieza', texto: 'Limpieza y lavandería' },
+  { valor: 'amenidades', texto: 'Amenidades e insumos de cuarto' },
+  { valor: 'cocina_bar', texto: 'Cocina y bar' },
+  { valor: 'servicios', texto: 'Luz, agua, gas e internet' },
+  { valor: 'nomina', texto: 'Nómina y personal' },
+  { valor: 'administracion', texto: 'Administración' },
+  { valor: 'otro', texto: 'Otro' },
+]
+export const CATEGORIA_GASTO = Object.fromEntries(CATEGORIAS_GASTO.map((c) => [c.valor, c.texto]))

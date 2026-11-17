@@ -14,6 +14,7 @@ from jfastframework import create_app
 # `jfast new module <name>` adds its import here, in sorted order, and its
 # router to the list below. Keep both markers: they are where the next module
 # goes, and without them the generator refuses rather than guessing a line.
+from modules.finanzas import router as finanzas_router
 from modules.inspeccion import router as inspeccion_router
 from modules.sucursal import router as sucursal_router
 
@@ -22,6 +23,7 @@ from modules.sucursal import router as sucursal_router
 ROUTERS: list[APIRouter] = [
     sucursal_router,
     inspeccion_router,
+    finanzas_router,
     # [jfast:routers]
 ]
 

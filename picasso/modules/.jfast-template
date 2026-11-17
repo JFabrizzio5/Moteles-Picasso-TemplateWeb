@@ -3,11 +3,11 @@
     "module_modular": {
       "framework_version": "0.1.0a12",
       "context": {
-        "module": "inspeccion",
-        "Module": "Inspeccion",
-        "module_title": "Inspeccion",
-        "module_plural": "inspecciones",
-        "table": "inspecciones",
+        "module": "finanzas",
+        "Module": "Finanzas",
+        "module_title": "Finanzas",
+        "module_plural": "finanzases",
+        "table": "finanzases",
         "layout": "modular",
         "ui": "api",
         "modules_dir": "modules",

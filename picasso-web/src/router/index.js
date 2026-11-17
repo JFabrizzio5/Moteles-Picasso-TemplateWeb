@@ -14,6 +14,7 @@ const routes = [
   { path: '/folios', name: 'folios', component: () => import('@/views/FoliosView.vue'), meta: { title: 'Folios' } },
   { path: '/folios/:id', name: 'folio', component: () => import('@/views/FolioView.vue'), meta: { title: 'Folio' } },
   { path: '/habitacion/:id', name: 'habitacion', component: () => import('@/views/HabitacionView.vue'), meta: { title: 'Habitación' } },
+  { path: '/finanzas', name: 'finanzas', component: () => import('@/views/FinanzasView.vue'), meta: { title: 'Finanzas' } },
   { path: '/reportes', name: 'reportes', component: () => import('@/views/ReportesView.vue'), meta: { title: 'Reportes' } },
   { path: '/perfil', name: 'perfil', component: () => import('@/views/PerfilView.vue'), meta: { title: 'Perfil' } },
   { path: '/admin', name: 'admin', component: () => import('@/views/AdminView.vue'), meta: { title: 'Ajustes' } },

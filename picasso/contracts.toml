@@ -241,3 +241,8 @@ depends_on = []
 [modules.inspeccion]
 # Lee sucursales, habitaciones y el puesto de cada cuenta por la fachada.
 depends_on = ["sucursal"]
+
+[modules.finanzas]
+# Ingresos de Kairos y gastos. Lee sucursales y puestos de sucursal, y el
+# folio que se liga a un gasto por la fachada de inspeccion.
+depends_on = ["sucursal", "inspeccion"]
