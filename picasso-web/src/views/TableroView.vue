@@ -2,7 +2,7 @@
 // Inicio de gerente y ama de llaves. Arriba, "Tu siguiente paso": la app dice
 // qué toca hacer y lo deja a un toque. Abajo, los cuartos con un estado en
 // palabras simples (Por revisar, A medias, No rentar…), cada uno con su color.
-import { computed, onMounted, ref } from 'vue'
+import { computed, onActivated, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   mdiArrowRight,
@@ -44,8 +44,8 @@ const saludo = computed(() => {
 })
 const hoyTexto = new Intl.DateTimeFormat('es-MX', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date())
 
-async function cargar() {
-  cargando.value = true
+async function cargar(opc) {
+  if (!opc?.silencioso) cargando.value = true
   try {
     await perfil.cargar()
     const [t, f] = await Promise.all([picasso.tablero(perfil.perfil.sucursal_id), picasso.folios({ estado: 'abiertas' })])
@@ -58,6 +58,8 @@ async function cargar() {
   }
 }
 onMounted(cargar)
+let primera = true
+onActivated(() => (primera ? (primera = false) : cargar({ silencioso: true })))
 
 // -- estado de cada cuarto, en palabras ------------------------------------------
 

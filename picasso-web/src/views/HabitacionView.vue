@@ -6,7 +6,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { mdiArrowLeft } from '@mdi/js'
 
 import BotonPdf from '@/components/BotonPdf.vue'
-import Cargando from '@/components/Cargando.vue'
+import Esqueleto from '@/components/Esqueleto.vue'
 import EstadoChip from '@/components/EstadoChip.vue'
 import Icono from '@/components/Icono.vue'
 import { useToast } from '@/composables/useToast.js'
@@ -28,7 +28,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <Cargando v-if="!h" texto="Abriendo expediente" />
+  <Esqueleto v-if="!h" tipo="detalle" />
   <div v-else class="contenedor max-w-5xl pt-6">
     <div class="flex items-center justify-between gap-3">
       <button class="boton boton-suave boton-chico" @click="router.back()"><Icono :path="mdiArrowLeft" :size="18" /> Volver</button>

@@ -1,10 +1,10 @@
 <script setup>
 // Indicadores con su definición: cumplimiento, conformidad, tiempo de solución
 // y reincidencia. Sin revisar nunca se presenta como aprobado.
-import { onMounted, ref, watch } from 'vue'
+import { onActivated, onMounted, ref, watch } from 'vue'
 
 import BotonPdf from '@/components/BotonPdf.vue'
-import Cargando from '@/components/Cargando.vue'
+import Esqueleto from '@/components/Esqueleto.vue'
 import ReporteFinanzas from '@/components/ReporteFinanzas.vue'
 import { useToast } from '@/composables/useToast.js'
 import { corto, hoyISO, mensajeError, porcentaje } from '@/lib/formato.js'
@@ -23,8 +23,8 @@ const PERIODOS = [
   { valor: 89, texto: '90 días' },
 ]
 
-async function cargar() {
-  cargando.value = true
+async function cargar(opc) {
+  if (!opc?.silencioso) cargando.value = true
   try {
     datos.value = await picasso.indicadores({ desde: hoyISO(dias.value), hasta: hoyISO() })
   } catch (e) {
@@ -35,6 +35,8 @@ async function cargar() {
 }
 watch(dias, cargar)
 onMounted(cargar)
+let primera = true
+onActivated(() => (primera ? (primera = false) : cargar({ silencioso: true })))
 
 const horas = (h) => (h === null || h === undefined ? '—' : h < 48 ? `${h} h` : `${Math.round(h / 24)} días`)
 </script>
@@ -54,7 +56,7 @@ const horas = (h) => (h === null || h === undefined ? '—' : h < 48 ? `${h} h` 
       <button v-for="p in PERIODOS" :key="p.valor" class="chip" :aria-pressed="dias === p.valor" @click="dias = p.valor">{{ p.texto }}</button>
     </div>
 
-    <Cargando v-if="cargando && !datos" texto="Calculando indicadores" />
+    <Esqueleto v-if="cargando && !datos" tipo="graficas" />
     <template v-else-if="datos">
       <div class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" :class="cargando ? 'opacity-60' : ''">
         <div class="tarjeta p-5">

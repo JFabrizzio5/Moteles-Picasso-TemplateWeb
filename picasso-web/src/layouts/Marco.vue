@@ -39,6 +39,7 @@ const menu = computed(() => {
   return items
 })
 
+const EN_MEMORIA = ['InicioView', 'FoliosView', 'FinanzasView', 'ReportesView']
 const activo = (a) => (a === '/' ? ruta.path === '/' : ruta.path.startsWith(a))
 const inmersiva = computed(() => ruta.meta?.inmersiva)
 const lugar = computed(() =>
@@ -75,9 +76,13 @@ const lugar = computed(() =>
     </header>
 
     <main :class="inmersiva ? '' : 'pb-28 md:pb-16'">
+      <!-- Las pantallas principales se quedan en memoria: al volver aparecen al instante
+           con lo último que mostraron y se actualizan solas (onActivated). -->
       <RouterView v-slot="{ Component, route: actual }">
         <Transition name="pagina" mode="out-in">
-          <component :is="Component" :key="actual.path" />
+          <KeepAlive :include="EN_MEMORIA" :max="6">
+            <component :is="Component" :key="actual.path" />
+          </KeepAlive>
         </Transition>
       </RouterView>
     </main>

@@ -4,7 +4,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 
 import BotonPdf from '@/components/BotonPdf.vue'
-import Cargando from '@/components/Cargando.vue'
+import Esqueleto from '@/components/Esqueleto.vue'
 import GraficaBarras from '@/components/GraficaBarras.vue'
 import GraficaSerie from '@/components/GraficaSerie.vue'
 import { CATEGORIA_GASTO, corto, dia, mensajeError, pesos } from '@/lib/formato.js'
@@ -71,7 +71,7 @@ const pdf = (sucursalId) => `/finanzas/reporte.pdf?desde=${props.desde}&hasta=${
       <BotonPdf :ruta="pdf(sucursal)" :nombre="`Finanzas-${sucursal ? 'sucursal-' + sucursal : 'todas'}-${desde}-a-${hasta}.pdf`" :texto="sucursal ? 'PDF de esta sucursal' : 'PDF de todas las sucursales'" />
     </div>
 
-    <Cargando v-if="cargando && !serie" texto="Graficando" />
+    <Esqueleto v-if="cargando && !serie" tipo="graficas" />
     <p v-else-if="error" class="mt-4 text-sm text-[var(--falla)]">{{ error }}</p>
     <div v-else-if="serie" class="mt-5 grid gap-4 lg:grid-cols-2" :class="cargando ? 'opacity-60' : ''">
       <div class="tarjeta p-5 lg:col-span-2">

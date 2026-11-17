@@ -521,17 +521,18 @@
 }
 
 /* Cambio de pantalla */
+/* La pantalla vieja se quita en seco (sin esperar su animación) y la nueva entra rápido. */
 .pagina-enter-active {
   transition:
-    opacity 0.26s ease,
-    transform 0.32s cubic-bezier(0.2, 0.7, 0.2, 1);
+    opacity 0.16s ease,
+    transform 0.2s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 .pagina-leave-active {
-  transition: opacity 0.14s ease;
+  transition: none;
 }
 .pagina-enter-from {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(6px);
 }
 .pagina-leave-to {
   opacity: 0;

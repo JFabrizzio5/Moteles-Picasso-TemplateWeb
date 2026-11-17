@@ -1,12 +1,12 @@
 <script setup>
 // Finanzas: ingresos (leídos de Kairos cada noche) contra gastos (capturados
 // aquí, cosa por cosa), y la auditoría para la contadora.
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onActivated, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { mdiDownload, mdiFileExcelOutline, mdiMagnify, mdiPlus, mdiRefresh } from '@mdi/js'
 
 import BotonPdf from '@/components/BotonPdf.vue'
-import Cargando from '@/components/Cargando.vue'
+import Esqueleto from '@/components/Esqueleto.vue'
 import GastoHoja from '@/components/GastoHoja.vue'
 import GraficaBarras from '@/components/GraficaBarras.vue'
 import GraficaSerie from '@/components/GraficaSerie.vue'
@@ -99,7 +99,9 @@ const sinFolio = ref(false)
 const hoja = ref(null)
 const exportando = ref(false)
 
+const listoGastos = ref(false)
 async function cargar() {
+  if (ruta.name !== 'finanzas') return // la dirección cambió porque se fue a otra pantalla
   cargando.value = true
   const p = parametros.value
   try {
@@ -119,6 +121,7 @@ async function cargar() {
         por_pagina: POR_PAGINA,
       })
       lista.value = r.lista
+      listoGastos.value = true
       totalLista.value = r.total
       importeLista.value = r.importe
     } else {
@@ -202,6 +205,12 @@ onMounted(async () => {
   await perfil.cargar().catch(() => {})
   cargar()
 })
+let primera = true
+onActivated(() => (primera ? (primera = false) : cargar()))
+// El esqueleto solo mientras la pestaña elegida no tiene nada que enseñar todavía.
+const sinDatos = computed(() =>
+  vista.value === 'ingresos' ? !resumen.value : vista.value === 'gastos' ? !listoGastos.value : !analisis.value,
+)
 </script>
 
 <template>
@@ -252,7 +261,7 @@ onMounted(async () => {
       </section>
     </div>
 
-    <Cargando v-if="cargando && !resumen && !lista.length && !analisis" texto="Sumando" />
+    <Esqueleto v-if="sinDatos" :tipo="vista === 'gastos' ? 'tarjetas' : 'graficas'" />
 
     <!-- INGRESOS -->
     <template v-if="vista === 'ingresos' && resumen">

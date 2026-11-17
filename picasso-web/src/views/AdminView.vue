@@ -4,7 +4,7 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { mdiPencilOutline, mdiPlus } from '@mdi/js'
 
-import Cargando from '@/components/Cargando.vue'
+import Esqueleto from '@/components/Esqueleto.vue'
 import Hoja from '@/components/Hoja.vue'
 import Icono from '@/components/Icono.vue'
 import { useToast } from '@/composables/useToast.js'
@@ -151,7 +151,7 @@ const nombreSucursal = (id) => perfil.sucursal(id)?.nombre ?? 'Todas'
       <button class="chip shrink-0" :aria-pressed="pestana === 'personal'" @click="pestana = 'personal'">Personal</button>
     </div>
 
-    <Cargando v-if="!perfil.sucursales.length" />
+    <Esqueleto v-if="!perfil.sucursales.length" tipo="lista" :n="5" />
 
     <!-- Cuartos -->
     <template v-else-if="pestana === 'cuartos'">

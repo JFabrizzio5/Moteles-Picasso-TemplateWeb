@@ -7,7 +7,7 @@ import { mdiArrowLeft, mdiCheckCircle, mdiCircleOutline } from '@mdi/js'
 
 import BotonFoto from '@/components/BotonFoto.vue'
 import BotonPdf from '@/components/BotonPdf.vue'
-import Cargando from '@/components/Cargando.vue'
+import Esqueleto from '@/components/Esqueleto.vue'
 import EstadoChip from '@/components/EstadoChip.vue'
 import Galeria from '@/components/Galeria.vue'
 import GastosDelFolio from '@/components/GastosDelFolio.vue'
@@ -145,7 +145,7 @@ async function decidir() {
 </script>
 
 <template>
-  <Cargando v-if="cargando" texto="Abriendo folio" />
+  <Esqueleto v-if="cargando" tipo="detalle" />
   <div v-else-if="f" class="contenedor max-w-5xl pt-6">
     <div class="flex items-center justify-between gap-3">
       <button class="boton boton-suave boton-chico" @click="router.back()"><Icono :path="mdiArrowLeft" :size="18" /> Folios</button>

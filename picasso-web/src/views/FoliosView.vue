@@ -1,11 +1,11 @@
 <script setup>
 // Listado de folios. Los filtros viven en la dirección (?estado=…&prioridad=…), así
 // que al volver de un folio el listado queda como estaba.
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onActivated, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { mdiMagnify } from '@mdi/js'
 
-import Cargando from '@/components/Cargando.vue'
+import Esqueleto from '@/components/Esqueleto.vue'
 import EstadoChip from '@/components/EstadoChip.vue'
 import Icono from '@/components/Icono.vue'
 import Vacio from '@/components/Vacio.vue'
@@ -92,7 +92,10 @@ function parametros(f) {
   }
 }
 
+// Ya hubo una primera carga: las siguientes no tapan la lista con el esqueleto.
+const listo = ref(false)
 async function cargar() {
+  if (ruta.name !== 'folios') return // la dirección cambió porque se fue a otra pantalla
   cargando.value = true
   const f = filtros.value
   try {
@@ -101,6 +104,7 @@ async function cargar() {
     avisos.error(mensajeError(e))
   } finally {
     cargando.value = false
+    listo.value = true
   }
 }
 
@@ -151,11 +155,19 @@ watch(buscar, (v) => {
 })
 watch(filtros, cargar)
 watch(filtrosConteo, () => {
+  if (ruta.name !== 'folios') return
   cargarConteo()
   cargarCostos()
 })
 onMounted(async () => {
   await perfil.cargar().catch(() => {})
+  cargar()
+  cargarConteo()
+  cargarCostos()
+})
+let primera = true
+onActivated(() => {
+  if (primera) return (primera = false)
   cargar()
   cargarConteo()
   cargarCostos()
@@ -275,18 +287,18 @@ onMounted(async () => {
       </table>
     </section>
 
-    <p v-if="!cargando" class="etiqueta mt-6 mb-3">
+    <p v-if="listo" class="etiqueta mt-6 mb-3">
       {{ lista.length }} {{ lista.length === 1 ? 'folio' : 'folios' }}
       <template v-if="filtros.prioridad"> · prioridad {{ PRIORIDAD[filtros.prioridad].texto.toLowerCase() }}</template>
     </p>
-    <Cargando v-if="cargando" texto="Buscando folios" />
+    <Esqueleto v-if="!listo" tipo="tarjetas" :n="6" />
     <Vacio
-      v-else-if="!lista.length"
+      v-else-if="!lista.length && !cargando"
       titulo="Sin folios"
       :texto="filtros.prioridad ? 'No hay incidencias con esta prioridad y estos filtros.' : 'No hay incidencias con estos filtros. Prueba con «Todas».'"
     />
 
-    <div v-else class="escalonado grid gap-3 lg:grid-cols-2">
+    <div v-else class="escalonado grid gap-3 transition-opacity lg:grid-cols-2" :class="cargando ? 'opacity-60' : ''">
       <RouterLink
         v-for="(f, i) in lista"
         :key="f.id"

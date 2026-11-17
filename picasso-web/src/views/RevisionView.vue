@@ -11,7 +11,7 @@ import { mdiCheckCircle, mdiClockOutline, mdiClose } from '@mdi/js'
 
 import BotonFoto from '@/components/BotonFoto.vue'
 import BotonPdf from '@/components/BotonPdf.vue'
-import Cargando from '@/components/Cargando.vue'
+import Esqueleto from '@/components/Esqueleto.vue'
 import FilaMal from '@/components/FilaMal.vue'
 import FilaRapida from '@/components/FilaRapida.vue'
 import Galeria from '@/components/Galeria.vue'
@@ -243,7 +243,7 @@ const MOTIVOS = ['No existe en esta habitación', 'La habitación estaba sucia',
 </script>
 
 <template>
-  <Cargando v-if="cargando" texto="Abriendo revisión" />
+  <Esqueleto v-if="cargando" tipo="detalle" />
   <div v-else-if="rev" class="min-h-dvh">
     <!-- Encabezado -->
     <header class="vidrio sticky top-0 z-30 border-b border-[var(--linea)]" style="padding-top: env(safe-area-inset-top)">

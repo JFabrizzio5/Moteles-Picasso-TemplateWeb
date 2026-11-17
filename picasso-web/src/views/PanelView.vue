@@ -1,10 +1,10 @@
 <script setup>
 // Propietarios: las seis sucursales en una sola vista.
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onActivated, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { mdiArrowRight } from '@mdi/js'
 
 import BotonPdf from '@/components/BotonPdf.vue'
-import Cargando from '@/components/Cargando.vue'
+import Esqueleto from '@/components/Esqueleto.vue'
 import Barra from '@/components/Barra.vue'
 import Icono from '@/components/Icono.vue'
 import Numero from '@/components/Numero.vue'
@@ -45,8 +45,8 @@ async function cargarPrioridades() {
   }
 }
 
-async function cargar() {
-  cargando.value = true
+async function cargar(opc) {
+  if (!opc?.silencioso) cargando.value = true
   cargarPrioridades()
   try {
     datos.value = await picasso.panel({ desde: hoyISO(dias.value), hasta: hoyISO() })
@@ -58,6 +58,8 @@ async function cargar() {
 }
 watch(dias, cargar)
 onMounted(cargar)
+let primera = true
+onActivated(() => (primera ? (primera = false) : cargar({ silencioso: true })))
 
 const totales = computed(() => {
   const s = datos.value?.sucursales ?? []
@@ -105,7 +107,7 @@ const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0)
       </div>
     </section>
 
-    <Cargando v-if="cargando && !datos" texto="Calculando el corte" />
+    <div v-if="cargando && !datos" class="contenedor pt-2"><Esqueleto tipo="panel" /></div>
     <div v-else-if="datos" class="contenedor pt-8" :class="cargando ? 'opacity-60' : ''">
       <div class="escalonado grid gap-3 sm:grid-cols-3">
         <div class="tarjeta tarjeta-viva p-5" style="--i: 0">

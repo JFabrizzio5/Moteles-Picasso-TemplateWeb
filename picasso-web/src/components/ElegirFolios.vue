@@ -4,7 +4,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { mdiMagnify } from '@mdi/js'
 
-import Cargando from '@/components/Cargando.vue'
+import Esqueleto from '@/components/Esqueleto.vue'
 import EstadoChip from '@/components/EstadoChip.vue'
 import Hoja from '@/components/Hoja.vue'
 import Icono from '@/components/Icono.vue'
@@ -73,7 +73,7 @@ function alternar(f) {
       <input v-model="conCerradas" type="checkbox" class="h-4 w-4" /> Incluir folios cerrados
     </label>
 
-    <Cargando v-if="cargando" texto="Buscando folios" />
+    <Esqueleto v-if="cargando" tipo="lista" :n="5" />
     <p v-else-if="error" class="mt-4 text-sm text-[var(--falla)]">{{ error }}</p>
     <p v-else-if="!lista.length" class="mt-5 text-sm text-[var(--texto-3)]">
       {{ conCerradas ? 'No hay folios con esa búsqueda.' : 'Esta sucursal no tiene folios activos. Prueba con «Incluir folios cerrados».' }}
