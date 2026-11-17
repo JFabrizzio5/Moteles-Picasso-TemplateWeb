@@ -139,6 +139,8 @@ async def sincronizar_cuartos(
                 seccion=t.seccion,
                 tiene_jacuzzi=t.tiene_jacuzzi,
                 tiene_sauna=t.tiene_sauna,
+                tiene_alberca=t.tiene_alberca,
+                tiene_terraza=t.tiene_terraza,
             )
             for numero, t in tipos.items()
         ],

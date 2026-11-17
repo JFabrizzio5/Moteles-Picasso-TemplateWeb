@@ -180,6 +180,8 @@ class SucursalService:
                 "tiene_jacuzzi": c.tiene_jacuzzi,
                 "tiene_sauna": c.tiene_sauna,
             }
+            # Alberca y terraza solo se prenden: la tarifa no dice si faltan.
+            datos.update({k: True for k in ("tiene_alberca", "tiene_terraza") if getattr(c, k)})
             h = actuales.get(numero)
             if h is None:
                 await self.habitaciones.create(sucursal_id=sucursal_id, numero=numero, **datos)

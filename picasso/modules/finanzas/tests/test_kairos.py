@@ -249,6 +249,10 @@ def test_tarifa_del_detalle_de_una_renta() -> None:
         ("MOTEL JACUZZI SAUNA", "motel", "Jacuzzi y sauna", True, True),
         ("HOTEL JACUZZI PENT HOUSE", "hotel", "Pent house con jacuzzi", True, False),
         ("SUITE", None, "Suite", False, False),
+        ("JACUZZI/SAUNA", None, "Jacuzzi y sauna", True, True),
+        ("MASTER SUITE JARDIN", None, "Master suite jardín", False, False),
+        ("SUITE JACUZZI", None, "Suite jacuzzi", True, False),
+        ("MOTEL VILLA", "motel", "Villa", False, False),
     ],
 )
 def test_tipo_de_cuarto_desde_la_tarifa(
@@ -266,3 +270,12 @@ def test_una_renta_suelta_no_cambia_el_tipo_del_cuarto() -> None:
     t = tipo_mayoritario(["HOTEL SUITE", "HOTEL JACUZZI", "HOTEL SUITE", "HOTEL SUITE"])
     assert t is not None and t.tipo == "Suite"
     assert tipo_mayoritario([]) is None
+
+
+def test_alberca_y_terraza_salen_de_la_tarifa() -> None:
+    from modules.finanzas.services.kairos_html import tipo_de_tarifa
+
+    a = tipo_de_tarifa("SUITE CON ALBERCA")
+    assert (a.tipo, a.tiene_alberca, a.tiene_terraza) == ("Suite con alberca", True, False)
+    t = tipo_de_tarifa("HOTEL TERRAZA")
+    assert (t.seccion, t.tipo, t.tiene_terraza) == ("hotel", "Terraza", True)

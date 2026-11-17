@@ -75,6 +75,9 @@ class CuartoSincronizar(BaseModel):
     seccion: str | None = Field(default=None, max_length=10)
     tiene_jacuzzi: bool
     tiene_sauna: bool
+    #: Solo se prenden: que la tarifa no diga «alberca» no quiere decir que no la tenga.
+    tiene_alberca: bool = False
+    tiene_terraza: bool = False
 
 
 class Sincronizacion(BaseModel):

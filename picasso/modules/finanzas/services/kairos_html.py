@@ -272,28 +272,43 @@ class TipoCuarto:
     tipo: str
     tiene_jacuzzi: bool
     tiene_sauna: bool
+    tiene_alberca: bool = False
+    tiene_terraza: bool = False
 
 
 _SECCIONES = {"MOTEL": "motel", "HOTEL": "hotel"}
+#: Kairos escribe sin acentos.
+_ACENTOS = {"JARDIN": "JARDÍN"}
 
 
 def tipo_de_tarifa(tarifa: str) -> TipoCuarto:
-    """«HOTEL JACUZZI SAUNA» → hotel, «Jacuzzi y sauna», con jacuzzi y con sauna."""
-    palabras = " ".join(tarifa.upper().split()).split(" ")
-    seccion = _SECCIONES.get(palabras[0]) if palabras else None
-    resto = palabras[1:] if seccion else palabras
-    nombre = " ".join(resto)
+    """Lo que dice la tarifa de un cuarto, en cada motel con sus propios nombres.
+
+    «HOTEL JACUZZI SAUNA» → hotel, «Jacuzzi y sauna»; «JACUZZI/SAUNA» igual sin
+    sección; «MASTER SUITE JARDIN» → «Master suite jardín»; «SUITE CON ALBERCA»
+    → con alberca; «HOTEL TERRAZA» → con terraza.
+    """
+    palabras = " ".join(tarifa.upper().replace("/", " ").split()).split(" ")
+    seccion = _SECCIONES.get(palabras[0]) if palabras and palabras[0] else None
+    resto = [w for w in (palabras[1:] if seccion else palabras) if w]
     jacuzzi = "JACUZZI" in resto
     sauna = "SAUNA" in resto
     if "PENT" in resto or "PENTHOUSE" in resto:
         tipo = "Pent house" + (" con jacuzzi" if jacuzzi else "")
-    elif jacuzzi and sauna:
+    elif jacuzzi and sauna and len(resto) == 2:
         tipo = "Jacuzzi y sauna"
-    elif nombre:
-        tipo = nombre.capitalize()
+    elif resto:
+        tipo = " ".join(_ACENTOS.get(w, w) for w in resto).capitalize()
     else:
         tipo = "Sin tipo"
-    return TipoCuarto(seccion, tipo[:40], jacuzzi, sauna)
+    return TipoCuarto(
+        seccion=seccion,
+        tipo=tipo[:40],
+        tiene_jacuzzi=jacuzzi,
+        tiene_sauna=sauna,
+        tiene_alberca="ALBERCA" in resto,
+        tiene_terraza="TERRAZA" in resto,
+    )
 
 
 def tipo_mayoritario(tarifas: list[str]) -> TipoCuarto | None:

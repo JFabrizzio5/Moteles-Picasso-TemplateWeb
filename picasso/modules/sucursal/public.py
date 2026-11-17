@@ -57,6 +57,8 @@ class CuartoKairosDTO:
     seccion: str | None
     tiene_jacuzzi: bool
     tiene_sauna: bool
+    tiene_alberca: bool = False
+    tiene_terraza: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -179,6 +181,8 @@ async def sincronizar_habitaciones(
                 seccion=c.seccion,
                 tiene_jacuzzi=c.tiene_jacuzzi,
                 tiene_sauna=c.tiene_sauna,
+                tiene_alberca=c.tiene_alberca,
+                tiene_terraza=c.tiene_terraza,
             )
             for c in cuartos
         ],
