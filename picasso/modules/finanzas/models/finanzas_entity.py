@@ -119,13 +119,13 @@ class Gasto(Base, TimestampMixin, TenantMixin):
     fecha: Mapped[date] = mapped_column(Date, index=True)
     categoria: Mapped[str] = mapped_column(String(20))
     concepto: Mapped[str] = mapped_column(String(200))
-    #: Beneficiario en E-Cont.
+    #: Beneficiario en el sistema contable.
     proveedor: Mapped[str] = mapped_column(String(120))
     rfc_proveedor: Mapped[str | None] = mapped_column(String(13), default=None)
     forma_pago: Mapped[str] = mapped_column(String(20))
     tipo_operacion: Mapped[str] = mapped_column(String(30), default="gasto")
     banco: Mapped[str | None] = mapped_column(String(40), default=None)
-    #: #FACTURA en E-Cont: número de factura, cheque o referencia.
+    #: #FACTURA en el sistema contable: número de factura, cheque o referencia.
     referencia: Mapped[str | None] = mapped_column(String(40), default=None)
     importe: Mapped[Decimal] = mapped_column(DINERO)
     nota: Mapped[str | None] = mapped_column(Text, default=None)
@@ -133,7 +133,7 @@ class Gasto(Base, TimestampMixin, TenantMixin):
     capturo_nombre: Mapped[str] = mapped_column(String(120))
     capturo_rol: Mapped[str] = mapped_column(String(20))
     estado: Mapped[str] = mapped_column(String(12), default="registrado", index=True)
-    #: La última vez que entró a un archivo para E-Cont.
+    #: La última vez que entró a un archivo para contabilidad.
     exportado_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
 

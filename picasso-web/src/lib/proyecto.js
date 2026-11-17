@@ -10,8 +10,8 @@ export const MATERIAL = {
   documentacion: `${BASE}/`,
   manual: `${BASE}/manual-usuario.html`,
   video: {
-    vertical: `${BASE}/video/Picasso-Inspecciones-9x16.mp4?v=20261117`,
-    horizontal: `${BASE}/video/Picasso-Inspecciones-16x9.mp4?v=20261117`,
+    vertical: `${BASE}/video/Picasso-Inspecciones-9x16.mp4?v=20261117b`,
+    horizontal: `${BASE}/video/Picasso-Inspecciones-16x9.mp4?v=20261117b`,
     portadaVertical: `${BASE}/video/portada-9x16.jpg`,
     portadaHorizontal: `${BASE}/video/portada-16x9.jpg`,
   },

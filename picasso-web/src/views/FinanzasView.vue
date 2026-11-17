@@ -164,8 +164,8 @@ async function exportar(tipo, soloPendientes = false) {
     const n =
       tipo === 'xml'
         ? await finanzas.exportarXml(cuerpo, `Facturas-Picasso-${etiqueta}.zip`)
-        : await finanzas.exportarEcont(cuerpo, `Gastos-Picasso-E-Cont-${etiqueta}.xlsx`)
-    avisos.success(tipo === 'xml' ? `${n} XML listos para E-Cont.` : `${n} gastos en el Excel para E-Cont.`)
+        : await finanzas.exportarContabilidad(cuerpo, `Gastos-Picasso-Contabilidad-${etiqueta}.xlsx`)
+    avisos.success(tipo === 'xml' ? `${n} XML de facturas listos.` : `${n} gastos en el Excel para contabilidad.`)
     if (tipo !== 'xml') cargar()
   } catch (e) {
     avisos.error((await finanzas.mensajeDeBlob(e)) || mensajeError(e))
@@ -209,7 +209,7 @@ onMounted(async () => {
     <p class="etiqueta etiqueta-vino mb-3">Finanzas · {{ perfil.veTodas ? 'Seis sucursales' : corto(perfil.miSucursal?.nombre) }}</p>
     <h1 class="titulo-pagina">Lo que entra. <em>Lo que sale.</em></h1>
     <p class="subtitulo mt-3 max-w-2xl">
-      Los ingresos llegan solos de Kairos cada noche. Los gastos se registran aquí, cosa por cosa, y se pasan a E-Cont con un archivo.
+      Los ingresos llegan solos de Kairos cada noche. Los gastos se registran aquí, cosa por cosa, y se exportan a contabilidad con un archivo.
     </p>
 
     <div class="mt-7 space-y-3">
@@ -354,7 +354,7 @@ onMounted(async () => {
       <div class="mt-6 flex flex-wrap items-center gap-2">
         <button class="boton boton-vino" @click="hoja = 'nuevo'"><Icono :path="mdiPlus" :size="20" /> Registrar gasto</button>
         <button class="boton boton-borde" :disabled="exportando || !totalLista" @click="exportar('excel')">
-          <Icono :path="mdiFileExcelOutline" :size="20" /> Exportar a E-Cont
+          <Icono :path="mdiFileExcelOutline" :size="20" /> Exportar a contabilidad
         </button>
         <button v-if="totalLista" class="boton boton-suave boton-chico" :disabled="exportando" @click="exportar('excel', true)">
           Solo los que no se han exportado
@@ -399,7 +399,7 @@ onMounted(async () => {
               :title="`Ir a ${f.folio}`"
               @click.stop="router.push(`/folios/${f.incidencia_id}`)"
             >{{ f.folio }} ↗</span>
-            <span v-if="g.exportado_en" class="estado estado-bien">En E-Cont</span>
+            <span v-if="g.exportado_en" class="estado estado-bien">Exportado</span>
             <span v-if="g.archivos.length" class="text-[var(--texto-3)]">📎 {{ g.archivos.length }}</span>
             <span class="text-[var(--texto-3)]">{{ dia(g.fecha) }} · {{ g.capturo_nombre }}</span>
           </div>

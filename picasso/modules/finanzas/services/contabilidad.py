@@ -1,10 +1,10 @@
-"""Archivos para E-Cont.
+"""Archivos para contabilidad.
 
-- Excel con las columnas de la plantilla de movimientos de E-Cont
+- Excel con las columnas de la plantilla de movimientos del sistema contable
   (Cheques y transferencias → Importar). Los títulos son los mismos de
-  ColumnasImportacionCheques.php, así E-Cont reconoce cada columna.
+  la plantilla del sistema contable, así reconoce cada columna.
 - ZIP con los XML de factura que se subieron a los gastos, para la
-  importación de CFDI de E-Cont.
+  importación de CFDI del sistema contable.
 """
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ from ..enums import (
     TipoOperacion,
 )
 
-#: (título en E-Cont, ancho, formato de Excel).
+#: (título en la plantilla, ancho, formato de Excel).
 COLUMNAS: list[tuple[str, int, str]] = [
     ("FORMA DE PAGO", 18, "@"),
     ("BANCO", 16, "@"),
@@ -46,7 +46,7 @@ COLUMNAS: list[tuple[str, int, str]] = [
 
 
 @dataclass(frozen=True)
-class FilaEcont:
+class FilaContable:
     forma_pago: str
     banco: str | None
     fecha: date
@@ -75,7 +75,7 @@ def fila_de_gasto(
     incidencias: Sequence[str],
     nota: str | None,
     partidas: Sequence[tuple[str, Decimal, str, Decimal]] = (),
-) -> FilaEcont:
+) -> FilaContable:
     partes = [
         folio,
         sucursal_nombre,
@@ -90,11 +90,11 @@ def fila_de_gasto(
         partes.append("; ".join(f"{d} {c.normalize():f} {u} ${i:,.2f}" for d, c, u, i in partidas))
     if nota:
         partes.append(nota)
-    return FilaEcont(
+    return FilaContable(
         forma_pago=NOMBRE_FORMA_PAGO.get(FormaPago(forma_pago), forma_pago),
         banco=banco,
         fecha=fecha,
-        # #FACTURA es obligatorio en E-Cont: sin referencia va el folio del gasto.
+        # #FACTURA es obligatorio en contabilidad: sin referencia va el folio del gasto.
         referencia=referencia or folio,
         importe=importe,
         beneficiario=proveedor,
@@ -104,7 +104,7 @@ def fila_de_gasto(
     )
 
 
-def excel(filas: Sequence[FilaEcont]) -> bytes:
+def excel(filas: Sequence[FilaContable]) -> bytes:
     libro = Workbook()
     hoja = libro.active
     assert hoja is not None
@@ -135,7 +135,7 @@ def excel(filas: Sequence[FilaEcont]) -> bytes:
         for c, (valor, (_, _, formato)) in enumerate(zip(valores, COLUMNAS, strict=True), start=1):
             celda = hoja.cell(row=r, column=c, value=valor)
             celda.number_format = formato
-    # Las mismas listas que la plantilla de E-Cont, para quien edite el archivo.
+    # Las mismas listas que la plantilla del sistema contable, para quien edite el archivo.
     catalogos = libro.create_sheet("Catálogos")
     formas = list(NOMBRE_FORMA_PAGO.values())
     tipos = list(NOMBRE_TIPO_OPERACION.values())

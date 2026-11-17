@@ -258,7 +258,7 @@ figure.ancha img { display: block; width: 100%; max-width: 640px; height: auto; 
             <tr><td>Ama de llaves</td><td>Al terminar de limpiar, revisa el cuarto con sus 29 puntos y lo envía al gerente.</td><td>Cuartos · Folios · Perfil</td></tr>
             <tr><td>Gerente</td><td>Revisa los cuartos con sus 25 puntos, decide si se pueden rentar y lleva cada folio hasta cerrarlo. Registra los gastos de su sucursal.</td><td>Cuartos · Folios · Finanzas · Reportes · Perfil</td></tr>
             <tr><td>Propietarios</td><td>Ven las seis sucursales, los folios, los indicadores y las finanzas. Lo que hace el personal solo lo consultan.</td><td>Panel · Folios · Finanzas · Reportes · Perfil</td></tr>
-            <tr><td>Administración</td><td>Da de alta cuartos, equipo y personal, fija las reglas de cada sucursal y pasa los gastos a E-Cont.</td><td>Panel · Folios · Finanzas · Reportes · Ajustes · Perfil</td></tr>
+            <tr><td>Administración</td><td>Da de alta cuartos, equipo y personal, fija las reglas de cada sucursal y exporta los gastos a contabilidad.</td><td>Panel · Folios · Finanzas · Reportes · Ajustes · Perfil</td></tr>
           </table>
         </div>
         <p>El gerente y la ama de llaves solo ven su sucursal. Propietarios y administración ven las seis.</p>
@@ -274,7 +274,7 @@ figure.ancha img { display: block; width: 100%; max-width: 640px; height: auto; 
             <tr><td>Renta</td><td>La decisión del gerente de si un cuarto <b>puede rentarse</b> o <b>no</b>, con su motivo.</td></tr>
             <tr><td>Chequeo</td><td>Cada revisión terminada. La app guarda quién la hizo y a qué hora.</td></tr>
             <tr><td>Gasto</td><td>Una compra registrada en Finanzas, con su número: <b>GTO-LER-000080</b>. Lleva el desglose de lo que se compró y su comprobante.</td></tr>
-            <tr><td>Kairos y E-Cont</td><td>Kairos es el sistema de recepción de cada motel, de donde salen los ingresos. E-Cont es el sistema contable, a donde se pasan los gastos.</td></tr>
+            <tr><td>Kairos y contabilidad</td><td>Kairos es el sistema de recepción de cada motel, de donde salen los ingresos. El sistema contable es a donde se exportan los gastos, con un Excel y los XML de las facturas.</td></tr>
           </table>
         </div>
       </div>
@@ -697,7 +697,7 @@ figure.ancha img { display: block; width: 100%; max-width: 640px; height: auto; 
               <li>El periodo: <b>Ayer</b>, <b>7 días</b>, <b>Este mes</b>, <b>Mes pasado</b>, <b>30 días</b> o <b>Elegir fechas</b>.</li>
               <li>Administración y propietarios eligen además la <b>sucursal</b> o todas.</li>
             </ul>
-            <p>En <b>Gastos</b> buscas por folio, concepto o proveedor, filtras por categoría y puedes ver <b>solo los que no tienen folio de incidencia</b>. Cada tarjeta dice qué se compró, a qué folios se cargó, quién lo registró y si ya está <b>En E-Cont</b>.</p>
+            <p>En <b>Gastos</b> buscas por folio, concepto o proveedor, filtras por categoría y puedes ver <b>solo los que no tienen folio de incidencia</b>. Cada tarjeta dice qué se compró, a qué folios se cargó, quién lo registró y si ya está <b>Exportado</b>.</p>
           </div>
           <figure class="cel"><span class="pantalla"><img src="img/manual/70-gastos-lista.jpg" alt="Lista de gastos con su desglose, folios y botón para registrar" width="390" height="844" loading="lazy"></span><figcaption>Gastos de la sucursal</figcaption></figure>
         </div>
@@ -742,7 +742,7 @@ figure.ancha img { display: block; width: 100%; max-width: 640px; height: auto; 
             <ol class="pasos">
               <li>En el recuadro <b>Comprobante</b>, toca para elegir el archivo o, en la computadora, arrástralo encima.</li>
               <li>Sirve la <b>foto del ticket</b>, el <b>PDF</b> o el <b>XML de la factura</b>, hasta 8 MB cada uno. Puedes subir varios.</li>
-              <li>Si hay factura, sube el XML: de ahí salen los archivos que administración pasa a E-Cont.</li>
+              <li>Si hay factura, sube el XML: de ahí salen los archivos que administración exporta a contabilidad.</li>
               <li>En <b>Información adicional</b> van el número de factura o referencia, el RFC del proveedor, el tipo de operación, el banco y una nota.</li>
             </ol>
             <p>Para corregir un gasto, tócalo en la lista: se abre como <b>Corregir gasto</b> y guardas con <span class="boton-app">Guardar cambios</span>.</p>
@@ -764,18 +764,18 @@ figure.ancha img { display: block; width: 100%; max-width: 640px; height: auto; 
       </div>
 
       <div class="tarea">
-        <h3 id="f-econt">Pasar los gastos a E-Cont</h3>
+        <h3 id="f-contabilidad">Exportar los gastos a contabilidad</h3>
         <div class="guia">
           <div>
             <ol class="pasos">
               <li>En <b>Finanzas → Gastos</b> elige el periodo y, si quieres, la sucursal.</li>
-              <li>Toca <span class="boton-app">Exportar a E-Cont</span>. Baja un Excel con las columnas de la plantilla de movimientos de E-Cont: forma de pago, fecha de pago, #factura, total pagado, beneficiario, tipo de operación… El desglose de cada gasto va en la columna <b>NOTA</b>.</li>
-              <li>Para no repetir, usa el botón de <b>solo los que no se han exportado</b>. Cada gasto que entra a un Excel queda marcado <b>En E-Cont</b>.</li>
-              <li><span class="boton-app">XML de facturas</span> baja un ZIP con los XML subidos, para importar los CFDI en E-Cont.</li>
-              <li>En E-Cont, importa el Excel en <b>Cheques y transferencias → Importar</b>.</li>
+              <li>Toca <span class="boton-app">Exportar a contabilidad</span>. Baja un Excel con las columnas de la plantilla de movimientos del sistema contable: forma de pago, fecha de pago, #factura, total pagado, beneficiario, tipo de operación… El desglose de cada gasto va en la columna <b>NOTA</b>.</li>
+              <li>Para no repetir, usa el botón de <b>solo los que no se han exportado</b>. Cada gasto que entra a un Excel queda marcado <b>Exportado</b>.</li>
+              <li><span class="boton-app">XML de facturas</span> baja un ZIP con los XML subidos, para importar los CFDI en contabilidad.</li>
+              <li>En el sistema contable, importa el Excel en <b>Cheques y transferencias → Importar</b>.</li>
             </ol>
           </div>
-          <figure class="cel"><span class="pantalla"><img src="img/manual/81-exportar-econt.jpg" alt="Botones para exportar a E-Cont y bajar los XML" width="390" height="844" loading="lazy"></span><figcaption>Exportar a E-Cont</figcaption></figure>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/81-exportar-contabilidad.jpg" alt="Botones para exportar a contabilidad y bajar los XML" width="390" height="844" loading="lazy"></span><figcaption>Exportar a contabilidad</figcaption></figure>
         </div>
       </div>
 

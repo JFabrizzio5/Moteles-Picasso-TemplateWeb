@@ -1,4 +1,4 @@
-"""Gastos: se capturan en Picasso, se ligan a un folio y se exportan a E-Cont."""
+"""Gastos: se capturan en Picasso, se ligan a un folio y se exportan a contabilidad."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ from ..models import (
     AnalisisGastos,
     ArchivoRead,
     CostoFolio,
-    ExportarEcont,
+    ExportarContabilidad,
     FolioDelGasto,
     Gasto,
     GastoActualizar,
@@ -49,7 +49,7 @@ from ..validations import (
     sucursal_para,
     sucursal_visible,
 )
-from . import econt
+from . import contabilidad
 from .comun import Comprobantes, ahora, hoy, uuid_de_cfdi
 from .ingresos_service import Sucursal
 
@@ -348,9 +348,9 @@ class GastosService:
         await self.repo.borrar(await self.repo.archivo(gasto_id, archivo_id))
         return (await self.leer([g]))[0]
 
-    # -- E-Cont ---------------------------------------------------------------------
+    # -- contabilidad -----------------------------------------------------------------
 
-    async def _para_exportar(self, actor: Actor, pedido: ExportarEcont) -> list[Gasto]:
+    async def _para_exportar(self, actor: Actor, pedido: ExportarContabilidad) -> list[Gasto]:
         exigir_finanzas(actor)
         if not pedido.ids and not (pedido.desde and pedido.hasta):
             raise ValidationError("Elige los gastos o un periodo para exportar.")
@@ -368,13 +368,13 @@ class GastosService:
             raise ValidationError("No hay gastos que exportar con esos filtros.")
         return filas
 
-    async def exportar_excel(self, actor: Actor, pedido: ExportarEcont) -> tuple[bytes, int]:
+    async def exportar_excel(self, actor: Actor, pedido: ExportarContabilidad) -> tuple[bytes, int]:
         filas = await self._para_exportar(actor, pedido)
         partidas = await self.repo.partidas([g.id for g in filas])
         folios = await self.repo.incidencias([g.id for g in filas])
-        contenido = econt.excel(
+        contenido = contabilidad.excel(
             [
-                econt.fila_de_gasto(
+                contabilidad.fila_de_gasto(
                     folio=g.folio,
                     forma_pago=g.forma_pago,
                     banco=g.banco,
@@ -403,7 +403,7 @@ class GastosService:
         await self.repo.session.flush()
         return contenido, len(filas)
 
-    async def exportar_xml(self, actor: Actor, pedido: ExportarEcont) -> tuple[bytes, int]:
+    async def exportar_xml(self, actor: Actor, pedido: ExportarContabilidad) -> tuple[bytes, int]:
         filas = await self._para_exportar(actor, pedido)
         archivos = await self.repo.archivos([g.id for g in filas])
         xmls: list[tuple[str, bytes]] = []
@@ -416,7 +416,7 @@ class GastosService:
                     xmls.append((a.uuid_cfdi or f"{g.folio}-{a.id}", datos))
         if not xmls:
             raise ValidationError("Ninguno de esos gastos tiene el XML de la factura.")
-        return econt.zip_xml(xmls), len(xmls)
+        return contabilidad.zip_xml(xmls), len(xmls)
 
     # -- auditoría ----------------------------------------------------------------
 

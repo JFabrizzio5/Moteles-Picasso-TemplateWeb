@@ -1,4 +1,4 @@
-"""Reglas de gastos y el archivo para E-Cont, sin base de datos."""
+"""Reglas de gastos y el archivo para contabilidad, sin base de datos."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from openpyxl import load_workbook
 from jfastframework.errors import ForbiddenError, ValidationError
 
 from modules.finanzas.models import Actor
-from modules.finanzas.services import econt
+from modules.finanzas.services import contabilidad
 from modules.finanzas.services.comun import tipo_de, uuid_de_cfdi
 from modules.finanzas.validations import (
     exigir_finanzas,
@@ -83,7 +83,7 @@ def test_uuid_del_timbre() -> None:
     assert uuid_de_cfdi(b"<nada/>") is None
 
 
-def _fila(**cambios: object) -> econt.FilaEcont:
+def _fila(**cambios: object) -> contabilidad.FilaContable:
     base: dict[str, object] = dict(
         folio="GTO-VAQ-000007",
         forma_pago="transferencia",
@@ -101,21 +101,21 @@ def _fila(**cambios: object) -> econt.FilaEcont:
         nota=None,
     )
     base.update(cambios)
-    return econt.fila_de_gasto(**base)  # type: ignore[arg-type]
+    return contabilidad.fila_de_gasto(**base)  # type: ignore[arg-type]
 
 
 def test_la_fila_usa_los_nombres_de_e_cont() -> None:
     f = _fila()
     assert f.forma_pago == "Transferencia"
     assert f.tipo_operacion == "Gasto"
-    # #FACTURA es obligatorio en E-Cont: sin referencia va el folio del gasto.
+    # #FACTURA es obligatorio en contabilidad: sin referencia va el folio del gasto.
     assert f.referencia == "GTO-VAQ-000007"
     assert "Incidencia PIC-VAQ-000003" in f.nota and "Mantenimiento" in f.nota
     assert _fila(referencia="A-123").referencia == "A-123"
 
 
 def test_el_excel_tiene_las_columnas_de_la_plantilla_de_e_cont() -> None:
-    contenido = econt.excel([_fila(), _fila(forma_pago="efectivo", importe=Decimal("90"))])
+    contenido = contabilidad.excel([_fila(), _fila(forma_pago="efectivo", importe=Decimal("90"))])
     libro = load_workbook(io.BytesIO(contenido))
     hoja = libro["Movimientos"]
     titulos = [c.value for c in hoja[1]]
@@ -142,7 +142,7 @@ def test_el_excel_tiene_las_columnas_de_la_plantilla_de_e_cont() -> None:
 
 
 def test_zip_de_xml_no_pisa_nombres_repetidos() -> None:
-    datos = econt.zip_xml([("UUID-1", b"<a/>"), ("UUID-1", b"<b/>"), ("otro.xml", b"<c/>")])
+    datos = contabilidad.zip_xml([("UUID-1", b"<a/>"), ("UUID-1", b"<b/>"), ("otro.xml", b"<c/>")])
     nombres = zipfile.ZipFile(io.BytesIO(datos)).namelist()
     assert nombres == ["UUID-1.xml", "UUID-1-2.xml", "otro.xml"]
 

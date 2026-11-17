@@ -45,10 +45,10 @@ async function bajar(ruta, cuerpo, nombre) {
   return Number(r.headers['x-gastos'] || r.headers['x-xml'] || 0)
 }
 
-/** Excel con las columnas de la plantilla de movimientos de E-Cont. */
-export const exportarEcont = (cuerpo, nombre) => bajar('/gastos/econt', cuerpo, nombre)
-/** ZIP con los XML de factura, para la importación de CFDI de E-Cont. */
-export const exportarXml = (cuerpo, nombre) => bajar('/gastos/econt-xml', cuerpo, nombre)
+/** Excel con las columnas de la plantilla de movimientos del sistema contable. */
+export const exportarContabilidad = (cuerpo, nombre) => bajar('/gastos/exportar', cuerpo, nombre)
+/** ZIP con los XML de factura, para la importación de CFDI del sistema contable. */
+export const exportarXml = (cuerpo, nombre) => bajar('/gastos/exportar-xml', cuerpo, nombre)
 
 /** Un error de blob trae el JSON adentro: se lee para mostrar el mensaje. */
 export async function mensajeDeBlob(error) {

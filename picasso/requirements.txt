@@ -11,5 +11,5 @@ reportlab==5.1.0
 # arrancaba («email-validator is not installed»).
 email-validator==2.3.0
 
-# Exportación de gastos a la plantilla de movimientos de E-Cont (modules/finanzas).
+# Exportación de gastos a la plantilla de movimientos del sistema contable (modules/finanzas).
 openpyxl==3.1.5

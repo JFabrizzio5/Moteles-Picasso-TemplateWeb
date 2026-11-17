@@ -125,7 +125,7 @@ export function pesos(valor, cerrado = false) {
   return (cerrado ? MONEDA_CERRADA : MONEDA).format(Number.isFinite(n) ? n : 0)
 }
 
-// Mismas opciones que la plantilla de movimientos de E-Cont.
+// Mismas opciones que la plantilla de movimientos del sistema contable.
 export const FORMAS_PAGO = [
   { valor: 'efectivo', texto: 'Efectivo' },
   { valor: 'transferencia', texto: 'Transferencia' },

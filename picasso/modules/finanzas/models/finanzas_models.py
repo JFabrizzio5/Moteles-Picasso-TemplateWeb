@@ -290,7 +290,7 @@ class AnalisisGastos(BaseModel):
     por_articulo: list[GastoPorArticulo]
 
 
-class ExportarEcont(BaseModel):
+class ExportarContabilidad(BaseModel):
     """Qué gastos van al archivo: unos en particular o los de un periodo."""
 
     ids: list[int] | None = Field(None, max_length=2000)

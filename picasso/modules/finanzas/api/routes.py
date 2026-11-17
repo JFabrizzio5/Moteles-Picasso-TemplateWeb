@@ -20,7 +20,7 @@ from ..models import (
     Actor,
     AnalisisGastos,
     CostoFolio,
-    ExportarEcont,
+    ExportarContabilidad,
     FuenteActualizar,
     FuenteRead,
     GastoActualizar,
@@ -319,15 +319,15 @@ async def analisis_gastos(
     return await service.analisis(actor, desde=inicio, hasta=fin, sucursal_id=sucursal_id)
 
 
-# Antes de /gastos/{gasto_id}: si no, «econt» se tomaría por un id.
-@router.post("/gastos/econt", summary="Excel de movimientos para E-Cont")
-async def exportar_econt(
-    pedido: ExportarEcont,
+# Antes de /gastos/{gasto_id}: si no, «exportar» se tomaría por un id.
+@router.post("/gastos/exportar", summary="Excel de movimientos para contabilidad")
+async def exportar_contabilidad(
+    pedido: ExportarContabilidad,
     actor: Actor = Depends(get_actor),
     service: GastosService = Depends(gastos),
 ) -> Response:
     contenido, n = await service.exportar_excel(actor, pedido)
-    nombre = f"Gastos-Picasso-E-Cont-{hoy().isoformat()}.xlsx"
+    nombre = f"Gastos-Picasso-Contabilidad-{hoy().isoformat()}.xlsx"
     return Response(
         contenido,
         media_type=_XLSX,
@@ -335,9 +335,9 @@ async def exportar_econt(
     )
 
 
-@router.post("/gastos/econt-xml", summary="XML de las facturas para E-Cont")
-async def exportar_econt_xml(
-    pedido: ExportarEcont,
+@router.post("/gastos/exportar-xml", summary="XML de las facturas para contabilidad")
+async def exportar_contabilidad_xml(
+    pedido: ExportarContabilidad,
     actor: Actor = Depends(get_actor),
     service: GastosService = Depends(gastos),
 ) -> Response:

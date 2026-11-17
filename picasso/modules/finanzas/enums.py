@@ -1,8 +1,8 @@
 """Vocabulario del módulo finanzas.
 
 Las formas de pago y los tipos de operación usan las mismas opciones que la
-plantilla de movimientos de E-Cont (ColumnasImportacionCheques.php): así un
-gasto exportado entra a E-Cont sin traducir nada.
+plantilla de movimientos del sistema contable: así un gasto exportado
+entra a contabilidad sin traducir nada.
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ class FormaPago(StrEnum):
     COMPENSACION = "compensacion"
 
 
-#: Como los escribe la plantilla de E-Cont (columna FORMA DE PAGO).
+#: Como los escribe la plantilla del sistema contable (columna FORMA DE PAGO).
 NOMBRE_FORMA_PAGO: dict[FormaPago, str] = {
     FormaPago.TRANSFERENCIA: "Transferencia",
     FormaPago.CHEQUE: "Cheque",
@@ -43,7 +43,7 @@ class TipoOperacion(StrEnum):
     OTRO = "otro"
 
 
-#: Como los escribe la plantilla de E-Cont (columna TIPO DE OPERACIÓN).
+#: Como los escribe la plantilla del sistema contable (columna TIPO DE OPERACIÓN).
 NOMBRE_TIPO_OPERACION: dict[TipoOperacion, str] = {
     TipoOperacion.GASTO: "Gasto",
     TipoOperacion.COMPRA: "Compra",
@@ -57,7 +57,7 @@ NOMBRE_TIPO_OPERACION: dict[TipoOperacion, str] = {
 
 
 class CategoriaGasto(StrEnum):
-    """Para qué fue el gasto; es de Picasso, E-Cont no la tiene (va en la nota)."""
+    """Para qué fue el gasto; es de Picasso, el sistema contable no la tiene (va en la nota)."""
 
     MANTENIMIENTO = "mantenimiento"
     LIMPIEZA = "limpieza"

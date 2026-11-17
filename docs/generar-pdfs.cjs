@@ -83,7 +83,7 @@ const DOCUMENTOS = [
     archivo: 'Picasso-07-Finanzas.pdf',
     nombre: 'Finanzas',
     titulo: 'Finanzas',
-    texto: 'Ingresos leídos cada noche de Kairos, gastos desglosados con comprobante y ligados a folios, auditoría, exportación a E-Cont y reporte PDF: módulo, tablas, tarea nocturna, permisos y rutas.',
+    texto: 'Ingresos leídos cada noche de Kairos, gastos desglosados con comprobante y ligados a folios, auditoría, exportación a contabilidad y reporte PDF: módulo, tablas, tarea nocturna, permisos y rutas.',
     secciones: ['finanzas'],
   },
   {
@@ -158,7 +158,7 @@ const DOCUMENTOS = [
     archivo: 'Picasso-Manual-Administracion.pdf',
     nombre: 'Manual de administración',
     titulo: 'Manual de administración',
-    texto: 'Reglas de cada sucursal, alta de cuartos y de su equipo, catálogo de equipo, alta del personal y gastos para E-Cont.',
+    texto: 'Reglas de cada sucursal, alta de cuartos y de su equipo, catálogo de equipo, alta del personal y gastos para contabilidad.',
     secciones: ['primeros', 'admin', 'finanzas', 'problemas'],
   },
   {
@@ -166,7 +166,7 @@ const DOCUMENTOS = [
     archivo: 'Picasso-Manual-Finanzas.pdf',
     nombre: 'Manual de finanzas',
     titulo: 'Manual de finanzas',
-    texto: 'Registrar gastos cosa por cosa con su comprobante, cargarlos a folios, ver los ingresos de Kairos, pasar los gastos a E-Cont, auditarlos e imprimir el reporte.',
+    texto: 'Registrar gastos cosa por cosa con su comprobante, cargarlos a folios, ver los ingresos de Kairos, exportar los gastos a contabilidad, auditarlos e imprimir el reporte.',
     secciones: ['primeros', 'finanzas', 'problemas'],
   },
 ]
