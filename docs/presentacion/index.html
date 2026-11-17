@@ -278,7 +278,7 @@
         <img src="assets/qr-app.svg" alt="Código QR de la app de prueba" width="128" height="128">
         <div><b>Pruébala en tu celular</b><span>Apunta la cámara al código y entra con un toque.</span><small>2.25.196.39:9630</small></div>
       </a>
-    <span class="desliza">Desliza · un capítulo por vez</span>
+    <span class="desliza">Desliza</span>
   </section>
 
   <!-- Recorrido: el celular en 3D con la app real -->
@@ -761,32 +761,40 @@
   // La rueda y el trackpad mandan decenas de eventos por gesto (y siguen por inercia):
   // sin esto el recorrido brinca varios capítulos. Del inicio al final de la galería,
   // cada gesto avanza o regresa exactamente una parada, con su animación completa.
-  let animando = false, ultimoGesto = 0, gestoUsado = false, tocY = null
+  // Rápido y encadenable: cada cambio dura ~0.6 s y un gesto nuevo, aunque siga
+  // moviéndose, sigue a la parada siguiente sin esperar a que termine.
+  let animando = false, meta = -1, ultimoGesto = 0, gestoUsado = false, tocY = null
   const finZona = () => topGal + altoGal - vh
-  const enZona = () => scrollY < finZona() - 4
+  const enZona = () => scrollY < finZona() - 4 || animando
   function pasoRelativo(dir) {
     const s = paradas()
-    let i = 0
-    s.forEach((p, k) => { if (Math.abs(p - scrollY) < Math.abs(s[i] - scrollY)) i = k })
-    // si quedó entre dos paradas y la más cercana ya está en esa dirección, va a esa
-    const adelante = dir > 0 ? s[i] > scrollY + 8 : s[i] < scrollY - 8
-    if (!adelante) i += dir
-    const destino = s[Math.max(0, Math.min(s.length - 1, i))]
+    let i
+    if (animando && meta >= 0) {
+      i = meta + dir
+    } else {
+      i = 0
+      s.forEach((p, k) => { if (Math.abs(p - scrollY) < Math.abs(s[i] - scrollY)) i = k })
+      // si quedó entre dos paradas y la más cercana ya está en esa dirección, va a esa
+      const adelante = dir > 0 ? s[i] > scrollY + 8 : s[i] < scrollY - 8
+      if (!adelante) i += dir
+    }
+    meta = Math.max(0, Math.min(s.length - 1, i))
+    const destino = s[meta]
     if (destino == null || Math.abs(destino - scrollY) < 4) return
     animando = true
-    const ms = quieto ? 0 : Math.min(1500, Math.max(900, Math.abs(destino - scrollY) * 0.8))
-    const t = ++cine.token  // un gesto también cancela el recorrido automático
-    deslizarA(destino, ms, t).then(() => { animando = false })
+    const ms = quieto ? 0 : Math.min(750, Math.max(480, Math.abs(destino - scrollY) * 0.45))
+    const t = ++cine.token  // un gesto también cancela el recorrido automático (y la animación anterior)
+    deslizarA(destino, ms, t).then((completo) => { if (completo) { animando = false; meta = -1 } })
   }
   addEventListener('wheel', (e) => {
     if (!enZona() || e.ctrlKey) return
     e.preventDefault()
-    // Un gesto termina cuando dejan de llegar eventos por 220 ms; la inercia del
+    // Un gesto termina cuando dejan de llegar eventos por 180 ms; la inercia del
     // trackpad llega cada ~16 ms, así que cuenta como el mismo gesto.
     const ahora = performance.now()
-    if (ahora - ultimoGesto > 220) gestoUsado = false
+    if (ahora - ultimoGesto > 180) gestoUsado = false
     ultimoGesto = ahora
-    if (animando || gestoUsado || Math.abs(e.deltaY) < 3) return
+    if (gestoUsado || Math.abs(e.deltaY) < 3) return
     gestoUsado = true
     pasoRelativo(e.deltaY > 0 ? 1 : -1)
   }, { passive: false })
@@ -796,10 +804,10 @@
     if (tocY === null) return
     const dy = tocY - e.changedTouches[0].clientY
     tocY = null
-    if (!animando && Math.abs(dy) > 35) pasoRelativo(dy > 0 ? 1 : -1)
+    if (Math.abs(dy) > 30) pasoRelativo(dy > 0 ? 1 : -1)
   }, { passive: true })
   addEventListener('keydown', (e) => {
-    if (!enZona() || animando) return
+    if (!enZona()) return
     if (['ArrowDown', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); pasoRelativo(1) }
     else if (['ArrowUp', 'PageUp'].includes(e.key)) { e.preventDefault(); pasoRelativo(-1) }
   })
