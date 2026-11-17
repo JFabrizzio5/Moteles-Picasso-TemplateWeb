@@ -403,7 +403,7 @@ pre.codigo { background: var(--codigo); border: 1px solid var(--linea); border-r
   <div class="dentro">
     <img src="img/logo.svg" alt="Motel Picasso">
     <span class="nombre">Inspecciones · Documentación</span>
-    <span class="version">v0.1 · 11 nov 2026</span>
+    <span class="version">v0.1 · 17 nov 2026</span>
   </div>
 </header>
 
@@ -411,7 +411,7 @@ pre.codigo { background: var(--codigo); border: 1px solid var(--linea); border-r
   <div class="dentro">
     <p class="etiqueta coral">Mantenimiento y limpieza de seis sucursales</p>
     <h1>Cómo está hecho, cómo se instala <em>y cómo se usa.</em></h1>
-    <p>Arquitectura, base de datos, requerimientos de servidor, seguridad, guía de usuario por puesto y listas de QA de la app de inspecciones de Motel Picasso.</p>
+    <p>Arquitectura, base de datos, finanzas, requerimientos de servidor, seguridad, guía de usuario por puesto y listas de QA de la app de inspecciones de Motel Picasso.</p>
     <div class="datos">
       <span class="dato"><b>PWA</b> Vue 3 + Vite</span>
       <span class="dato"><b>API</b> JFastFramework 0.1.0a12 · FastAPI</span>
@@ -432,6 +432,7 @@ pre.codigo { background: var(--codigo); border: 1px solid var(--linea); border-r
     <a href="#reglas">Reglas de negocio</a>
     <a href="#flujos">Flujos</a>
     <a href="#api">API</a>
+    <a href="#finanzas">Finanzas</a>
     <a href="#escala">Escalamiento</a>
     <p class="etiqueta grupo">Operación</p>
     <a href="#servidor">Requerimientos de servidor</a>
@@ -452,11 +453,12 @@ pre.codigo { background: var(--codigo); border: 1px solid var(--linea); border-r
       <p class="etiqueta">Resumen</p>
       <h2>Qué es</h2>
       <p>Una app para que el personal de las seis sucursales de Motel Picasso (Lerma, Toluca, Circuito, Churubusco, Periférico y Vaqueritos) revise cada cuarto desde el celular, documente lo que está mal con foto y le dé seguimiento hasta cerrarlo, y para que los propietarios vean las seis sucursales en un solo panel. Sigue el documento <em>Reportes Mantenimiento y Limpieza Picasso</em> (checklist de gerente de 25 puntos y de ama de llaves de 29).</p>
+      <p>Además, el módulo <b>Finanzas</b> junta lo que entra y lo que sale: los ingresos se leen cada noche del Kairos de cada motel y los gastos se capturan en Picasso artículo por artículo, se ligan a los folios de mantenimiento y se pasan a E-Cont con un archivo. Ver <a href="#finanzas">Finanzas</a>.</p>
       <div class="rejilla">
         <div class="caja"><p class="etiqueta">Ama de llaves</p><p>Revisa el cuarto después de cada limpieza. Toca solo lo que está mal y lo envía al gerente.</p></div>
-        <div class="caja"><p class="etiqueta">Gerente</p><p>Revisa cada cuarto (diario o cada dos días), decide si se renta, atiende y cierra los folios.</p></div>
-        <div class="caja"><p class="etiqueta">Propietarios</p><p>Panel de las seis sucursales, folios con su expediente, indicadores y reportes en PDF.</p></div>
-        <div class="caja"><p class="etiqueta">Administración</p><p>Cuartos, equipo de cada cuarto, personal y reglas por sucursal.</p></div>
+        <div class="caja"><p class="etiqueta">Gerente</p><p>Revisa cada cuarto (diario o cada dos días), decide si se renta, atiende y cierra los folios. Registra los gastos de su sucursal.</p></div>
+        <div class="caja"><p class="etiqueta">Propietarios</p><p>Panel de las seis sucursales, folios con su expediente, indicadores, finanzas y reportes en PDF.</p></div>
+        <div class="caja"><p class="etiqueta">Administración</p><p>Cuartos, equipo de cada cuarto, personal y reglas por sucursal. Exporta los gastos a E-Cont.</p></div>
       </div>
       <h3>Pila tecnológica</h3>
       <p>Piezas de uso común y gratuitas para este uso: no hay licencias que pagar por la plataforma. Las versiones son las que corren hoy.</p>
@@ -498,14 +500,14 @@ pre.codigo { background: var(--codigo); border: 1px solid var(--linea); border-r
           <div class="tec"><img src="img/tech/mermaid.svg" alt=""><div><b>Mermaid</b><span>Diagramas de esta documentación</span></div></div>
         </div>
       </div>
-      <div class="nota ambar"><p><b>Estado al 11 de noviembre de 2026:</b> funciona en una Mac de desarrollo con datos de ejemplo (cuartos 101–112 por sucursal, personas y folios inventados). No está desplegada en un servidor ni en un repositorio git. La liga de prueba es un túnel temporal.</p></div>
+      <div class="nota ambar"><p><b>Estado al 17 de noviembre de 2026:</b> corre en un servidor de prueba (desde el 12 de noviembre) con datos de ejemplo (cuartos 101–112 por sucursal, personas, folios y gastos inventados). Todavía no está en producción ni en un repositorio git.</p></div>
     </section>
 
     <!-- ============================== ARQUITECTURA -->
     <section class="parte" id="arquitectura">
       <p class="etiqueta">Arquitectura</p>
       <h2>Cómo está diagramado</h2>
-      <p>Un monolito modular: una sola API con dos módulos que no se tocan por dentro, una base de datos, un Redis, un disco para fotos y un worker para trabajos en segundo plano, todo en contenedores de Docker. El navegador del teléfono instala la app (PWA) y habla con todo por una sola dirección HTTPS.</p>
+      <p>Un monolito modular: una sola API con tres módulos (sucursal, inspeccion y finanzas) que no se tocan por dentro, una base de datos, un Redis, un disco para fotos y un worker para trabajos en segundo plano, todo en contenedores de Docker. El navegador del teléfono instala la app (PWA) y habla con todo por una sola dirección HTTPS.</p>
       <h3>Modelo C4</h3>
       <p>El modelo C4 dibuja el sistema con zoom: <b>contexto</b> (quién lo usa y con qué habla), <b>contenedores</b> (las piezas que se despliegan), <b>componentes</b> (lo que hay dentro de la API) y <b>código</b> (los archivos de cada módulo, en «Módulos y código»).</p>
       <h4>Nivel 1 · Contexto</h4>
@@ -518,9 +520,11 @@ pre.codigo { background: var(--codigo); border: 1px solid var(--linea); border-r
         </div>
         <div class="c4-rel"><span>Usan la app desde el celular o la computadora · HTTPS</span></div>
         <div class="c4-caja sistema"><div class="c4-logos"><img src="img/tech/pwa.svg" alt=""><img src="img/tech/fastapi.svg" alt=""><img src="img/tech/postgresql.svg" alt=""></div><b>Sistema de inspecciones Picasso</b><span class="c4-tipo">[Sistema de software]</span><span class="c4-texto">Checklists por cuarto, folios con fotos e historial, decisión de renta, panel de las seis sucursales y reportes PDF</span></div>
-        <div class="c4-rel"><span>Pide y renueva el certificado HTTPS · Avisaría por correo</span></div>
-        <div class="c4-fila dos">
+        <div class="c4-rel"><span>Pide el certificado HTTPS · Lee Kairos cada noche · Entrega archivos para E-Cont · Avisaría por correo</span></div>
+        <div class="c4-fila cuatro">
           <div class="c4-caja externo"><div class="c4-logos"><img src="img/tech/letsencrypt.svg" alt=""></div><b>Let's Encrypt</b><span class="c4-tipo">[Sistema externo]</span><span class="c4-texto">Emite el certificado HTTPS del dominio; Caddy lo renueva solo</span></div>
+          <div class="c4-caja externo"><div class="c4-logos"><img src="img/tech/servidor.svg" alt=""></div><b>Kairos (uno por motel)</b><span class="c4-tipo">[Sistema externo]</span><span class="c4-texto">Recepción de cada motel. Sin API: Picasso lee su vista móvil a las 04:30, solo lectura</span></div>
+          <div class="c4-caja externo"><div class="c4-logos"><img src="img/tech/servidor.svg" alt=""></div><b>E-Cont</b><span class="c4-tipo">[Sistema externo]</span><span class="c4-texto">Contabilidad. Recibe el Excel de movimientos y el ZIP de XML que baja administración</span></div>
           <div class="c4-caja externo futuro"><div class="c4-logos"><img src="img/tech/correo.svg" alt=""></div><b>Correo / avisos</b><span class="c4-tipo">[Sistema externo · futuro]</span><span class="c4-texto">Recuperación de contraseña y avisos al gerente; JFast ya trae el envío de correo</span></div>
         </div>
         <div class="c4-leyenda"><span class="l-persona">Persona</span><span class="l-sistema">Este sistema</span><span class="l-contenedor">Contenedor / componente</span><span class="l-externo">Externo</span><span class="l-futuro">Futuro</span></div>
@@ -540,13 +544,13 @@ pre.codigo { background: var(--codigo); border: 1px solid var(--linea); border-r
           <span class="c4-rotulo"><img src="img/tech/ubuntu.svg" alt=""><img src="img/tech/docker.svg" alt=""> Servidor · Ubuntu 24.04 con Docker</span>
           <div class="c4-caja "><div class="c4-logos"><img src="img/tech/caddy.svg" alt=""><img src="img/tech/letsencrypt.svg" alt=""></div><b>Caddy</b><span class="c4-tipo">[Contenedor: Caddy 2]</span><span class="c4-texto">HTTPS automático · <code>/</code> la app · <code>/api</code> y <code>/storage</code> a la API · rutas internas cerradas</span></div>
           <div class="c4-rel corta"><span>HTTP interno</span></div>
-          <div class="c4-caja principal"><div class="c4-logos"><img src="img/tech/python.svg" alt=""><img src="img/tech/fastapi.svg" alt=""><img src="img/tech/jfast.svg" alt=""></div><b>API Picasso</b><span class="c4-tipo">[Contenedor: Python 3.12 · FastAPI · JFastFramework]</span><span class="c4-texto">Módulos sucursal e inspeccion; tokens, permisos, reglas, fotos firmadas y PDF</span></div>
+          <div class="c4-caja principal"><div class="c4-logos"><img src="img/tech/python.svg" alt=""><img src="img/tech/fastapi.svg" alt=""><img src="img/tech/jfast.svg" alt=""></div><b>API Picasso</b><span class="c4-tipo">[Contenedor: Python 3.12 · FastAPI · JFastFramework]</span><span class="c4-texto">Módulos sucursal, inspeccion y finanzas; tokens, permisos, reglas, fotos firmadas y PDF</span></div>
           <div class="c4-rel corta"><span>SQL (asyncpg) · Redis · archivos</span></div>
           <div class="c4-fila cuatro">
             <div class="c4-caja "><div class="c4-logos"><img src="img/tech/postgresql.svg" alt=""></div><b>PostgreSQL</b><span class="c4-tipo">[Base de datos: PostgreSQL 16]</span><span class="c4-texto">Datos del negocio, cuentas y cola de trabajos</span></div>
             <div class="c4-caja "><div class="c4-logos"><img src="img/tech/redis.svg" alt=""></div><b>Redis</b><span class="c4-tipo">[Caché: Redis 7]</span><span class="c4-texto">Tokens revocados, límites de intentos y caché</span></div>
-            <div class="c4-caja "><div class="c4-logos"><img src="img/tech/disco.svg" alt=""></div><b>Disco privado</b><span class="c4-tipo">[Archivos: volumen picasso_storage]</span><span class="c4-texto">Fotos de evidencia, servidas solo con liga firmada</span></div>
-            <div class="c4-caja "><div class="c4-logos"><img src="img/tech/jfast.svg" alt=""></div><b>Worker</b><span class="c4-tipo">[Contenedor: jfast worker]</span><span class="c4-texto">Toma trabajos de la cola en PostgreSQL; hoy sin tareas</span></div>
+            <div class="c4-caja "><div class="c4-logos"><img src="img/tech/disco.svg" alt=""></div><b>Disco privado</b><span class="c4-tipo">[Archivos: volumen picasso_storage]</span><span class="c4-texto">Fotos de evidencia y comprobantes de gastos, servidos solo con liga firmada</span></div>
+            <div class="c4-caja "><div class="c4-logos"><img src="img/tech/jfast.svg" alt=""></div><b>Worker</b><span class="c4-tipo">[Contenedor: jfast worker]</span><span class="c4-texto">Toma trabajos de la cola en PostgreSQL; a las 04:30 lee el Kairos de cada motel</span></div>
           </div>
         </div>
         <div class="c4-leyenda"><span class="l-persona">Persona</span><span class="l-sistema">Este sistema</span><span class="l-contenedor">Contenedor / componente</span><span class="l-externo">Externo</span><span class="l-futuro">Futuro</span></div>
@@ -580,10 +584,10 @@ pre.codigo { background: var(--codigo); border: 1px solid var(--linea); border-r
           </div>
         </div>
         <div class="c4-rel corta"><span>SQLAlchemy 2 · asyncpg</span></div>
-        <div class="c4-caja "><div class="c4-logos"><img src="img/tech/postgresql.svg" alt=""></div><b>PostgreSQL</b><span class="c4-tipo">[Base de datos]</span><span class="c4-texto">12 tablas del negocio más las de cuentas</span></div>
+        <div class="c4-caja "><div class="c4-logos"><img src="img/tech/postgresql.svg" alt=""></div><b>PostgreSQL</b><span class="c4-tipo">[Base de datos]</span><span class="c4-texto">20 tablas del negocio (12 de inspecciones y 8 de finanzas) más las de cuentas</span></div>
         <div class="c4-leyenda"><span class="l-persona">Persona</span><span class="l-sistema">Este sistema</span><span class="l-contenedor">Contenedor / componente</span><span class="l-externo">Externo</span><span class="l-futuro">Futuro</span></div>
       </div>
-      <p class="nota-pie">Los PDF se arman en memoria con reportlab en un hilo aparte y se descargan; no se guardan.</p>
+      <p class="nota-pie">Los PDF se arman en memoria con reportlab en un hilo aparte y se descargan; no se guardan. El tercer módulo, <code>finanzas</code>, usa sucursal e inspeccion solo por sus <code>public.py</code>; sus capas están en <a href="#finanzas">Finanzas</a>.</p>
       <h3>Puertos</h3>
       <div class="tabla"><table>
         <tr><th>Puerto</th><th>Servicio</th><th>Dónde</th></tr>
@@ -641,11 +645,12 @@ pre.codigo { background: var(--codigo); border: 1px solid var(--linea); border-r
         <tr><td><code>…/inspeccion/models/catalogo_models.py</code></td><td>Los dos checklists del documento (G01–G25, A01–A29) y el texto de los puntos de equipo.</td></tr>
         <tr><td><code>…/inspeccion/validations/</code></td><td>Reglas del documento como funciones puras (motivo de No aplica, folio, quién cierra, cumplimiento, conformidad).</td></tr>
         <tr><td><code>…/inspeccion/services/pdf/</code></td><td>Los cuatro reportes PDF con la marca.</td></tr>
-        <tr><td><code>picasso/scripts/</code></td><td><code>sembrar.py</code> y <code>equipo_demo.py</code>: datos de ejemplo. No usar en producción.</td></tr>
-        <tr><td><code>picasso-web/</code></td><td>PWA: <code>src/views</code> (pantallas), <code>src/components</code>, <code>src/services/picasso.js</code> (todas las llamadas), <code>public/sw.js</code> (service worker) y <code>public/marca/</code> (logo oficial).</td></tr>
+        <tr><td><code>picasso/modules/finanzas/</code></td><td>Ingresos leídos de Kairos (resumen del día, tarifas y cada renta), gastos desglosados con comprobantes y folios ligados, auditoría, archivos para E-Cont y reporte PDF de finanzas. La tarea nocturna vive en <code>tasks.py</code>.</td></tr>
+        <tr><td><code>picasso/scripts/</code></td><td><code>sembrar.py</code>, <code>equipo_demo.py</code> y <code>gastos_demo.py</code>: datos de ejemplo. No usar en producción. <code>kairos_ahora.py</code>: corre ya la lectura nocturna de Kairos.</td></tr>
+        <tr><td><code>picasso-web/</code></td><td>PWA: <code>src/views</code> (pantallas), <code>src/components</code>, <code>src/services/picasso.js</code> y <code>finanzas.js</code> (las llamadas a la API), <code>public/sw.js</code> (service worker) y <code>public/marca/</code> (logo oficial).</td></tr>
       </table></div>
       <h3>Módulo por módulo</h3>
-      <p>Las mismas capas en los dos módulos de la API, de arriba (HTTP) a abajo (tablas). Una capa solo llama a la de abajo; <code>jfast contracts check</code> lo revisa en cada cambio.</p>
+      <p>Las mismas capas en los módulos de la API, de arriba (HTTP) a abajo (tablas); aquí sucursal e inspeccion, y finanzas en <a href="#finanzas">su sección</a>. Una capa solo llama a la de abajo; <code>jfast contracts check</code> lo revisa en cada cambio.</p>
       <div class="modmapa" role="img" aria-label="Capas de los módulos sucursal e inspeccion, con sus archivos y tablas">
         <div class="mod-capa cabeza"><span class="mod-nombre">Capa</span><div class="mod-celda"><b>sucursal</b><small>Sucursales, cuartos, personal y equipo</small></div><div class="mod-celda"><b>inspeccion</b><small>Revisiones, folios, renta, reportes y PDF</small></div></div>
         <div class="mod-capa"><span class="mod-nombre"><code>api/</code><small>HTTP, sin SQL</small></span><div class="mod-celda"><code>routes.py</code><span>12 rutas</span></div><div class="mod-celda"><code>routes.py</code><code>pdf_routes.py</code><span>20 rutas + 4 PDF</span></div></div>
@@ -662,10 +667,10 @@ pre.codigo { background: var(--codigo); border: 1px solid var(--linea); border-r
       <div class="modmapa web" role="img" aria-label="Capas de la app Vue: router, marco, vistas, componentes, stores, servicios y librerías">
         <div class="mod-capa"><span class="mod-nombre"><code>router/</code><small>rutas</small></span><div class="mod-celda"><code>index.js</code><span>pide sesión; carga cada pantalla al abrirla</span></div><div class="mod-celda"><span>Los permisos los decide la API; la app solo esconde lo que no aplica al puesto</span></div></div>
         <div class="mod-capa"><span class="mod-nombre"><code>layouts/</code><small>marco</small></span><div class="mod-celda"><code>Marco.vue</code><span>barra negra, navegación abajo en el celular, transiciones</span></div><div class="mod-celda"></div></div>
-        <div class="mod-capa"><span class="mod-nombre"><code>views/</code><small>11 pantallas</small></span><div class="mod-celda"><code>LoginView</code><code>InicioView</code><code>TableroView</code><code>RevisionView</code><code>FoliosView</code><code>FolioView</code></div><div class="mod-celda"><code>HabitacionView</code><code>PanelView</code><code>ReportesView</code><code>PerfilView</code><code>AdminView</code></div></div>
-        <div class="mod-capa"><span class="mod-nombre"><code>components/</code><small>17 piezas</small></span><div class="mod-celda"><code>FilaMal</code><code>Hoja</code><code>BotonFoto</code><code>BotonPdf</code><code>Galeria</code><code>VisorFoto</code></div><div class="mod-celda"><code>EstadoChip</code><code>Numero</code><code>Barra</code><code>Avisos</code><code>Marca</code><code>DemoAccesos</code><span>…</span></div></div>
+        <div class="mod-capa"><span class="mod-nombre"><code>views/</code><small>12 pantallas</small></span><div class="mod-celda"><code>LoginView</code><code>InicioView</code><code>TableroView</code><code>RevisionView</code><code>FoliosView</code><code>FolioView</code></div><div class="mod-celda"><code>HabitacionView</code><code>PanelView</code><code>ReportesView</code><code>PerfilView</code><code>AdminView</code><code>FinanzasView</code></div></div>
+        <div class="mod-capa"><span class="mod-nombre"><code>components/</code><small>23 piezas</small></span><div class="mod-celda"><code>FilaMal</code><code>Hoja</code><code>BotonFoto</code><code>BotonPdf</code><code>Galeria</code><code>VisorFoto</code></div><div class="mod-celda"><code>EstadoChip</code><code>Numero</code><code>Barra</code><code>Avisos</code><code>GastoHoja</code><code>ElegirFolios</code><code>GastosDelFolio</code><span>…</span></div></div>
         <div class="mod-capa"><span class="mod-nombre"><code>stores/</code><small>Pinia</small></span><div class="mod-celda"><code>auth.store</code><span>sesión y token</span></div><div class="mod-celda"><code>perfil.store</code><code>notification.store</code><span>puesto, sucursal y avisos</span></div></div>
-        <div class="mod-capa"><span class="mod-nombre"><code>services/</code><small>HTTP</small></span><div class="mod-celda"><code>api.js</code><span>Axios: token y renovación automática</span></div><div class="mod-celda"><code>picasso.js</code><span>todas las llamadas a la API</span></div></div>
+        <div class="mod-capa"><span class="mod-nombre"><code>services/</code><small>HTTP</small></span><div class="mod-celda"><code>api.js</code><span>Axios: token y renovación automática</span></div><div class="mod-celda"><code>picasso.js</code><code>finanzas.js</code><span>las llamadas a la API</span></div></div>
         <div class="mod-capa"><span class="mod-nombre"><code>lib/ y public/</code><small>utilidades</small></span><div class="mod-celda"><code>formato.js</code><code>fotos.js</code><code>demo.js</code></div><div class="mod-celda"><code>sw.js</code><code>manifest.webmanifest</code><span>service worker e instalación</span></div></div>
       </div>
       <h3>Capas de cada módulo</h3>
@@ -685,7 +690,7 @@ pre.codigo { background: var(--codigo); border: 1px solid var(--linea); border-r
     <section class="parte" id="datos">
       <p class="etiqueta">Base de datos</p>
       <h2>Modelo de datos</h2>
-      <p>PostgreSQL con 21 tablas: 12 del negocio (11 de datos y la de folios consecutivos), 7 de cuentas que crea el plugin <code>accounts</code>, la de la cola de trabajos (<code>jfast_jobs</code>) y la de versiones de Alembic. Toda tabla del negocio trae <code>tenant_id</code> (vacío hoy: hay un solo cliente) y la mayoría <code>created_at</code>/<code>updated_at</code>. Horas en UTC; el día y la hora que ve la gente se calculan en hora de CDMX.</p>
+      <p>PostgreSQL con 29 tablas: 20 del negocio (12 de sucursal e inspeccion, con la de folios consecutivos, y 8 de finanzas), 7 de cuentas que crea el plugin <code>accounts</code>, la de la cola de trabajos (<code>jfast_jobs</code>) y la de versiones de Alembic. Toda tabla del negocio trae <code>tenant_id</code> (vacío hoy: hay un solo cliente) y la mayoría <code>created_at</code>/<code>updated_at</code>. Horas en UTC; el día y la hora que ve la gente se calculan en hora de CDMX.</p>
       <div class="diagrama">
 <pre class="mermaid">
 erDiagram
@@ -728,6 +733,8 @@ erDiagram
         <tr><td><code>decisiones_renta</code></td><td>copia de sucursal y cuarto, <code>puede_rentarse</code>, <code>motivo</code>, <code>gerente_*</code>, <code>incidencia_id</code>, <code>decidida_en</code></td><td>Cada decisión es un renglón; la vigente es la más reciente.</td></tr>
         <tr><td><code>consecutivos_folio</code></td><td><code>sucursal_id</code>, <code>ultimo</code></td><td>Un UPDATE atómico por folio: sin huecos ni repetidos.</td></tr>
       </table></div>
+      <h4>Módulo finanzas</h4>
+      <p>Ocho tablas: <code>fuentes_kairos</code>, <code>ingresos_dia</code>, <code>ingresos_tarifa</code> y <code>rentas</code> (lo que se lee de Kairos), y <code>gastos</code>, <code>gasto_partidas</code>, <code>gasto_incidencias</code> y <code>gasto_archivos</code> (lo que se captura en Picasso). Columnas y notas en <a href="#fin-tablas">Finanzas → Tablas</a>.</p>
       <h4>Cuentas (plugin accounts)</h4>
       <p><code>jfast_users</code>, <code>jfast_roles</code>, <code>jfast_role_permissions</code>, <code>jfast_user_roles</code>, <code>jfast_user_sessions</code>, <code>jfast_account_tokens</code>, <code>jfast_recovery_codes</code>; además <code>jfast_jobs</code> (cola) y <code>alembic_version</code>. Las contraseñas se guardan con argon2.</p>
       <h3>Migraciones</h3>
@@ -736,6 +743,8 @@ erDiagram
         <tr><td class="mono">10a72d597e18</td><td>Tablas iniciales</td></tr>
         <tr><td class="mono">d142773af0b8</td><td>Bien en bloque y su interruptor por sucursal</td></tr>
         <tr><td class="mono">ca04ef335b92</td><td>Equipo de cuarto y su catálogo inicial (17 cosas en 4 categorías)</td></tr>
+        <tr><td class="mono">d5a6fec8ae2d</td><td>Finanzas: fuentes de Kairos, ingresos por día, por tarifa y cada renta; gastos con partidas y comprobantes</td></tr>
+        <tr><td class="mono">8166e118c343</td><td>Un gasto ligado a varios folios de incidencia (<code>gasto_incidencias</code>)</td></tr>
       </table></div>
     </section>
 
@@ -756,6 +765,10 @@ erDiagram
         <tr><td>PDF de revisión</td><td class="si">sí</td><td class="si">sí</td><td class="si">sí</td><td class="si">sí</td></tr>
         <tr><td>PDF de cuarto, folio y grupo</td><td class="no">folio sí</td><td class="si">su sucursal</td><td class="si">sí</td><td class="si">sí</td></tr>
         <tr><td>Cuartos, equipo, personal y reglas</td><td class="no">no</td><td class="no">no</td><td class="no">no</td><td class="si">sí</td></tr>
+        <tr><td>Finanzas: ingresos, gastos, auditoría y su PDF</td><td class="no">no</td><td class="si">su sucursal</td><td class="si">las seis</td><td class="si">las seis</td></tr>
+        <tr><td>Registrar, corregir, ligar o anular un gasto</td><td class="no">no</td><td class="si">su sucursal</td><td class="si">las seis</td><td class="si">las seis</td></tr>
+        <tr><td>Exportar gastos a E-Cont (Excel y XML)</td><td class="no">no</td><td class="si">su sucursal</td><td class="si">sí</td><td class="si">sí</td></tr>
+        <tr><td>Volver a leer Kairos y ver o cambiar sus fuentes</td><td class="no">no</td><td class="no">no</td><td class="si">sí</td><td class="si">sí</td></tr>
       </table></div>
     </section>
 
@@ -856,8 +869,156 @@ stateDiagram-v2
         <tr><td><span class="metodo post">POST</span></td><td><code>/incidencias/{id}/avances</code> · <code>/fotos</code> · <code>/cerrar</code></td><td>Avance, foto de reparación, cierre (gerente)</td></tr>
         <tr><td><span class="metodo get">GET</span></td><td><code>/panel</code> · <code>/indicadores</code> · <code>/habitaciones/{id}/expediente</code></td><td>Propietarios y gerencia</td></tr>
         <tr><td><span class="metodo get">GET</span></td><td><code>/reportes/revision/{id}.pdf</code> · <code>incidencia/{id}.pdf</code> · <code>habitacion/{id}.pdf</code> · <code>grupo.pdf?desde&amp;hasta</code></td><td>Reportes en PDF</td></tr>
+        <tr><td><span class="metodo get">GET</span></td><td><code>/finanzas/…</code> · <code>/gastos/…</code></td><td>Ingresos, gastos, auditoría, E-Cont y reporte de finanzas: 20 rutas, detalle en <a href="#fin-api">Finanzas → Rutas</a></td></tr>
         <tr><td><span class="metodo get">GET</span></td><td><code>/health</code> · <code>/ready</code></td><td>Salud del servicio (para el monitoreo)</td></tr>
       </table></div>
+    </section>
+
+    <!-- ============================== FINANZAS -->
+    <section class="parte" id="finanzas">
+      <p class="etiqueta">Finanzas</p>
+      <h2>Lo que entra y lo que sale</h2>
+      <p>El módulo <code>finanzas</code> junta los ingresos y los gastos de cada sucursal. Los ingresos no se capturan: se leen cada noche del Kairos de cada motel y se pisan con lo que diga Kairos. Los gastos sí se capturan en Picasso, cosa por cosa, con su comprobante, y pueden cargarse a uno o varios folios de mantenimiento. De ahí salen la auditoría para la contadora, el reporte PDF y los archivos para E-Cont.</p>
+      <div class="rejilla">
+        <div class="caja"><p class="etiqueta">Ingresos</p><p>Resumen del día, rentas por tarifa y cada renta (cuarto, forma de pago, importe), leídos de Kairos a las 04:30.</p></div>
+        <div class="caja"><p class="etiqueta">Gastos</p><p>Desglosados por artículo, cantidad, unidad y precio. El total es la suma. Con foto, PDF o XML de la factura.</p></div>
+        <div class="caja"><p class="etiqueta">E-Cont</p><p>Excel con las columnas de la plantilla de movimientos de E-Cont y ZIP con los XML de las facturas.</p></div>
+        <div class="caja"><p class="etiqueta">Auditoría y PDF</p><p>Quién gasta más, en qué, precio de cada artículo con mínimo y máximo, y el reporte del periodo.</p></div>
+      </div>
+
+      <h3>De Kairos a E-Cont</h3>
+      <div class="diagrama">
+<pre class="mermaid">
+flowchart LR
+  subgraph Motel["Cada motel"]
+    K["Kairos<br/>vista móvil"]
+  end
+  subgraph P["Picasso"]
+    W["Worker · 04:30<br/>finanzas.importar_noche"]
+    I[("ingresos_dia<br/>ingresos_tarifa · rentas")]
+    G["Gerente, admin o propietarios<br/>registran el gasto"]
+    T[("gastos · partidas<br/>folios · comprobantes")]
+    A["Pantalla Finanzas<br/>ingresos contra gastos<br/>auditoría · PDF"]
+  end
+  E["E-Cont<br/>importar movimientos y CFDI"]
+  K -- "HTML de cada día, solo lectura" --> W
+  W --> I
+  G --> T
+  I --> A
+  T --> A
+  T -- "Excel de movimientos + ZIP de XML" --> E
+</pre>
+        <p class="pie">Kairos y E-Cont no se tocan entre sí: Picasso lee de uno y entrega archivos para el otro. Nada se escribe en Kairos ni se sube solo a E-Cont.</p>
+      </div>
+
+      <h3>Capas del módulo</h3>
+      <div class="modmapa" role="img" aria-label="Capas del módulo finanzas: ingresos de Kairos y gastos de Picasso">
+        <div class="mod-capa cabeza"><span class="mod-nombre">Capa</span><div class="mod-celda"><b>Ingresos</b><small>Leídos de Kairos</small></div><div class="mod-celda"><b>Gastos</b><small>Capturados en Picasso</small></div></div>
+        <div class="mod-capa"><span class="mod-nombre"><code>api/</code><small>HTTP, sin SQL</small></span><div class="mod-celda"><code>routes.py</code><span>resumen, por día, por tarifa, fuentes, volver a leer, PDF</span></div><div class="mod-celda"><code>routes.py</code><span>alta, corrección, folios, comprobantes, anular, auditoría, E-Cont</span></div></div>
+        <div class="mod-capa"><span class="mod-nombre"><code>services/</code><small>reglas, sin FastAPI</small></span><div class="mod-celda"><code>IngresosService</code><code>ImportadorKairos</code><code>ClienteKairos</code><code>kairos_html.py</code><span>entrar, pedir cada día e interpretar su HTML</span></div><div class="mod-celda"><code>GastosService</code><code>Comprobantes</code><code>econt.py</code><code>reporte_pdf.py</code><span>desglose, archivos, Excel, ZIP y PDF</span></div></div>
+        <div class="mod-capa"><span class="mod-nombre"><code>repositories/</code><small>SQL</small></span><div class="mod-celda" style="grid-column: span 2"><code>FinanzasRepository</code><span>días ya importados, sumas por sucursal, costo por folio, gastos pendientes de exportar</span></div></div>
+        <div class="mod-capa"><span class="mod-nombre"><code>validations/</code><small>funciones puras</small></span><div class="mod-celda"><code>rango</code><span>periodo de hasta 400 días; 120 para volver a leer</span></div><div class="mod-celda"><code>exigir_desglose</code><code>sucursal_para</code><code>liga_de_incidencia</code><code>normalizar_rfc</code><span>partidas genéricas, sucursal del gasto, RFC del SAT</span></div></div>
+        <div class="mod-capa"><span class="mod-nombre"><code>models/</code><small>entidades y esquemas</small></span><div class="mod-celda"><code>FuenteKairos</code><code>IngresoDia</code><code>IngresoTarifa</code><code>Renta</code></div><div class="mod-celda"><code>Gasto</code><code>GastoPartida</code><code>GastoIncidencia</code><code>GastoArchivo</code></div></div>
+        <div class="mod-capa"><span class="mod-nombre"><code>tasks.py</code><small>trabajos en segundo plano</small></span><div class="mod-celda"><code>finanzas.importar_noche</code><span>cron 04:30 CDMX</span><code>finanzas.importar</code><span>a pedido</span></div><div class="mod-celda"><span>Sin tareas</span></div></div>
+        <div class="mod-dep"><span><img src="img/tech/jfast.svg" alt=""> finanzas → sucursal, inspeccion</span> solo por <code>public.py</code>: de sucursal toma el puesto y la sucursal de quien pide; de inspeccion, el folio para ligarlo (guarda copia del código, título y cuarto). Del reporte de inspeccion reusa las piezas del PDF.</div>
+      </div>
+
+      <h3 id="fin-tablas">Tablas</h3>
+      <div class="diagrama">
+<pre class="mermaid">
+erDiagram
+  FUENTES_KAIROS ||..o{ INGRESOS_DIA : "por clave de sucursal"
+  INGRESOS_DIA ||..o{ INGRESOS_TARIFA : "mismo día"
+  INGRESOS_DIA ||..o{ RENTAS : "mismo día"
+  GASTOS ||--|{ GASTO_PARTIDAS : desglose
+  GASTOS ||--o{ GASTO_INCIDENCIAS : "cargado a"
+  GASTOS ||--o{ GASTO_ARCHIVOS : comprobantes
+  INCIDENCIAS ||..o{ GASTO_INCIDENCIAS : "por id"
+</pre>
+        <p class="pie">Línea continua: llave foránea con borrado en cascada. Punteada: referencia por sucursal, fecha o id, sin llave foránea.</p>
+      </div>
+      <div class="tabla"><table>
+        <tr><th>Tabla</th><th>Columnas</th><th>Notas</th></tr>
+        <tr><td><code>fuentes_kairos</code></td><td><code>sucursal_clave</code> (única), <code>nombre_kairos</code>, <code>url_base</code>, <code>activo</code>, <code>primer_dia</code>, <code>historial_desde</code>, <code>ultima_corrida</code>, <code>ultimo_ok</code>, <code>ultimo_error</code></td><td>Una por motel: de dónde se lee y cómo le fue la última vez. La dirección no se escribe en ningún otro lado.</td></tr>
+        <tr><td><code>ingresos_dia</code></td><td><code>sucursal_id</code>, <code>fecha</code>, <code>habitaciones</code>, <code>rentas</code>, <code>extras</code>, <code>room_service</code>, <code>comandas</code>, <code>gastos_kairos</code>, <code>total</code>, <code>con_detalle</code>, <code>importado_en</code></td><td>Único (sucursal, fecha). <code>con_detalle</code> = falso en el historial viejo, que trae solo el resumen.</td></tr>
+        <tr><td><code>ingresos_tarifa</code></td><td><code>sucursal_id</code>, <code>fecha</code>, <code>tarifa</code>, <code>cantidad</code>, <code>importe</code></td><td>Único (sucursal, fecha, tarifa): Motel Suite, Hotel Jacuzzi…</td></tr>
+        <tr><td><code>rentas</code></td><td><code>sucursal_id</code>, <code>fecha</code>, <code>renglon</code>, <code>folio_kairos</code>, <code>habitacion_numero</code>, <code>forma_pago</code>, <code>importe</code>, <code>entrada</code></td><td>Cada renta del día. Único (sucursal, fecha, renglón).</td></tr>
+        <tr><td><code>gastos</code></td><td><code>folio</code> (GTO-LER-000080), copia de sucursal, <code>fecha</code>, <code>categoria</code>, <code>concepto</code>, <code>proveedor</code>, <code>rfc_proveedor</code>, <code>forma_pago</code>, <code>tipo_operacion</code>, <code>banco</code>, <code>referencia</code>, <code>importe</code>, <code>nota</code>, <code>capturo_*</code>, <code>estado</code> (registrado | anulado), <code>exportado_en</code></td><td><code>importe</code> es la suma de las partidas. <code>exportado_en</code> = la última vez que entró a un Excel para E-Cont.</td></tr>
+        <tr><td><code>gasto_partidas</code></td><td><code>gasto_id</code>, <code>orden</code>, <code>descripcion</code>, <code>articulo</code>, <code>cantidad</code>, <code>unidad</code>, <code>precio_unitario</code>, <code>importe</code>, <code>categoria</code></td><td><code>articulo</code> = la descripción en minúsculas y sin acentos, para agrupar el mismo artículo en la auditoría.</td></tr>
+        <tr><td><code>gasto_incidencias</code></td><td><code>gasto_id</code>, <code>incidencia_id</code>, <code>folio</code>, <code>titulo</code>, <code>habitacion_numero</code></td><td>Un gasto puede ir a varios folios y un folio tener varios gastos. Único (gasto, folio).</td></tr>
+        <tr><td><code>gasto_archivos</code></td><td><code>gasto_id</code>, <code>tipo</code> (foto | pdf | xml), <code>archivo</code>, <code>nombre</code>, <code>uuid_cfdi</code></td><td>En el disco privado, como las fotos. Del XML se lee el UUID del timbre al subirlo.</td></tr>
+      </table></div>
+
+      <h3>La lectura nocturna de Kairos</h3>
+      <p>Kairos es el sistema de recepción de cada motel. Corre en una PC del motel y no tiene API: Picasso entra como lo hace su vista móvil y pide lo mismo que pide esa pantalla. Solo lee; nunca llama a las acciones que escriben.</p>
+      <ol class="pasos">
+        <li><b>04:30 de CDMX.</b> El worker corre <code>finanzas.importar_noche</code> (programada en <code>tasks.py</code>).</li>
+        <li><b>Credenciales.</b> Usuario y contraseña salen solo del entorno (<code>PICASSO_KAIROS_USUARIO</code>, <code>PICASSO_KAIROS_CLAVE</code>). Si faltan, anota el error en cada fuente y termina sin reintentar.</li>
+        <li><b>Últimos 3 días.</b> Por cada fuente activa vuelve a leer los tres días anteriores a hoy, por si recepción corrigió algo, y los pisa con lo nuevo: resumen del día, rentas por tarifa y cada renta.</li>
+        <li><b>Historial por tramos.</b> Después rellena hacia atrás hasta <code>PICASSO_KAIROS_HISTORIAL_POR_NOCHE</code> días por noche (150). La primera vez pregunta a la gráfica de ventas qué días tuvieron rentas, para no pedir años vacíos día por día. Antes de <code>PICASSO_KAIROS_DETALLE_DESDE</code> guarda solo el resumen.</li>
+        <li><b>Un motel no detiene a los demás.</b> Si un Kairos no responde, el error queda en su fuente (<code>ultimo_error</code>) y se reintenta la noche siguiente. Entre petición y petición hay una pausa para no cargar el internet del motel.</li>
+        <li><b>A mano.</b> Administración y propietarios pueden pedir «Volver a leer ayer» desde la pantalla (<code>POST /finanzas/importar</code>, hasta 120 días). En el servidor, <code>scripts/kairos_ahora.py</code> hace lo mismo que la tarea nocturna sin esperar.</li>
+      </ol>
+      <div class="nota"><p><b>Si Kairos cambia su pantalla</b>, lo que se rompe está en <code>services/kairos_html.py</code>, que solo interpreta el HTML y tiene pruebas con ejemplos (<code>tests/test_kairos.py</code>). Las direcciones de cada Kairos viven en <code>fuentes_kairos</code> y se cambian con <code>PATCH /finanzas/fuentes/{id}</code>.</p></div>
+
+      <h3>Reglas de los gastos</h3>
+      <ul>
+        <li><b>Cosa por cosa.</b> Cada gasto lleva al menos una partida con artículo, cantidad, unidad y precio unitario. El importe de cada partida lo calcula el servidor y el total del gasto es la suma.</li>
+        <li><b>Nada genérico.</b> Una partida que solo dice «Verdulería», «varios», «ferretería», «material» o parecido se rechaza con un ejemplo de cómo desglosarla.</li>
+        <li><b>Sucursal.</b> El gerente registra solo en la suya; administración y propietarios eligen la sucursal.</li>
+        <li><b>Folios de la misma sucursal.</b> Un gasto se carga a uno o varios folios de incidencia; un folio de otra sucursal se rechaza. Del folio se guarda copia del código, título y cuarto.</li>
+        <li><b>Comprobante:</b> foto (JPG, PNG o WebP), PDF o el XML de la factura, hasta 8 MB, en el disco privado.</li>
+        <li><b>Fecha</b> de pago no futura; <b>RFC</b> del proveedor opcional pero con formato del SAT.</li>
+        <li><b>Anular, no borrar.</b> Un gasto anulado ya no se cambia y sale de las sumas; queda en la base.</li>
+        <li><b>Categoría</b> del gasto y, si hace falta, una distinta por partida. Es de Picasso: E-Cont no la tiene y viaja en la nota.</li>
+      </ul>
+
+      <h3>Exportación a E-Cont</h3>
+      <p>En Finanzas → Gastos, «Exportar a E-Cont» baja un Excel con los gastos del periodo y filtros en pantalla, con los mismos títulos que la plantilla de movimientos de E-Cont (Cheques y transferencias → Importar). El botón de solo los que no se han exportado deja fuera los que ya entraron a un archivo antes, y «XML de facturas» baja un ZIP con los XML subidos, para la importación de CFDI de E-Cont.</p>
+      <div class="tabla"><table>
+        <tr><th>Columna de E-Cont</th><th>De dónde sale</th></tr>
+        <tr><td>FORMA DE PAGO</td><td>Forma de pago del gasto, escrita como la lista de E-Cont (Transferencia, Cheque, Efectivo…)</td></tr>
+        <tr><td>BANCO</td><td>Banco, si se capturó</td></tr>
+        <tr><td>FECHA DE PAGO</td><td>Fecha del gasto</td></tr>
+        <tr><td>#FACTURA</td><td>Número de factura o referencia; si no hay, el folio del gasto (E-Cont lo exige)</td></tr>
+        <tr><td>TOTAL PAGADO</td><td>Total del gasto</td></tr>
+        <tr><td>TIPO DE CAMBIO</td><td>Vacío</td></tr>
+        <tr><td>BENEFICIARIO · RFC BENEFICIARIO</td><td>Proveedor y su RFC</td></tr>
+        <tr><td>TIPO DE OPERACIÓN</td><td>Gasto, Compra, Proveedores… como la lista de E-Cont</td></tr>
+        <tr><td>SUCURSAL ASIGNADA (RFC)</td><td>Vacío: se asigna en E-Cont</td></tr>
+        <tr><td>NOTA</td><td>Folio del gasto · sucursal · categoría · concepto · folios de incidencia · desglose (artículo, cantidad, unidad e importe) · nota</td></tr>
+      </table></div>
+      <p>El Excel trae una segunda hoja, «Catálogos», con las listas de forma de pago y tipo de operación de E-Cont, para quien lo corrija a mano. Al bajarlo, cada gasto queda marcado «En E-Cont».</p>
+
+      <h3>Auditoría y reporte PDF</h3>
+      <div class="rejilla">
+        <div class="caja"><p class="etiqueta">Quién gasta más</p><p>Por persona que capturó: sucursal, número de gastos, total y la categoría donde más gastó.</p></div>
+        <div class="caja"><p class="etiqueta">En qué se gasta</p><p>Por categoría: partidas, total y reparto por sucursal.</p></div>
+        <div class="caja"><p class="etiqueta">Precio por artículo</p><p>Veces, cantidad, total, promedio, mínimo y máximo por artículo y unidad. Si el máximo pasa 30 % el mínimo, va en rojo (▲ en el PDF).</p></div>
+      </div>
+      <p>«Imprimir reporte» (<code>GET /finanzas/reporte.pdf?desde&amp;hasta&amp;sucursal_id</code>) arma al momento un PDF con la marca: ingresos contra gastos por sucursal, la categoría más gastada, quién gasta más, el precio de cada artículo y el detalle de cada gasto con su desglose. Como los demás PDF, no se guarda.</p>
+
+      <h3>Permisos</h3>
+      <p>Finanzas es para gerencia, administración y propietarios; la ama de llaves no lo ve en el menú y la API le responde 403. El gerente solo ve y captura su sucursal. Volver a leer Kairos y las fuentes son solo de administración y propietarios. Detalle en <a href="#roles">Roles y permisos</a>.</p>
+
+      <h3 id="fin-api">Rutas</h3>
+      <div class="tabla"><table>
+        <tr><th>Método</th><th>Ruta</th><th>Para qué</th></tr>
+        <tr><td><span class="metodo get">GET</span></td><td><code>/finanzas/resumen</code></td><td>Ingresos contra gastos por sucursal en el periodo (por omisión, el mes hasta ayer)</td></tr>
+        <tr><td><span class="metodo get">GET</span></td><td><code>/finanzas/ingresos</code> · <code>/finanzas/tarifas</code></td><td>Ingresos por día; rentas e importe por tarifa</td></tr>
+        <tr><td><span class="metodo get">GET</span></td><td><code>/finanzas/reporte.pdf</code></td><td>Reporte de finanzas del periodo</td></tr>
+        <tr><td><span class="metodo get">GET</span></td><td><code>/finanzas/fuentes</code> · <span class="metodo patch">PATCH</span> <code>/finanzas/fuentes/{id}</code></td><td>El Kairos de cada motel: estado, dirección, activar o pausar (admin y propietarios)</td></tr>
+        <tr><td><span class="metodo post">POST</span></td><td><code>/finanzas/importar</code></td><td>Encolar una lectura de Kairos de un rango (202; admin y propietarios)</td></tr>
+        <tr><td><span class="metodo get">GET</span></td><td><code>/gastos</code> · <code>/gastos/{id}</code></td><td>Gastos con filtros (sucursal, fechas, folio, sin folio, categoría, texto, anulados); un gasto</td></tr>
+        <tr><td><span class="metodo post">POST</span></td><td><code>/gastos</code> · <span class="metodo patch">PATCH</span> <code>/gastos/{id}</code></td><td>Registrar; corregir (las partidas y los folios se reemplazan completos)</td></tr>
+        <tr><td><span class="metodo post">POST</span></td><td><code>/gastos/{id}/incidencias/{folio}</code> · <span class="metodo delete">DELETE</span></td><td>Ligar o quitar un folio de incidencia</td></tr>
+        <tr><td><span class="metodo post">POST</span></td><td><code>/gastos/{id}/archivos</code> · <span class="metodo delete">DELETE</span> <code>/gastos/{id}/archivos/{archivo}</code></td><td>Subir o quitar un comprobante</td></tr>
+        <tr><td><span class="metodo post">POST</span></td><td><code>/gastos/{id}/anular</code></td><td>Anular</td></tr>
+        <tr><td><span class="metodo get">GET</span></td><td><code>/gastos/costos-folios</code></td><td>Lo gastado en cada folio, para la lista de folios</td></tr>
+        <tr><td><span class="metodo get">GET</span></td><td><code>/gastos/analisis</code></td><td>Auditoría: por persona, por categoría y por artículo</td></tr>
+        <tr><td><span class="metodo post">POST</span></td><td><code>/gastos/econt</code> · <code>/gastos/econt-xml</code></td><td>Excel de movimientos y ZIP de XML para E-Cont (por ids o por periodo; <code>solo_pendientes</code>)</td></tr>
+      </table></div>
+      <div class="nota ambar"><p><b>Estado al 17 de noviembre de 2026:</b> el módulo está desplegado en el servidor de prueba con gastos de ejemplo (<code>scripts/gastos_demo.py</code>, nota «Dato de ejemplo»). El servidor todavía no tiene las credenciales de Kairos, así que los ingresos salen en cero y cada sucursal dice «Sin leer»: se llenan solos la primera noche que estén.</p></div>
     </section>
 
     <!-- ============================== SERVIDOR -->
@@ -953,7 +1114,7 @@ stateDiagram-v2
       <div class="tabla"><table>
         <tr><th>Componente</th><th>Imagen / versión</th><th>Notas</th></tr>
         <tr><td>API</td><td><code>python:3.12-slim</code> (Dockerfile del proyecto)</td><td>Un worker por CPU (hasta 8); healthcheck en <code>/health</code>.</td></tr>
-        <tr><td>Trabajos en segundo plano</td><td>misma imagen, <code>jfast worker</code></td><td>Hoy casi sin uso; queda listo para avisos.</td></tr>
+        <tr><td>Trabajos en segundo plano</td><td>misma imagen, <code>jfast worker</code></td><td>Con el programador encendido (<code>scheduler = true</code>): corre la lectura de Kairos a las 04:30 de CDMX. Queda listo para avisos.</td></tr>
         <tr><td>PostgreSQL</td><td><code>pgvector/pgvector:pg16</code></td><td>Volumen persistente; <code>shm_size: 1gb</code>.</td></tr>
         <tr><td>Redis</td><td><code>redis:7-alpine</code>, <code>--appendonly yes</code></td><td>Con contraseña y sin publicar el puerto.</td></tr>
         <tr><td>Caddy</td><td><code>caddy:2-alpine</code> con <code>Caddyfile.prod</code></td><td>HTTPS automático, sirve el build de la PWA y manda <code>/api</code> y <code>/storage</code> a la API.</td></tr>
@@ -979,6 +1140,9 @@ stateDiagram-v2
         <tr><td><code>PICASSO_REDIS_PASSWORD</code></td><td>compose (producción)</td><td>Contraseña de Redis; va dentro de la URL de conexión, por eso solo letras y números</td></tr>
         <tr><td><code>PICASSO_DOMINIO</code></td><td>compose (producción)</td><td>Dominio de la app; Caddy saca su certificado HTTPS</td></tr>
         <tr><td><code>COMPOSE_FILE</code></td><td>compose (producción)</td><td><code>docker-compose.yml:docker-compose.prod.yml</code>, para no escribir <code>-f</code> en cada comando</td></tr>
+        <tr><td><code>PICASSO_KAIROS_USUARIO</code>, <code>PICASSO_KAIROS_CLAVE</code></td><td>API y worker</td><td>Cuenta de lectura de Kairos, la misma en los seis moteles. Solo en <code>picasso/.env</code>; sin ellas la tarea nocturna anota el error en cada fuente y no lee nada.</td></tr>
+        <tr><td><code>PICASSO_KAIROS_HISTORIAL_POR_NOCHE</code></td><td>worker</td><td>Días del historial que se traen por noche y por motel (150 si no se pone).</td></tr>
+        <tr><td><code>PICASSO_KAIROS_DETALLE_DESDE</code></td><td>worker</td><td>Desde qué fecha el historial trae tarifas y cada renta; antes, solo el resumen del día (<code>2025-01-01</code> si no se pone).</td></tr>
         <tr><td><code>VITE_API_URL</code></td><td>front (al compilar)</td><td><code>/api</code> en producción</td></tr>
         <tr><td><code>VITE_DEMO</code>, <code>VITE_DEMO_CLAVE</code></td><td>front (al compilar)</td><td><b>Solo demo.</b> Muestran los accesos de un toque; nunca en producción.</td></tr>
       </table></div>
@@ -1032,6 +1196,8 @@ stateDiagram-v2
         <tr><td>Alta o baja de un cuarto</td><td>Ajustes → Cuartos: número, amenidades y botón Baja/Activar. Lo revisado se conserva.</td></tr>
         <tr><td>Equipo de un cuarto</td><td>Ajustes → Cuartos → Equipo. Entra a la siguiente revisión de ese cuarto.</td></tr>
         <tr><td>Reglas de una sucursal</td><td>Ajustes → Cuartos, arriba: frecuencia del gerente, cómo contar a la ama y tipo de checklist.</td></tr>
+        <tr><td>Volver a leer ingresos</td><td>Finanzas → Ingresos → «Volver a leer ayer de Kairos». Encola la lectura; se ve al terminar.</td></tr>
+        <tr><td>Pasar gastos a E-Cont</td><td>Finanzas → Gastos → «Exportar a E-Cont» (Excel) y «XML de facturas» (ZIP).</td></tr>
       </table></div>
       <h3>En el servidor</h3>
       <div class="tabla"><table>
@@ -1041,6 +1207,8 @@ stateDiagram-v2
         <tr><td>Reiniciar la API</td><td><code>docker compose restart picasso picasso-worker</code></td></tr>
         <tr><td>Respaldar la base</td><td><code>docker compose exec -T picasso-database pg_dump -U app -Fc app &gt; picasso-$(date +%F).dump</code></td></tr>
         <tr><td>Restaurar la base</td><td><code>docker compose exec -T picasso-database pg_restore -U app -d app --clean &lt; archivo.dump</code></td></tr>
+        <tr><td>Leer Kairos ya, sin esperar a las 04:30</td><td><code>docker compose exec -e PYTHONPATH=/app picasso python scripts/kairos_ahora.py</code> (con <code>--vueltas N</code> avanza N tramos del historial)</td></tr>
+        <tr><td>¿Kairos se leyó anoche?</td><td>Finanzas → Ingresos, columna «Kairos» (hora de la última lectura o «Sin leer» con el error), o <code>docker compose logs picasso-worker | grep Kairos</code></td></tr>
         <tr><td>Respaldar las fotos</td><td>Copiar el volumen de <code>/app/storage</code> fuera del servidor cada noche (por ejemplo con <code>rsync</code> o a S3).</td></tr>
         <tr><td>Versión nueva</td><td>Bajar el código, <code>npm ci &amp;&amp; npm run build</code> en <code>picasso-web</code> y <code>docker compose up -d --build</code>. Las migraciones corren solas al arrancar.</td></tr>
       </table></div>
@@ -1070,7 +1238,7 @@ stateDiagram-v2
         <div class="caja"><p class="etiqueta">Acceso</p><p>Contraseñas con argon2. La cuenta se bloquea 15 minutos tras 5 intentos fallidos, y hay límite de intentos por dirección y por cuenta.</p></div>
         <div class="caja"><p class="etiqueta">Sesión</p><p>Tokens de 15 minutos con renovación rotativa: si alguien reusa un token viejo se cierra toda la sesión. Cerrar sesión los revoca.</p></div>
         <div class="caja"><p class="etiqueta">Permisos</p><p>Por puesto y por sucursal, revisados en el servidor (403), no solo escondidos en la pantalla.</p></div>
-        <div class="caja"><p class="etiqueta">Fotos</p><p>Disco privado con ligas firmadas que caducan a las 2 horas. Se valida tipo y tamaño (máx. 8 MB) y la llave del archivo no admite rutas.</p></div>
+        <div class="caja"><p class="etiqueta">Fotos</p><p>Disco privado con ligas firmadas que caducan a las 2 horas. Se valida tipo y tamaño (máx. 8 MB) y la llave del archivo no admite rutas. Los comprobantes de gastos van igual.</p></div>
         <div class="caja"><p class="etiqueta">Historial</p><p>El historial de cada folio solo se agrega y la descripción original no se edita: queda quién hizo qué y cuándo.</p></div>
         <div class="caja"><p class="etiqueta">Transporte</p><p>En producción todo va por HTTPS con certificado automático de Caddy; la base, Redis y la API no publican puertos y las rutas internas (<code>/docs</code>, <code>/metrics</code>…) quedan cerradas.</p></div>
       </div>
@@ -1158,6 +1326,21 @@ stateDiagram-v2
         </div>
         <figure><img src="img/equipo.jpg" alt="Equipo de un cuarto por categorías" loading="lazy"><figcaption>¿Qué tiene el cuarto?</figcaption></figure>
       </div>
+
+      <h3 id="guia-finanzas">Finanzas (gerente, propietarios y administración)</h3>
+      <div class="guia">
+        <div>
+          <ol class="pasos">
+            <li><b>Finanzas → Gastos → «Registrar gasto»:</b> fecha de pago, forma de pago, para qué fue, categoría y proveedor.</li>
+            <li>En <b>«Qué se compró, cosa por cosa»</b>, un renglón por artículo con cantidad, unidad y precio. El total se suma solo; «Verdulería» o «varios» no se aceptan.</li>
+            <li><b>«Vincular folios»</b> marca los folios de incidencia a los que se carga el gasto. También se registra o se liga desde el folio, en «Gastos del folio».</li>
+            <li>Sube el comprobante: foto del ticket, PDF o XML de la factura.</li>
+            <li>Administración y propietarios ven <b>Ingresos</b> (se llenan cada noche desde Kairos), usan <b>Auditoría</b>, bajan el Excel con <b>«Exportar a E-Cont»</b> y el PDF con <b>«Imprimir reporte»</b>.</li>
+          </ol>
+        </div>
+        <figure><img src="img/manual/72-gasto-desglose.jpg" alt="Formulario de gasto con dos artículos desglosados" loading="lazy"><figcaption>Un gasto, cosa por cosa</figcaption></figure>
+      </div>
+      <figure class="ancha"><img class="captura" src="img/manual/83-precio-por-articulo.jpg" alt="Auditoría: precio por artículo con mínimo y máximo" loading="lazy"><figcaption>Auditoría: el mismo artículo a precios muy distintos sale en rojo (datos de ejemplo)</figcaption></figure>
     </section>
 
     <!-- ============================== QA -->
@@ -1203,6 +1386,9 @@ stateDiagram-v2
         <tr><td>Fotos sin señal</td><td>Los puntos sí se encolan sin señal; las fotos no: hay que tomarlas de nuevo con conexión.</td></tr>
         <tr><td>Equipo nuevo</td><td>Una revisión ya abierta no recibe el equipo agregado después; lo toma la siguiente.</td></tr>
         <tr><td>Seguridad</td><td>Ver la lista «Pendiente antes de producción».</td></tr>
+        <tr><td>Kairos sin credenciales</td><td>El servidor de prueba no tiene <code>PICASSO_KAIROS_USUARIO</code> ni <code>PICASSO_KAIROS_CLAVE</code>: los ingresos siguen en cero hasta ponerlas y dejar correr una noche (o <code>kairos_ahora.py</code>).</td></tr>
+        <tr><td>Kairos sin API</td><td>Se lee el HTML de su vista móvil. Si Kairos cambia esa pantalla, hay que ajustar <code>kairos_html.py</code>. Y Kairos corre en la PC de cada motel: si está apagada o sin internet, esa noche no se lee.</td></tr>
+        <tr><td>E-Cont</td><td>Falta importar un Excel real en E-Cont con la contadora (QA-76).</td></tr>
         <tr><td>Pruebas</td><td>Las pruebas automáticas cubren reglas y PDF; faltan pruebas de rutas contra una base real y en teléfonos reales.</td></tr>
       </table></div>
     </section>
@@ -1223,6 +1409,9 @@ stateDiagram-v2
         <tr><td>Service worker</td><td>Pieza de la PWA que guarda la app en el teléfono para abrir rápido y con poca señal.</td></tr>
         <tr><td>Token</td><td>Llave de sesión que dura 15 minutos y se renueva sola mientras la app está abierta.</td></tr>
         <tr><td>Liga firmada</td><td>Dirección de una foto que solo funciona 2 horas; después hay que pedir otra.</td></tr>
+        <tr><td>Kairos</td><td>Sistema de recepción de cada motel. De ahí salen los ingresos, cada noche.</td></tr>
+        <tr><td>E-Cont</td><td>Sistema contable. Recibe los gastos en el Excel de movimientos y los XML de las facturas.</td></tr>
+        <tr><td>Gasto y partida</td><td>Un gasto (<code>GTO-LER-000080</code>) es una compra; cada partida es una cosa comprada, con cantidad, unidad y precio.</td></tr>
       </table></div>
     </section>
   </main>
@@ -1276,6 +1465,18 @@ const QA = [
     ['QA-43', 'Desactivar un equipo del catálogo.', 'Deja de salir en checklists nuevos; lo revisado se conserva.'],
     ['QA-44', 'Cambiar el checklist de una sucursal a «cada punto ✓ o ✗».', 'En esa sucursal no se puede terminar hasta marcar todo.'],
     ['QA-45', 'Dar de alta a una persona de gerente en Toluca y entrar con ella.', 'Ve solo Toluca.'],
+  ]},
+  { grupo: 'Finanzas', casos: [
+    ['QA-70', 'Ama de llaves busca Finanzas en el menú y abre /finanzas a mano.', 'No aparece en el menú y la API responde que no tiene acceso.'],
+    ['QA-71', 'Gerente registra un gasto con dos artículos (cantidad, unidad y precio).', 'El total es la suma de las partidas; el gasto sale con su folio GTO-… y solo de su sucursal.'],
+    ['QA-72', 'Registrar un gasto con una sola partida «Verdulería».', 'Lo rechaza y pide desglosar cosa por cosa.'],
+    ['QA-73', 'Vincular el gasto a dos folios de la sucursal.', 'El gasto muestra los dos folios; cada folio lo lista en «Gastos del folio» y la lista de folios dice lo gastado.'],
+    ['QA-74', 'Subir como comprobante una foto, un PDF y un XML de factura.', 'Los tres quedan adjuntos; un archivo de otro tipo o de más de 8 MB se rechaza.'],
+    ['QA-75', 'Exportar a E-Cont el periodo y abrir el Excel.', 'Trae las columnas de la plantilla de E-Cont, el desglose en NOTA y los gastos quedan «En E-Cont».'],
+    ['QA-76', 'Importar ese Excel en E-Cont (Cheques y transferencias → Importar).', 'E-Cont reconoce cada columna sin cambiarlas.'],
+    ['QA-77', 'Auditoría con un artículo comprado a precios distintos.', 'Mínimo y máximo en rojo cuando el máximo pasa 30 % el mínimo.'],
+    ['QA-78', 'Imprimir el reporte de un rango de fechas.', 'PDF con ingresos contra gastos por sucursal, categoría más gastada, quién gasta más, precio por artículo y detalle.'],
+    ['QA-79', 'Con credenciales de Kairos, revisar Ingresos el día siguiente.', 'Cada sucursal muestra la hora de la última lectura y cifras que coinciden con Kairos.'],
   ]},
   { grupo: 'PWA, teléfonos y rendimiento', casos: [
     ['QA-50', 'Instalar en iPhone (Safari) y en Android (Chrome).', 'Ícono de Picasso en el inicio; abre sin barra del navegador.'],

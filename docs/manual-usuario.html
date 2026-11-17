@@ -221,6 +221,7 @@ figure.ancha img { display: block; width: 100%; max-width: 640px; height: auto; 
       <a href="pdf/Picasso-Manual-Ama-de-llaves.pdf">Ama de llaves</a>
       <a href="pdf/Picasso-Manual-Propietarios.pdf">Propietarios</a>
       <a href="pdf/Picasso-Manual-Administracion.pdf">Administración</a>
+      <a href="pdf/Picasso-Manual-Finanzas.pdf">Finanzas</a>
     </div>
   </div>
 </section>
@@ -234,6 +235,7 @@ figure.ancha img { display: block; width: 100%; max-width: 640px; height: auto; 
     <a href="#ama">Ama de llaves</a>
     <a href="#propietarios">Propietarios</a>
     <a href="#admin">Administración</a>
+    <a href="#finanzas">Finanzas</a>
     <p class="etiqueta grupo">Ayuda</p>
     <a href="#sin-senal">Sin señal</a>
     <a href="#problemas">Problemas comunes</a>
@@ -254,9 +256,9 @@ figure.ancha img { display: block; width: 100%; max-width: 640px; height: auto; 
           <table>
             <tr><th>Puesto</th><th>Qué hace en la app</th><th>Barra de abajo</th></tr>
             <tr><td>Ama de llaves</td><td>Al terminar de limpiar, revisa el cuarto con sus 29 puntos y lo envía al gerente.</td><td>Cuartos · Folios · Perfil</td></tr>
-            <tr><td>Gerente</td><td>Revisa los cuartos con sus 25 puntos, decide si se pueden rentar y lleva cada folio hasta cerrarlo.</td><td>Cuartos · Folios · Reportes · Perfil</td></tr>
-            <tr><td>Propietarios</td><td>Ven las seis sucursales, los folios y los indicadores. Solo consultan.</td><td>Panel · Folios · Reportes · Perfil</td></tr>
-            <tr><td>Administración</td><td>Da de alta cuartos, equipo y personal, y fija las reglas de cada sucursal.</td><td>Panel · Folios · Reportes · Ajustes · Perfil</td></tr>
+            <tr><td>Gerente</td><td>Revisa los cuartos con sus 25 puntos, decide si se pueden rentar y lleva cada folio hasta cerrarlo. Registra los gastos de su sucursal.</td><td>Cuartos · Folios · Finanzas · Reportes · Perfil</td></tr>
+            <tr><td>Propietarios</td><td>Ven las seis sucursales, los folios, los indicadores y las finanzas. Lo que hace el personal solo lo consultan.</td><td>Panel · Folios · Finanzas · Reportes · Perfil</td></tr>
+            <tr><td>Administración</td><td>Da de alta cuartos, equipo y personal, fija las reglas de cada sucursal y pasa los gastos a E-Cont.</td><td>Panel · Folios · Finanzas · Reportes · Ajustes · Perfil</td></tr>
           </table>
         </div>
         <p>El gerente y la ama de llaves solo ven su sucursal. Propietarios y administración ven las seis.</p>
@@ -271,6 +273,8 @@ figure.ancha img { display: block; width: 100%; max-width: 640px; height: auto; 
             <tr><td>Folio</td><td>El seguimiento de una falla, con su número: <b>PIC-LER-000008</b> es el folio 8 de Lerma. Nace solo al marcar algo mal.</td></tr>
             <tr><td>Renta</td><td>La decisión del gerente de si un cuarto <b>puede rentarse</b> o <b>no</b>, con su motivo.</td></tr>
             <tr><td>Chequeo</td><td>Cada revisión terminada. La app guarda quién la hizo y a qué hora.</td></tr>
+            <tr><td>Gasto</td><td>Una compra registrada en Finanzas, con su número: <b>GTO-LER-000080</b>. Lleva el desglose de lo que se compró y su comprobante.</td></tr>
+            <tr><td>Kairos y E-Cont</td><td>Kairos es el sistema de recepción de cada motel, de donde salen los ingresos. E-Cont es el sistema contable, a donde se pasan los gastos.</td></tr>
           </table>
         </div>
       </div>
@@ -323,7 +327,7 @@ figure.ancha img { display: block; width: 100%; max-width: 640px; height: auto; 
     <section class="parte" id="gerente">
       <p class="etiqueta">Gerente</p>
       <h2>Tu día como gerente</h2>
-      <p class="intro">Revisas los cuartos de tu sucursal, decides si se pueden rentar y llevas cada folio hasta cerrarlo con foto de la reparación. La app te dice qué sigue.</p>
+      <p class="intro">Revisas los cuartos de tu sucursal, decides si se pueden rentar y llevas cada folio hasta cerrarlo con foto de la reparación. La app te dice qué sigue. Los gastos de tu sucursal se registran en <a href="#finanzas">Finanzas</a>.</p>
 
       <div class="tarea">
         <h3 id="g-inicio">Tu inicio y «Tu siguiente paso»</h3>
@@ -532,7 +536,7 @@ figure.ancha img { display: block; width: 100%; max-width: 640px; height: auto; 
     <section class="parte" id="propietarios">
       <p class="etiqueta">Propietarios</p>
       <h2>Las seis sucursales en una sola vista</h2>
-      <p class="intro">El panel junta el avance de las revisiones, los folios abiertos y los cuartos que no se rentan. Todo es de consulta: nada de lo que toques cambia datos.</p>
+      <p class="intro">El panel junta el avance de las revisiones, los folios abiertos y los cuartos que no se rentan. Todo es de consulta: nada de lo que toques cambia datos. Ingresos, gastos y auditoría están en <a href="#finanzas">Finanzas</a>.</p>
 
       <div class="tarea">
         <h3 id="p-panel">El panel</h3>
@@ -677,6 +681,130 @@ figure.ancha img { display: block; width: 100%; max-width: 640px; height: auto; 
       </div>
     </section>
 
+    <!-- ============================== FINANZAS -->
+    <section class="parte" id="finanzas">
+      <p class="etiqueta">Finanzas</p>
+      <h2>Lo que entra y lo que sale</h2>
+      <p class="intro">En <b>Finanzas</b> se registran los gastos de cada sucursal, cosa por cosa y con su comprobante, y se ven contra los ingresos de Kairos. La usan el gerente (su sucursal), administración y propietarios (las seis). La ama de llaves no la ve.</p>
+
+      <div class="tarea">
+        <h3 id="f-pantalla">La pantalla de Finanzas</h3>
+        <div class="guia">
+          <div>
+            <p>Arriba eliges qué ver y de cuándo:</p>
+            <ul>
+              <li><b>Ingresos</b>, <b>Gastos</b> o <b>Auditoría</b>.</li>
+              <li>El periodo: <b>Ayer</b>, <b>7 días</b>, <b>Este mes</b>, <b>Mes pasado</b>, <b>30 días</b> o <b>Elegir fechas</b>.</li>
+              <li>Administración y propietarios eligen además la <b>sucursal</b> o todas.</li>
+            </ul>
+            <p>En <b>Gastos</b> buscas por folio, concepto o proveedor, filtras por categoría y puedes ver <b>solo los que no tienen folio de incidencia</b>. Cada tarjeta dice qué se compró, a qué folios se cargó, quién lo registró y si ya está <b>En E-Cont</b>.</p>
+          </div>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/70-gastos-lista.jpg" alt="Lista de gastos con su desglose, folios y botón para registrar" width="390" height="844" loading="lazy"></span><figcaption>Gastos de la sucursal</figcaption></figure>
+        </div>
+      </div>
+
+      <div class="tarea">
+        <h3 id="f-registrar">Registrar un gasto (gerente)</h3>
+        <ol class="pasos">
+          <li>En <b>Finanzas → Gastos</b> toca <span class="boton-app">Registrar gasto</span>. La sucursal ya es la tuya.</li>
+          <li>Pon la <b>fecha de pago</b>, la <b>forma de pago</b>, <b>para qué fue</b> (por ejemplo «Fruta y verdura para room service»), la <b>categoría</b> y el <b>proveedor o tienda</b>.</li>
+          <li>En <b>«Qué se compró, cosa por cosa»</b> escribe un renglón por artículo: nombre, cantidad, unidad (pza, kg, lt…) y precio de cada uno. Toca <span class="boton-app">Otra cosa</span> para agregar renglones. El total se suma solo.</li>
+          <li>Si un artículo es de otra categoría que el gasto, cámbiala en su renglón; si no, toma la del gasto.</li>
+          <li>Revisa el total y toca <span class="boton-app">Registrar $…</span>.</li>
+        </ol>
+        <div class="nota ambar"><p><b>No basta «Verdulería».</b> Un renglón que solo dice el nombre de la tienda o del rubro («Verdulería», «varios», «ferretería», «material») no se acepta. Escribe lo que compraste: «Lechuga orejona» 10 pza, «Jitomate saladet» 2 kg. Así la contadora puede comparar precios.</p></div>
+        <div class="tira">
+          <figure class="cel"><span class="pantalla"><img src="img/manual/71-gasto-nuevo.jpg" alt="Registrar gasto: fecha, forma de pago, para qué fue, categoría y proveedor" width="390" height="844" loading="lazy"></span><figcaption>1 · Los datos del gasto</figcaption></figure>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/72-gasto-desglose.jpg" alt="Qué se compró, cosa por cosa: dos artículos con cantidad y precio" width="390" height="844" loading="lazy"></span><figcaption>2 · Cosa por cosa</figcaption></figure>
+        </div>
+      </div>
+
+      <div class="tarea">
+        <h3 id="f-folios">Cargar el gasto a folios</h3>
+        <p>Si el gasto fue para reparar algo, cárgalo al folio de incidencia. Una compra puede ir a varios folios (por ejemplo, material para tres cuartos).</p>
+        <ol class="pasos">
+          <li>En el gasto, toca <span class="boton-app">Vincular folios</span>.</li>
+          <li>Marca la casilla de cada folio. Salen los abiertos de tu sucursal; para uno ya cerrado, marca <b>«Incluir folios cerrados»</b>. Puedes buscar por folio, problema o habitación.</li>
+          <li>Toca <span class="boton-app">Vincular 2 folios</span> (dice cuántos). Quedan en la lista del gasto; la ✕ quita uno.</li>
+        </ol>
+        <p>También desde el folio: abre el folio y baja a <b>«Gastos del folio»</b>. Ahí ves lo que lleva gastado y puedes <span class="boton-app">Registrar gasto</span> (sale ya ligado a ese folio) o <span class="boton-app">Ligar uno</span> que ya estaba registrado. En <b>Folios</b>, cada tarjeta dice <b>«Gastado $…»</b>.</p>
+        <div class="tira">
+          <figure class="cel"><span class="pantalla"><img src="img/manual/74-vincular-folios.jpg" alt="Vincular folios: casillas con los folios de la sucursal" width="390" height="844" loading="lazy"></span><figcaption>Marca los folios</figcaption></figure>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/76-gastos-del-folio.jpg" alt="Gastos del folio con el costo total y cada gasto" width="390" height="844" loading="lazy"></span><figcaption>Gastos del folio</figcaption></figure>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/75-folios-gastado.jpg" alt="Lista de folios con lo gastado en cada uno" width="390" height="844" loading="lazy"></span><figcaption>Lo gastado en cada folio</figcaption></figure>
+        </div>
+      </div>
+
+      <div class="tarea">
+        <h3 id="f-comprobante">Subir el comprobante</h3>
+        <div class="guia">
+          <div>
+            <ol class="pasos">
+              <li>En el recuadro <b>Comprobante</b>, toca para elegir el archivo o, en la computadora, arrástralo encima.</li>
+              <li>Sirve la <b>foto del ticket</b>, el <b>PDF</b> o el <b>XML de la factura</b>, hasta 8 MB cada uno. Puedes subir varios.</li>
+              <li>Si hay factura, sube el XML: de ahí salen los archivos que administración pasa a E-Cont.</li>
+              <li>En <b>Información adicional</b> van el número de factura o referencia, el RFC del proveedor, el tipo de operación, el banco y una nota.</li>
+            </ol>
+            <p>Para corregir un gasto, tócalo en la lista: se abre como <b>Corregir gasto</b> y guardas con <span class="boton-app">Guardar cambios</span>.</p>
+          </div>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/73-gasto-folios-comprobante.jpg" alt="Gasto con dos folios vinculados y el recuadro para subir el comprobante" width="390" height="844" loading="lazy"></span><figcaption>Folios vinculados y comprobante</figcaption></figure>
+        </div>
+      </div>
+
+      <div class="tarea">
+        <h3 id="f-ingresos">Ingresos (administración y propietarios)</h3>
+        <p>Los ingresos no se capturan: <b>se llenan cada noche</b>, a las 4:30, desde Kairos, el sistema de recepción de cada motel. Por eso las cifras van hasta ayer.</p>
+        <ul>
+          <li>Arriba: <b>Ingresos</b> (cuartos, room service y extras), <b>Rentas</b>, <b>Gastos</b> registrados en Picasso y <b>Utilidad</b> (ingresos menos gastos).</li>
+          <li>La tabla compara las seis sucursales; tócala para ver una sola. La columna <b>Kairos</b> dice a qué hora se leyó cada motel, o <b>«Sin leer»</b> si esa noche no se pudo.</li>
+          <li>Debajo, <b>Por día</b> y <b>Por tarifa</b> (Motel Suite, Hotel Jacuzzi…).</li>
+          <li><span class="boton-app">Volver a leer ayer de Kairos</span> lo pide otra vez si recepción corrigió algo; tarda unos minutos.</li>
+        </ul>
+        <figure class="ancha"><img src="img/manual/80-ingresos.jpg" alt="Ingresos contra gastos por sucursal con el estado de Kairos" width="1600" height="1125" loading="lazy"><figcaption>Ingresos contra gastos. En la prueba Kairos todavía no se lee: los ingresos salen en cero y dicen «Sin leer».</figcaption></figure>
+      </div>
+
+      <div class="tarea">
+        <h3 id="f-econt">Pasar los gastos a E-Cont</h3>
+        <div class="guia">
+          <div>
+            <ol class="pasos">
+              <li>En <b>Finanzas → Gastos</b> elige el periodo y, si quieres, la sucursal.</li>
+              <li>Toca <span class="boton-app">Exportar a E-Cont</span>. Baja un Excel con las columnas de la plantilla de movimientos de E-Cont: forma de pago, fecha de pago, #factura, total pagado, beneficiario, tipo de operación… El desglose de cada gasto va en la columna <b>NOTA</b>.</li>
+              <li>Para no repetir, usa el botón de <b>solo los que no se han exportado</b>. Cada gasto que entra a un Excel queda marcado <b>En E-Cont</b>.</li>
+              <li><span class="boton-app">XML de facturas</span> baja un ZIP con los XML subidos, para importar los CFDI en E-Cont.</li>
+              <li>En E-Cont, importa el Excel en <b>Cheques y transferencias → Importar</b>.</li>
+            </ol>
+          </div>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/81-exportar-econt.jpg" alt="Botones para exportar a E-Cont y bajar los XML" width="390" height="844" loading="lazy"></span><figcaption>Exportar a E-Cont</figcaption></figure>
+        </div>
+      </div>
+
+      <div class="tarea">
+        <h3 id="f-auditoria">Auditoría</h3>
+        <div class="guia">
+          <div>
+            <p>Para revisar los gastos con la contadora. Con el periodo y la sucursal de arriba:</p>
+            <div class="tabla">
+              <table>
+                <tr><th>Parte</th><th>Qué dice</th></tr>
+                <tr><td>Quién gasta más</td><td>Cada persona que registra gastos: sucursal, cuántos gastos, total y en qué categoría gasta más.</td></tr>
+                <tr><td>En qué se gasta</td><td>Total y partidas por categoría, con lo de cada sucursal.</td></tr>
+                <tr><td>Precio por artículo</td><td>Cuántas veces se compró, cantidad, total, precio promedio, mínimo y máximo, y en qué sucursales. Si el máximo pasa <b>30 %</b> el mínimo, sale en rojo.</td></tr>
+              </table>
+            </div>
+          </div>
+          <figure class="cel"><span class="pantalla"><img src="img/manual/82-auditoria.jpg" alt="Auditoría: total gastado y quién gasta más" width="390" height="844" loading="lazy"></span><figcaption>Quién gasta más</figcaption></figure>
+        </div>
+        <figure class="ancha"><img src="img/manual/83-precio-por-articulo.jpg" alt="Precio por artículo con mínimo y máximo en rojo" width="1600" height="1125" loading="lazy"><figcaption>Precio por artículo en la computadora (datos de ejemplo)</figcaption></figure>
+      </div>
+
+      <div class="tarea">
+        <h3 id="f-reporte">Imprimir el reporte</h3>
+        <p>Elige el periodo (o <b>Elegir fechas</b>) y la sucursal, y toca <span class="boton-app">Imprimir reporte</span>. Baja un PDF con ingresos contra gastos por sucursal, la categoría más gastada, quién gasta más, el precio por artículo y el detalle de cada gasto con su desglose. Se genera al momento y necesita señal.</p>
+        <figure class="ancha"><img src="img/manual/84-reporte-finanzas-pdf.jpg" alt="Primera hoja del reporte de finanzas en PDF" width="1100" height="1423" loading="lazy"><figcaption>Primera hoja del reporte de finanzas (gastos de ejemplo; ingresos en cero porque Kairos aún no se lee en la prueba)</figcaption></figure>
+      </div>
+    </section>
+
     <!-- ============================== SIN SEÑAL -->
     <section class="parte" id="sin-senal">
       <p class="etiqueta">Sin señal</p>
@@ -745,6 +873,10 @@ figure.ancha img { display: block; width: 100%; max-width: 640px; height: auto; 
           <dd>Porque la decisión vigente del gerente es que no puede rentarse. El motivo está en el expediente del cuarto y en su folio.</dd></div>
           <div><dt>No baja el PDF.</dt>
           <dd>Los PDF se generan al momento y necesitan señal. Si dice «No se pudo generar el reporte», inténtalo otra vez en un momento.</dd></div>
+          <div><dt>¿Por qué los ingresos salen en cero o dicen «Sin leer»?</dt>
+          <dd>Los ingresos llegan de Kairos cada noche. Si Kairos del motel estaba apagado o sin internet, esa noche no se leyó y se intenta la siguiente. Los de hoy aparecen mañana.</dd></div>
+          <div><dt>No me deja registrar un gasto.</dt>
+          <dd>Revisa que cada renglón tenga artículo, cantidad y precio, y que no diga solo «Verdulería», «varios» o el nombre de la tienda. Los folios que vincules tienen que ser de la misma sucursal.</dd></div>
           <div><dt>Olvidé mi contraseña.</dt>
           <dd>Pídela a la administración. La app todavía no la recupera ni la cambia sola.</dd></div>
           <div><dt>¿Puedo usar la app en la computadora?</dt>

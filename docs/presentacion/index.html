@@ -244,7 +244,7 @@
     <div class="dentro">
       <p class="ceja">Motel Picasso<span class="solo-ancho"> · Mantenimiento y limpieza</span></p>
       <h1>Revisar, documentar <em>y resolver.</em></h1>
-      <p class="lead">La app de inspecciones de las seis casas Picasso: el gerente y la ama de llaves revisan cada cuarto desde el celular, cada falla queda con foto y los dueños ven todo en una sola vista.</p>
+      <p class="lead">La app de inspecciones de las seis casas Picasso: el gerente y la ama de llaves revisan cada cuarto desde el celular, cada falla queda con foto, cada gasto queda desglosado y ligado a su folio, y los dueños ven ingresos, gastos y reportes en una sola vista.</p>
       <ul class="casas" aria-label="Sucursales">
         <li class="nueva">Vaqueritos</li><li>Lerma</li><li>Toluca</li><li>Circuito</li><li>Churubusco</li><li>Periférico</li>
       </ul>
@@ -257,7 +257,7 @@
   </section>
 
   <!-- Recorrido: el celular en 3D con la app real -->
-  <section class="recorrido" id="recorrido" style="--n: 6" aria-label="La app, paso a paso">
+  <section class="recorrido" id="recorrido" style="--n: 9" aria-label="La app, paso a paso">
     <div class="escenario">
       <div class="fondos" id="fondos"></div>
       <div class="velo"></div>
@@ -370,6 +370,14 @@
       ceja: 'Folio de incidencia', t1: 'Cada falla abre', t2: 'un folio con foto.',
       p: 'El gerente lo pone en atención, anota quién lo repara y lo cierra solo con la foto de la reparación. La falla y el arreglo quedan juntos.',
       tarjetas: ['jacuzzi-vista', 'sauna', 'suite'] },
+    { clip: 'gastos', fondo: 'pasillo', lugar: 'Pasillo de suites · Vaqueritos',
+      ceja: 'Gastos', t1: 'Cada gasto,', t2: 'cosa por cosa.',
+      p: 'El gerente anota lo que compró: artículo, cantidad y precio; el total se suma solo. «Verdulería $700» no pasa. Lo carga a los folios que arregló y sube el ticket, el PDF o el XML de la factura.',
+      tarjetas: ['recepcion', 'jacuzzi-rojo', 'accesos'] },
+    { clip: 'gastoFolio', fondo: 'jacuzzi-vista', lugar: 'Suite Jacuzzi · Vaqueritos',
+      ceja: 'Gastos y folios', t1: 'Cada falla,', t2: 'con lo que costó.',
+      p: 'La lista de folios dice cuánto se ha gastado en cada uno, y dentro del folio están los gastos ligados con su desglose. Desde ahí se registra uno nuevo o se liga uno que ya existe.',
+      tarjetas: ['sauna', 'suite', 'alberca-dia'] },
     { clip: 'estado', fondo: 'alberca-celosia', lugar: 'Suite Alberca T1 · Vaqueritos',
       ceja: 'Decisión de renta', t1: 'Ningún cuarto se renta', t2: 'sin estar listo.',
       p: 'Al terminar la revisión, el gerente decide si el cuarto se puede rentar. Queda el motivo, su nombre y la hora, y el cuarto vuelve a rentarse cuando se cierra el folio.',
@@ -382,6 +390,10 @@
       ceja: 'Propietarios', t1: 'Seis casas,', t2: 'en una sola vista.',
       p: 'Revisiones hechas, folios abiertos, cuartos sin rentar y la hora del último chequeo de cada sucursal. Vaqueritos entra al panel desde que abre.',
       tarjetas: ['suc-lerma', 'suc-toluca', 'suc-circuito'] },
+    { clip: 'finanzas', fondo: 'recepcion', lugar: 'Recepción · Vaqueritos',
+      ceja: 'Finanzas', t1: 'Lo que entra,', t2: 'lo que sale.',
+      p: 'Los ingresos llegan solos de Kairos cada noche y se comparan con los gastos: gráficas por día, por sucursal y por categoría, quién gasta más y el precio de cada artículo. PDF de todas las casas o de cada una, y los gastos a E-Cont con un archivo.',
+      tarjetas: ['suc-churubusco', 'suc-periferico', 'lobby'] },
     { clip: 'reportesAdmin', fondo: 'lobby', lugar: 'Lobby · Vaqueritos',
       ceja: 'Reportes', t1: 'Todo se baja', t2: 'en PDF.',
       p: 'Cada revisión, cada folio con su foto de antes y de después, el expediente de cada cuarto y el reporte del periodo, con la marca de Picasso.',
@@ -416,6 +428,8 @@
 
   const $ = (id) => document.getElementById(id)
   const N = CAPS.length
+  // El largo del recorrido sale del número de capítulos (el CSS trae 6 por omisión).
+  document.getElementById('recorrido')?.style.setProperty('--n', N)
   const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v))
   const lerp = (a, b, t) => a + (b - a) * t

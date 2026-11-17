@@ -224,7 +224,7 @@ def construir_finanzas(datos: DatosReporte, generado: datetime) -> bytes:
             else _vacia("Sin gastos.")
         )
         h.append(Spacer(1, 6))
-        filas = [["Categoría", "Partidas", "Total", "% del gasto", "Por sucursal"]]
+        filas = [["Categoría", "Partidas", "Total", "%", "Por sucursal"]]
         for c in a.por_categoria:
             por_suc = " · ".join(
                 f"{n.replace('Picasso ', '')} {pesos_cerrado(t)}" for n, t in c.por_sucursal.items()
@@ -238,7 +238,7 @@ def construir_finanzas(datos: DatosReporte, generado: datetime) -> bytes:
                     pdf.p(pdf.t(por_suc), pdf.CHICO),
                 ]
             )
-        h.append(pdf.tabla(filas, [120, 50, 74, 60, 228]))
+        h.append(pdf.tabla(filas, [136, 58, 74, 54, 210]))
 
         h.append(pdf.seccion("Quién gasta más"))
         filas = [["Persona", "Sucursal", "Gastos", "Total", "Gasta más en"]]

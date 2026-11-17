@@ -20,3 +20,13 @@ https://2.25.196.39:9631/presentacion/ (se sube con el resto de `docs/`).
 
 Las suites y su equipo salen de las páginas de cada habitación en motelpicasso.mx; los datos de la
 app son de ejemplo.
+
+
+## Capítulos de gastos y finanzas (17-nov-2026)
+
+Nueve capítulos: se sumaron **Gastos** (registrar cosa por cosa y cargarlo a folios),
+**Gastos y folios** (lo gastado en cada incidencia) y **Finanzas** (gráficas de ingresos
+y gastos, PDF por sucursal, auditoría). Sus clips (`assets/app/gastos|gastoFolio|finanzas`)
+salen de `Picasso-Promo/grabacion/tomas-finanzas.mjs` (mismo grabador del comercial,
+contra el build del VPS en local :9812) y se pasan a 600×1298 con ffmpeg. El largo del
+recorrido se calcula con el número de capítulos (`--n`).

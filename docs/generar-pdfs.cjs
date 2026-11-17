@@ -28,7 +28,7 @@ const EMPRESA = 'CometaX Company'
 const PILA = ['vuedotjs', 'vite', 'tailwindcss', 'pwa', 'python', 'fastapi', 'jfast', 'sqlalchemy', 'pydantic', 'postgresql', 'redis', 'docker', 'caddy', 'ubuntu']
 const CLIENTE = 'Motel Picasso'
 const VERSION = '0.1'
-const FECHA = '11 de noviembre de 2026'
+const FECHA = '17 de noviembre de 2026'
 const MES = 'noviembre 2026'
 
 const FUENTES =
@@ -50,7 +50,7 @@ const CIFRAS = [
   ['6', 'Sucursales', 'Lerma, Toluca, Circuito, Churubusco, Periférico y Vaqueritos'],
   ['4', 'Puestos', 'Ama de llaves, gerente, propietarios y administración'],
   ['54', 'Puntos de checklist', '25 del gerente y 29 de ama de llaves, más el equipo de cada cuarto'],
-  ['21', 'Tablas', 'PostgreSQL 16, con migraciones de Alembic'],
+  ['29', 'Tablas', 'PostgreSQL 16, con migraciones de Alembic'],
 ]
 const CIFRAS_MANUAL = [
   ['6', 'Sucursales', 'De Lerma a Vaqueritos'],
@@ -62,14 +62,14 @@ const CIERRE = (doc) =>
   `Documento elaborado por ${EMPRESA} para ${CLIENTE}. Describe la versión ${VERSION} del sistema al ${doc.fecha || FECHA}: una demo que corre en local con datos de ejemplo y que todavía no está desplegada en un servidor.`
 const CIERRE_MANUAL = (doc) =>
   `Manual elaborado por ${EMPRESA} para el personal de ${CLIENTE}. Corresponde a la versión ${VERSION} de la app al ${doc.fecha}. Las pantallas usan datos de ejemplo: los nombres, cuartos y folios que aparecen no son reales.`
-const MANUAL_BASE = { origen: MANUAL, fecha: '12 de noviembre de 2026', cifras: CIFRAS_MANUAL, cierre: CIERRE_MANUAL }
+const MANUAL_BASE = { origen: MANUAL, fecha: '17 de noviembre de 2026', cifras: CIFRAS_MANUAL, cierre: CIERRE_MANUAL }
 
 const DOCUMENTOS = [
   {
     archivo: 'Picasso-Documentacion-completa.pdf',
     nombre: 'Documentación del sistema',
     titulo: 'Documentación del sistema',
-    texto: 'Arquitectura, base de datos, reglas, servidor, guía de usuario y listas de QA de la app de inspecciones de mantenimiento y limpieza de las seis sucursales.',
+    texto: 'Arquitectura, base de datos, reglas, finanzas, servidor, guía de usuario y listas de QA de la app de inspecciones de mantenimiento y limpieza de las seis sucursales.',
     secciones: null,
   },
   {
@@ -78,6 +78,13 @@ const DOCUMENTOS = [
     titulo: 'Arquitectura del sistema',
     texto: 'Modelo C4 con logos, módulo por módulo, el flujo de una falla hasta su cierre, las rutas de la API y cómo crece el sistema para más carga, otros clientes y apps de huéspedes.',
     secciones: ['resumen', 'arquitectura', 'modulos', 'flujos', 'api', 'escala'],
+  },
+  {
+    archivo: 'Picasso-07-Finanzas.pdf',
+    nombre: 'Finanzas',
+    titulo: 'Finanzas',
+    texto: 'Ingresos leídos cada noche de Kairos, gastos desglosados con comprobante y ligados a folios, auditoría, exportación a E-Cont y reporte PDF: módulo, tablas, tarea nocturna, permisos y rutas.',
+    secciones: ['finanzas'],
   },
   {
     archivo: 'Picasso-02-Base-de-datos.pdf',
@@ -119,7 +126,7 @@ const DOCUMENTOS = [
     archivo: 'Picasso-Manual-de-usuario.pdf',
     nombre: 'Manual de usuario',
     titulo: 'Manual de usuario',
-    texto: 'Cómo se usa la app de inspecciones, paso a paso y con pantallas reales: gerente, ama de llaves, propietarios y administración, qué hacer sin señal y problemas comunes.',
+    texto: 'Cómo se usa la app de inspecciones, paso a paso y con pantallas reales: gerente, ama de llaves, propietarios, administración y finanzas, qué hacer sin señal y problemas comunes.',
     secciones: null,
   },
   {
@@ -127,8 +134,8 @@ const DOCUMENTOS = [
     archivo: 'Picasso-Manual-Gerente.pdf',
     nombre: 'Manual del gerente',
     titulo: 'Manual del gerente',
-    texto: 'Revisar cuartos, marcar lo que está mal con foto, decidir la renta y llevar cada folio hasta cerrarlo con la foto de la reparación.',
-    secciones: ['primeros', 'gerente', 'sin-senal', 'problemas'],
+    texto: 'Revisar cuartos, marcar lo que está mal con foto, decidir la renta, llevar cada folio hasta cerrarlo con la foto de la reparación y registrar los gastos de la sucursal.',
+    secciones: ['primeros', 'gerente', 'finanzas', 'sin-senal', 'problemas'],
   },
   {
     ...MANUAL_BASE,
@@ -143,16 +150,24 @@ const DOCUMENTOS = [
     archivo: 'Picasso-Manual-Propietarios.pdf',
     nombre: 'Manual de propietarios',
     titulo: 'Manual de propietarios',
-    texto: 'Las seis sucursales en una sola vista: avance de revisiones, folios abiertos, cuartos sin rentar, indicadores y el reporte en PDF.',
-    secciones: ['primeros', 'propietarios', 'problemas'],
+    texto: 'Las seis sucursales en una sola vista: avance de revisiones, folios abiertos, cuartos sin rentar, indicadores, finanzas y los reportes en PDF.',
+    secciones: ['primeros', 'propietarios', 'finanzas', 'problemas'],
   },
   {
     ...MANUAL_BASE,
     archivo: 'Picasso-Manual-Administracion.pdf',
     nombre: 'Manual de administración',
     titulo: 'Manual de administración',
-    texto: 'Reglas de cada sucursal, alta de cuartos y de su equipo, catálogo de equipo y alta del personal.',
-    secciones: ['primeros', 'admin', 'problemas'],
+    texto: 'Reglas de cada sucursal, alta de cuartos y de su equipo, catálogo de equipo, alta del personal y gastos para E-Cont.',
+    secciones: ['primeros', 'admin', 'finanzas', 'problemas'],
+  },
+  {
+    ...MANUAL_BASE,
+    archivo: 'Picasso-Manual-Finanzas.pdf',
+    nombre: 'Manual de finanzas',
+    titulo: 'Manual de finanzas',
+    texto: 'Registrar gastos cosa por cosa con su comprobante, cargarlos a folios, ver los ingresos de Kairos, pasar los gastos a E-Cont, auditarlos e imprimir el reporte.',
+    secciones: ['primeros', 'finanzas', 'problemas'],
   },
 ]
 
