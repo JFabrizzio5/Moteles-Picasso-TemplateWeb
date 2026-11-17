@@ -3,7 +3,7 @@
 // aquí, cosa por cosa), y la auditoría para la contadora.
 import { computed, onActivated, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { mdiDownload, mdiFileExcelOutline, mdiMagnify, mdiPlus, mdiRefresh } from '@mdi/js'
+import { mdiDeleteOutline, mdiDownload, mdiFileExcelOutline, mdiMagnify, mdiPlus, mdiRefresh, mdiRestore } from '@mdi/js'
 
 import BotonPdf from '@/components/BotonPdf.vue'
 import Esqueleto from '@/components/Esqueleto.vue'
@@ -117,6 +117,7 @@ async function cargar() {
         buscar: buscar.value || undefined,
         categoria: categoria.value || undefined,
         sin_incidencia: sinFolio.value || undefined,
+        papelera: papelera.value || undefined,
         pagina: pagina.value,
         por_pagina: POR_PAGINA,
       })
@@ -190,6 +191,19 @@ async function releer() {
 function guardado() {
   hoja.value = null
   cargar()
+}
+
+// Papelera: los gastos eliminados, con quién y por qué; de aquí se restauran.
+const papelera = computed(() => ruta.query.papelera === '1')
+const verPapelera = (si) => cambiar({ papelera: si ? '1' : undefined, pagina: undefined })
+async function restaurar(g) {
+  try {
+    await finanzas.restaurarGasto(g.id)
+    avisos.success(`${g.folio} volvió a la lista de gastos.`)
+    cargar()
+  } catch (e) {
+    avisos.error(mensajeError(e))
+  }
 }
 
 let espera = null
@@ -360,7 +374,11 @@ const sinDatos = computed(() =>
 
     <!-- GASTOS -->
     <template v-if="vista === 'gastos'">
-      <div class="mt-6 flex flex-wrap items-center gap-2">
+      <div v-if="papelera" class="mt-6 flex flex-wrap items-center gap-3">
+        <button class="boton boton-suave boton-chico" @click="verPapelera(false)">← Volver a los gastos</button>
+        <p class="text-sm text-[var(--texto-2)]">Gastos eliminados del periodo. No cuentan en reportes ni exportes hasta que se restauran.</p>
+      </div>
+      <div v-else class="mt-6 flex flex-wrap items-center gap-2">
         <button class="boton boton-vino" @click="hoja = 'nuevo'"><Icono :path="mdiPlus" :size="20" /> Registrar gasto</button>
         <button class="boton boton-borde" :disabled="exportando || !totalLista" @click="exportar('excel')">
           <Icono :path="mdiFileExcelOutline" :size="20" /> Exportar a contabilidad
@@ -370,6 +388,9 @@ const sinDatos = computed(() =>
         </button>
         <button v-if="totalLista" class="boton boton-suave boton-chico" :disabled="exportando" @click="exportar('xml')">
           <Icono :path="mdiDownload" :size="18" /> XML de facturas
+        </button>
+        <button class="boton boton-suave boton-chico ml-auto" @click="verPapelera(true)">
+          <Icono :path="mdiDeleteOutline" :size="18" /> Papelera
         </button>
       </div>
       <div class="mt-3 grid gap-2 sm:grid-cols-3">
@@ -381,15 +402,16 @@ const sinDatos = computed(() =>
           <option value="">Todas las categorías</option>
           <option v-for="c in CATEGORIAS_GASTO" :key="c.valor" :value="c.valor">{{ c.texto }}</option>
         </select>
-        <label class="flex items-center gap-2 text-sm"><input v-model="sinFolio" type="checkbox" class="h-5 w-5" /> Solo sin folio de incidencia</label>
+        <label v-if="!papelera" class="flex items-center gap-2 text-sm"><input v-model="sinFolio" type="checkbox" class="h-5 w-5" /> Solo sin folio de incidencia</label>
       </div>
       <p v-if="!cargando" class="etiqueta mt-5 mb-3">
         {{ totalLista }} {{ totalLista === 1 ? 'gasto' : 'gastos' }} · {{ pesos(importeLista) }}
         <template v-if="paginas > 1"> · página {{ pagina }} de {{ paginas }}</template>
       </p>
-      <Vacio v-if="!cargando && !lista.length" titulo="Sin gastos" texto="Registra el primero con el botón de arriba o desde un folio de incidencia." />
+      <Vacio v-if="!cargando && !lista.length && papelera" titulo="La papelera está vacía" texto="Nadie eliminó gastos en este periodo." />
+      <Vacio v-else-if="!cargando && !lista.length" titulo="Sin gastos" texto="Registra el primero con el botón de arriba o desde un folio de incidencia." />
       <div class="escalonado grid gap-3 lg:grid-cols-2">
-        <button v-for="(g, i) in lista" :key="g.id" class="tarjeta tarjeta-viva p-5 text-left" :style="{ '--i': Math.min(i, 14) }" @click="hoja = { gasto: g }">
+        <button v-for="(g, i) in lista" :key="g.id" class="tarjeta tarjeta-viva p-5 text-left" :style="{ '--i': Math.min(i, 14) }" @click="papelera ? null : (hoja = { gasto: g })">
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
               <p class="folio-codigo">{{ g.folio }}</p>
@@ -411,6 +433,15 @@ const sinDatos = computed(() =>
             <span v-if="g.exportado_en" class="estado estado-bien">Exportado</span>
             <span v-if="g.archivos.length" class="text-[var(--texto-3)]">📎 {{ g.archivos.length }}</span>
             <span class="text-[var(--texto-3)]">{{ dia(g.fecha) }} · {{ g.capturo_nombre }}</span>
+          </div>
+          <div v-if="g.eliminado_en" class="mt-3 flex items-start justify-between gap-3 border-t border-dashed border-[var(--linea)] pt-3">
+            <p class="text-[13px] text-[var(--texto-2)]">
+              <strong class="text-[var(--falla)]">Eliminado</strong> por {{ g.eliminado_por_nombre }} · {{ cuando(g.eliminado_en) }}<br />
+              «{{ g.motivo_eliminacion }}»
+            </p>
+            <span role="button" tabindex="0" class="boton boton-borde boton-chico shrink-0" @click.stop="restaurar(g)" @keydown.enter.stop="restaurar(g)">
+              <Icono :path="mdiRestore" :size="18" /> Restaurar
+            </span>
           </div>
         </button>
       </div>
@@ -478,7 +509,7 @@ const sinDatos = computed(() =>
     </template>
 
     <GastoHoja v-if="hoja === 'nuevo'" @cerrar="hoja = null" @guardado="guardado" />
-    <GastoHoja v-else-if="hoja?.gasto" :gasto="hoja.gasto" @cerrar="hoja = null" @guardado="guardado" />
+    <GastoHoja v-else-if="hoja?.gasto" :gasto="hoja.gasto" @cerrar="hoja = null" @guardado="guardado" @eliminado="guardado" />
   </div>
 </template>
 

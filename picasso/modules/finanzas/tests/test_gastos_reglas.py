@@ -6,6 +6,7 @@ import io
 import zipfile
 from datetime import date
 from decimal import Decimal
+from typing import Any
 
 import pytest
 from openpyxl import load_workbook
@@ -104,7 +105,7 @@ def _fila(**cambios: object) -> contabilidad.FilaContable:
     return contabilidad.fila_de_gasto(**base)  # type: ignore[arg-type]
 
 
-def test_la_fila_usa_los_nombres_de_e_cont() -> None:
+def test_la_fila_usa_los_nombres_de_contabilidad() -> None:
     f = _fila()
     assert f.forma_pago == "Transferencia"
     assert f.tipo_operacion == "Gasto"
@@ -114,7 +115,7 @@ def test_la_fila_usa_los_nombres_de_e_cont() -> None:
     assert _fila(referencia="A-123").referencia == "A-123"
 
 
-def test_el_excel_tiene_las_columnas_de_la_plantilla_de_e_cont() -> None:
+def test_el_excel_tiene_las_columnas_de_la_plantilla_de_contabilidad() -> None:
     contenido = contabilidad.excel([_fila(), _fila(forma_pago="efectivo", importe=Decimal("90"))])
     libro = load_workbook(io.BytesIO(contenido))
     hoja = libro["Movimientos"]
@@ -166,7 +167,7 @@ def test_importe_y_articulo_de_una_partida() -> None:
     assert articulo("Plátano") == "platano"
 
 
-def test_la_nota_para_e_cont_lleva_el_desglose() -> None:
+def test_la_nota_para_contabilidad_lleva_el_desglose() -> None:
     f = _fila(
         partidas=[
             ("Lechuga", Decimal("10.000"), "pza", Decimal("150.00")),
@@ -219,3 +220,43 @@ def test_el_reporte_pdf_se_arma() -> None:
         datetime(2026, 11, 17, 12, 0),
     )
     assert datos.startswith(b"%PDF")
+
+
+# -- papelera ---------------------------------------------------------------------
+
+
+def test_el_gerente_no_elimina_lo_que_ya_fue_a_contabilidad() -> None:
+    from modules.finanzas.validations import exigir_puede_eliminar
+
+    exigir_puede_eliminar(GERENTE, exportado=False)
+    exigir_puede_eliminar(PROPIETARIO, exportado=True)
+    with pytest.raises(ForbiddenError):
+        exigir_puede_eliminar(GERENTE, exportado=True)
+
+
+def test_eliminar_pide_motivo() -> None:
+    from pydantic import ValidationError as PydanticError
+
+    from modules.finanzas.models import GastoEliminar
+
+    assert GastoEliminar(motivo="Lo capturé dos veces").motivo
+    with pytest.raises(PydanticError):
+        GastoEliminar(motivo="ya")
+
+
+def test_la_papelera_se_separa_de_lo_vivo() -> None:
+    from sqlalchemy import select
+    from sqlalchemy.dialects import postgresql
+
+    from modules.finanzas.models import Gasto
+    from modules.finanzas.repositories import FinanzasRepository
+    from modules.finanzas.repositories.finanzas_repository import CUENTA
+
+    def sql(**filtros: Any) -> str:
+        q = FinanzasRepository._filtrar_gastos(select(Gasto), **filtros)
+        return str(q.compile(dialect=postgresql.dialect()))  # type: ignore[no-untyped-call]
+
+    assert "gastos.eliminado_en IS NULL" in sql()
+    assert "gastos.eliminado_en IS NOT NULL" in sql(papelera=True, incluir_anulados=True)
+    # Sumas, gráficas, costo por folio y auditoría tampoco cuentan lo eliminado.
+    assert len(CUENTA) == 2

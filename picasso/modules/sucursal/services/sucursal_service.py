@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from jfastframework.accounts import AccountsService
 from jfastframework.errors import ConflictError, NotFoundError
 
 from shared.enums import PRIORIDAD_ROL, Rol
 
 from ..models import (
+    CuartoSincronizar,
     Equipo,
     EquipoCreate,
     EquipoUpdate,
@@ -18,6 +21,7 @@ from ..models import (
     PerfilRead,
     Personal,
     PersonalCreate,
+    Sincronizacion,
     Sucursal,
     SucursalRead,
     SucursalUpdate,
@@ -147,6 +151,46 @@ class SucursalService:
         # con esta respuesta, y sin equipo_ids el cuarto se veía "sin equipo".
         equipos = await self.equipos.ids_de([habitacion.id])
         return self._leer(habitacion, equipos.get(habitacion.id, []))
+
+    async def sincronizar_habitaciones(
+        self, sucursal_id: int, cuartos: list[CuartoSincronizar]
+    ) -> Sincronizacion:
+        """Deja los cuartos como los conoce Kairos, sin borrar ni dar de baja nada.
+
+        Alta del que falta; al que ya existe se le corrige el tipo, la sección y
+        si tiene jacuzzi o sauna (eso lo decide la tarifa). Alberca, terraza,
+        equipo y si está activo se quedan como los dejó administración. Un cuarto
+        que Kairos no rentó en el periodo solo se reporta: puede estar en obra.
+        """
+        await self.sucursales.get_or_raise(sucursal_id)
+        actuales = {
+            h.numero: h
+            for h in await self.habitaciones.de_sucursal(sucursal_id, solo_activas=False)
+        }
+        resultado = Sincronizacion()
+        vistos: set[str] = set()
+        for c in cuartos:
+            numero = c.numero.strip()
+            if not numero or numero in vistos:
+                continue
+            vistos.add(numero)
+            datos: dict[str, Any] = {
+                "tipo": c.tipo,
+                "seccion": c.seccion,
+                "tiene_jacuzzi": c.tiene_jacuzzi,
+                "tiene_sauna": c.tiene_sauna,
+            }
+            h = actuales.get(numero)
+            if h is None:
+                await self.habitaciones.create(sucursal_id=sucursal_id, numero=numero, **datos)
+                resultado.nuevos.append(numero)
+            elif any(getattr(h, k) != v for k, v in datos.items()):
+                await self.habitaciones.update(h, **datos)
+                resultado.actualizados.append(numero)
+            else:
+                resultado.sin_cambio += 1
+        resultado.solo_en_picasso = [n for n in actuales if n not in vistos]
+        return resultado
 
     # -- personal --------------------------------------------------------
 

@@ -10,13 +10,14 @@ from typing import TYPE_CHECKING, Any
 
 from shared.enums import Rol
 
+from .models import CuartoSincronizar
 from .repositories import (
     EquipoRepository,
     HabitacionRepository,
     PersonalRepository,
     SucursalRepository,
 )
-from .services import rol_principal
+from .services import SucursalService, rol_principal
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
@@ -43,6 +44,27 @@ class HabitacionDTO:
     tiene_sauna: bool
     tiene_terraza: bool
     activa: bool
+    tipo: str | None = None
+    seccion: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class CuartoKairosDTO:
+    """Lo que finanzas lee de Kairos de un cuarto, para darlo de alta o corregirlo."""
+
+    numero: str
+    tipo: str
+    seccion: str | None
+    tiene_jacuzzi: bool
+    tiene_sauna: bool
+
+
+@dataclass(frozen=True, slots=True)
+class SincronizacionDTO:
+    nuevos: list[str]
+    actualizados: list[str]
+    sin_cambio: int
+    solo_en_picasso: list[str]
 
 
 @dataclass(frozen=True, slots=True)
@@ -88,6 +110,8 @@ def _habitacion(h: Any) -> HabitacionDTO:
         tiene_sauna=h.tiene_sauna,
         tiene_terraza=h.tiene_terraza,
         activa=h.activa,
+        tipo=h.tipo,
+        seccion=h.seccion,
     )
 
 
@@ -130,3 +154,38 @@ async def equipos_por_habitacion(
         hid: [EquipoDTO(id=e.id, nombre=e.nombre, categoria=e.categoria) for e in equipos]
         for hid, equipos in filas.items()
     }
+
+
+async def sincronizar_habitaciones(
+    session: AsyncSession,
+    *,
+    tenant_id: str | None,
+    sucursal_id: int,
+    cuartos: list[CuartoKairosDTO],
+) -> SincronizacionDTO:
+    """Alta y corrección de cuartos según Kairos (pasa por las reglas del servicio)."""
+    servicio = SucursalService(
+        SucursalRepository(session, tenant_id=tenant_id),
+        HabitacionRepository(session, tenant_id=tenant_id),
+        PersonalRepository(session, tenant_id=tenant_id),
+        EquipoRepository(session, tenant_id=tenant_id),
+    )
+    r = await servicio.sincronizar_habitaciones(
+        sucursal_id,
+        [
+            CuartoSincronizar(
+                numero=c.numero,
+                tipo=c.tipo,
+                seccion=c.seccion,
+                tiene_jacuzzi=c.tiene_jacuzzi,
+                tiene_sauna=c.tiene_sauna,
+            )
+            for c in cuartos
+        ],
+    )
+    return SincronizacionDTO(
+        nuevos=r.nuevos,
+        actualizados=r.actualizados,
+        sin_cambio=r.sin_cambio,
+        solo_en_picasso=r.solo_en_picasso,
+    )

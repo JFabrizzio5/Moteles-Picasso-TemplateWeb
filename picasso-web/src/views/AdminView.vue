@@ -187,7 +187,7 @@ const nombreSucursal = (id) => perfil.sucursal(id)?.nombre ?? 'Todas'
       <div class="mt-7 flex items-end justify-between gap-3">
         <div>
           <p class="seccion">Cuartos</p>
-          <p class="mt-1 text-[13px] text-[var(--texto-3)]">Lo que tiene cada cuarto entra a su checklist.</p>
+          <p class="mt-1 text-[13px] text-[var(--texto-3)]">Lo que tiene cada cuarto entra a su checklist. Tipo, jacuzzi y sauna vienen de Kairos.</p>
         </div>
         <form class="flex gap-2" @submit.prevent="agregarCuarto">
           <input v-model="nuevoCuarto" class="campo !min-h-[40px] w-24 !py-2" placeholder="Número" />
@@ -197,7 +197,12 @@ const nombreSucursal = (id) => perfil.sucursal(id)?.nombre ?? 'Todas'
       <div class="escalonado mt-3 grid gap-3 md:grid-cols-2">
         <div v-for="(c, i) in cuartos" :key="c.id" class="tarjeta p-4" :class="c.activa ? '' : 'opacity-50'" :style="{ '--i': Math.min(i, 12) }">
           <div class="flex items-start justify-between gap-3">
-            <span class="serif text-[38px] leading-none">{{ c.numero }}</span>
+            <div>
+              <span class="serif text-[38px] leading-none">{{ c.numero }}</span>
+              <p v-if="c.tipo" class="mt-1 text-[12.5px] font-semibold tracking-wide text-[var(--texto-2)] uppercase">
+                {{ c.tipo }}<template v-if="c.seccion"> · {{ c.seccion }}</template>
+              </p>
+            </div>
             <div class="flex gap-2">
               <button class="boton boton-primario boton-chico" @click="editarEquipo(c)">Equipo</button>
               <button class="boton boton-borde boton-chico" @click="cambiarCuarto(c, { activa: !c.activa })">{{ c.activa ? 'Baja' : 'Activar' }}</button>

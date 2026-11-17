@@ -646,7 +646,7 @@ pre.codigo { background: var(--codigo); border: 1px solid var(--linea); border-r
         <tr><td><code>…/inspeccion/validations/</code></td><td>Reglas del documento como funciones puras (motivo de No aplica, folio, quién cierra, cumplimiento, conformidad).</td></tr>
         <tr><td><code>…/inspeccion/services/pdf/</code></td><td>Los cuatro reportes PDF con la marca.</td></tr>
         <tr><td><code>picasso/modules/finanzas/</code></td><td>Ingresos leídos de Kairos (resumen del día, tarifas y cada renta), gastos desglosados con comprobantes y folios ligados, auditoría, archivos para contabilidad y reporte PDF de finanzas. La tarea nocturna vive en <code>tasks.py</code>.</td></tr>
-        <tr><td><code>picasso/scripts/</code></td><td><code>sembrar.py</code>, <code>equipo_demo.py</code> y <code>gastos_demo.py</code>: datos de ejemplo. No usar en producción. <code>kairos_ahora.py</code>: corre ya la lectura nocturna de Kairos.</td></tr>
+        <tr><td><code>picasso/scripts/</code></td><td><code>sembrar.py</code>, <code>equipo_demo.py</code> y <code>gastos_demo.py</code>: datos de ejemplo. No usar en producción. <code>kairos_ahora.py</code>: corre ya la lectura nocturna de Kairos. <code>kairos_cuartos.py</code>: da de alta los cuartos de cada motel con su tipo (Suite, Jacuzzi, Jacuzzi y sauna, Pent house) y si son de motel o de hotel, sacados de las tarifas con que se rentaron; nunca borra ni da de baja.</td></tr>
         <tr><td><code>picasso-web/</code></td><td>PWA: <code>src/views</code> (pantallas), <code>src/components</code>, <code>src/services/picasso.js</code> y <code>finanzas.js</code> (las llamadas a la API), <code>public/sw.js</code> (service worker) y <code>public/marca/</code> (logo oficial).</td></tr>
       </table></div>
       <h3>Módulo por módulo</h3>
@@ -745,6 +745,8 @@ erDiagram
         <tr><td class="mono">ca04ef335b92</td><td>Equipo de cuarto y su catálogo inicial (17 cosas en 4 categorías)</td></tr>
         <tr><td class="mono">d5a6fec8ae2d</td><td>Finanzas: fuentes de Kairos, ingresos por día, por tarifa y cada renta; gastos con partidas y comprobantes</td></tr>
         <tr><td class="mono">8166e118c343</td><td>Un gasto ligado a varios folios de incidencia (<code>gasto_incidencias</code>)</td></tr>
+        <tr><td class="mono">3b7e1c9a52f4</td><td>Papelera de gastos: quién lo eliminó, cuándo y por qué (<code>eliminado_en</code>, <code>motivo_eliminacion</code>)</td></tr>
+        <tr><td class="mono">5c2d8e4f1a63</td><td>Tipo y sección de cada cuarto, como los dice Kairos (<code>habitaciones.tipo</code>, <code>habitaciones.seccion</code>)</td></tr>
       </table></div>
     </section>
 
@@ -970,6 +972,7 @@ erDiagram
         <li><b>Comprobante:</b> foto (JPG, PNG o WebP), PDF o el XML de la factura, hasta 8 MB, en el disco privado.</li>
         <li><b>Fecha</b> de pago no futura; <b>RFC</b> del proveedor opcional pero con formato del SAT.</li>
         <li><b>Anular, no borrar.</b> Un gasto anulado ya no se cambia y sale de las sumas; queda en la base.</li>
+        <li><b>Papelera.</b> Un gasto capturado por error se elimina con su motivo (mínimo 5 letras): deja de contar en listas, sumas, gráficas, costo por folio, auditoría, PDF y exportes, pero no se borra de la base. Queda quién lo eliminó y cuándo, y se restaura desde Finanzas → Gastos → Papelera tal como estaba. Si ya se mandó a contabilidad, solo administración o propietarios lo eliminan.</li>
         <li><b>Categoría</b> del gasto y, si hace falta, una distinta por partida. Es de Picasso: el sistema contable no la tiene y viaja en la nota.</li>
       </ul>
 
@@ -1014,6 +1017,7 @@ erDiagram
         <tr><td><span class="metodo post">POST</span></td><td><code>/gastos/{id}/incidencias/{folio}</code> · <span class="metodo delete">DELETE</span></td><td>Ligar o quitar un folio de incidencia</td></tr>
         <tr><td><span class="metodo post">POST</span></td><td><code>/gastos/{id}/archivos</code> · <span class="metodo delete">DELETE</span> <code>/gastos/{id}/archivos/{archivo}</code></td><td>Subir o quitar un comprobante</td></tr>
         <tr><td><span class="metodo post">POST</span></td><td><code>/gastos/{id}/anular</code></td><td>Anular</td></tr>
+        <tr><td><span class="metodo post">POST</span></td><td><code>/gastos/{id}/eliminar</code> · <code>/gastos/{id}/restaurar</code></td><td>Mandar a la papelera (con <code>motivo</code>) y sacarlo; <code>GET /gastos?papelera=true</code> lista los eliminados</td></tr>
         <tr><td><span class="metodo get">GET</span></td><td><code>/gastos/costos-folios</code></td><td>Lo gastado en cada folio, para la lista de folios</td></tr>
         <tr><td><span class="metodo get">GET</span></td><td><code>/gastos/analisis</code></td><td>Auditoría: por persona, por categoría y por artículo</td></tr>
         <tr><td><span class="metodo post">POST</span></td><td><code>/gastos/exportar</code> · <code>/gastos/exportar-xml</code></td><td>Excel de movimientos y ZIP de XML para contabilidad (por ids o por periodo; <code>solo_pendientes</code>)</td></tr>

@@ -217,3 +217,52 @@ async def test_cliente_sin_red_avisa() -> None:
     ) as k:
         with pytest.raises(KairosError, match="Sin respuesta"):
             await k.resumen(date(2026, 11, 16))
+
+
+# -- tipo de cada cuarto ----------------------------------------------------------
+
+DETALLE_RENTA = """
+<div class="card"><div class="card-header">Habitacion 505 <span>Ocupada</span></div>
+<table><tr><td>Folio</td><td>4345</td></tr><tr><td>Entrada</td><td>14 noviembre 11:49 PM</td></tr>
+<tr><td>Tiempo</td><td>10 hrs 35 min</td></tr><tr><td>Placas</td><td>ABC123</td></tr>
+<tr><td>Tarifa</td><td>HOTEL   JACUZZI SAUNA</td></tr><tr><td>Subtotal</td><td>$ 750.00</td></tr></table></div>
+"""
+
+
+def test_la_renta_trae_su_marca_para_pedir_el_detalle() -> None:
+    v = leer_ventas(VENTAS)
+    assert v.rentas[0].marca == "1794831223614"
+
+
+def test_tarifa_del_detalle_de_una_renta() -> None:
+    from modules.finanzas.services.kairos_html import leer_tarifa_de_renta
+
+    assert leer_tarifa_de_renta(DETALLE_RENTA) == "HOTEL JACUZZI SAUNA"
+    assert leer_tarifa_de_renta("<p>sin datos</p>") is None
+
+
+@pytest.mark.parametrize(
+    ("tarifa", "seccion", "tipo", "jacuzzi", "sauna"),
+    [
+        ("MOTEL SUITE", "motel", "Suite", False, False),
+        ("HOTEL JACUZZI", "hotel", "Jacuzzi", True, False),
+        ("MOTEL JACUZZI SAUNA", "motel", "Jacuzzi y sauna", True, True),
+        ("HOTEL JACUZZI PENT HOUSE", "hotel", "Pent house con jacuzzi", True, False),
+        ("SUITE", None, "Suite", False, False),
+    ],
+)
+def test_tipo_de_cuarto_desde_la_tarifa(
+    tarifa: str, seccion: str | None, tipo: str, jacuzzi: bool, sauna: bool
+) -> None:
+    from modules.finanzas.services.kairos_html import tipo_de_tarifa
+
+    t = tipo_de_tarifa(tarifa)
+    assert (t.seccion, t.tipo, t.tiene_jacuzzi, t.tiene_sauna) == (seccion, tipo, jacuzzi, sauna)
+
+
+def test_una_renta_suelta_no_cambia_el_tipo_del_cuarto() -> None:
+    from modules.finanzas.services.kairos_html import tipo_mayoritario
+
+    t = tipo_mayoritario(["HOTEL SUITE", "HOTEL JACUZZI", "HOTEL SUITE", "HOTEL SUITE"])
+    assert t is not None and t.tipo == "Suite"
+    assert tipo_mayoritario([]) is None

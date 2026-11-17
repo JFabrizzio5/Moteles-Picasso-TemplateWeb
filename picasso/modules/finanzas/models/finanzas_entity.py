@@ -135,6 +135,14 @@ class Gasto(Base, TimestampMixin, TenantMixin):
     estado: Mapped[str] = mapped_column(String(12), default="registrado", index=True)
     #: La última vez que entró a un archivo para contabilidad.
     exportado_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    #: Papelera: un gasto eliminado deja de contar en todo, pero no se borra de la
+    #: base. Queda quién lo eliminó y por qué, y administración lo puede restaurar.
+    eliminado_en: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), default=None, index=True
+    )
+    eliminado_por_id: Mapped[str | None] = mapped_column(String(64), default=None)
+    eliminado_por_nombre: Mapped[str | None] = mapped_column(String(120), default=None)
+    motivo_eliminacion: Mapped[str | None] = mapped_column(String(300), default=None)
 
 
 class GastoPartida(Base, TimestampMixin, TenantMixin):

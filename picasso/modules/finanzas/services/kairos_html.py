@@ -168,6 +168,8 @@ class RentaKairos:
     importe: Decimal
     #: Kairos marca cada renta con milisegundos desde 1970 (data-fecha).
     entrada: datetime | None
+    #: La misma marca tal cual: con ella se pide el detalle (MuestraVenta).
+    marca: str | None = None
 
 
 @dataclass(frozen=True)
@@ -180,6 +182,10 @@ class VentasDia:
 
 def _encabezados(filas: list[Fila]) -> list[str]:
     return [c.lower() for c in filas[0].celdas] if filas else []
+
+
+def _instante(ms: str | None) -> datetime | None:
+    return datetime.fromtimestamp(int(ms) / 1000, tz=UTC) if ms else None
 
 
 def leer_ventas(html: str) -> VentasDia:
@@ -202,12 +208,12 @@ def leer_ventas(html: str) -> VentasDia:
                 tarifas.append(Tarifa(f.celdas[0], entero(f.celdas[1]), dinero(f.celdas[2])))
         elif "folio" in cab and "hab." in cab and "forma pago" in cab:
             vistas += 1
-            marca: dict[int, datetime] = {}
+            marca: dict[int, str] = {}
             # La marca de tiempo va en la fila plegable que sigue a cada renta.
             for i, f in enumerate(filas):
                 ms = f.attrs.get("data-fecha")
                 if ms and ms.isdigit() and i > 0:
-                    marca[i - 1] = datetime.fromtimestamp(int(ms) / 1000, tz=UTC)
+                    marca[i - 1] = ms
             for i, f in enumerate(filas[1:], start=1):
                 if f.celdas and f.celdas[0].upper() == "TOTAL" and len(f.celdas) >= 2:
                     total_rentas = dinero(f.celdas[1])
@@ -222,7 +228,8 @@ def leer_ventas(html: str) -> VentasDia:
                         habitacion=c[2].strip(),
                         forma_pago=c[3].strip().upper(),
                         importe=dinero(c[4]),
-                        entrada=marca.get(i),
+                        entrada=_instante(marca.get(i)),
+                        marca=marca.get(i),
                     )
                 )
     if vistas == 0 and "Sin " not in html:
@@ -244,3 +251,57 @@ def leer_serie_ventas(datos: dict[str, Any], desde: date) -> dict[date, int]:
 def es_pantalla_de_entrada(html: str) -> bool:
     """Kairos regresa el formulario de entrada cuando la sesión ya no sirve."""
     return 'name="password"' in html and "LoginMobil" in html
+
+
+# -- detalle de una renta (MuestraVenta) y el tipo de cuarto -------------------------
+
+
+def leer_tarifa_de_renta(html: str) -> str | None:
+    """La tarifa del detalle de una renta: «HOTEL JACUZZI SAUNA», «MOTEL SUITE»…
+
+    El detalle también trae placas y modelo del auto: no se leen ni se guardan.
+    """
+    texto = _texto(html)
+    m = re.search(r"Tarifa\s+(.+?)\s+Subtotal", texto)
+    return " ".join(m.group(1).split()).upper() if m else None
+
+
+@dataclass(frozen=True)
+class TipoCuarto:
+    seccion: str | None
+    tipo: str
+    tiene_jacuzzi: bool
+    tiene_sauna: bool
+
+
+_SECCIONES = {"MOTEL": "motel", "HOTEL": "hotel"}
+
+
+def tipo_de_tarifa(tarifa: str) -> TipoCuarto:
+    """«HOTEL JACUZZI SAUNA» → hotel, «Jacuzzi y sauna», con jacuzzi y con sauna."""
+    palabras = " ".join(tarifa.upper().split()).split(" ")
+    seccion = _SECCIONES.get(palabras[0]) if palabras else None
+    resto = palabras[1:] if seccion else palabras
+    nombre = " ".join(resto)
+    jacuzzi = "JACUZZI" in resto
+    sauna = "SAUNA" in resto
+    if "PENT" in resto or "PENTHOUSE" in resto:
+        tipo = "Pent house" + (" con jacuzzi" if jacuzzi else "")
+    elif jacuzzi and sauna:
+        tipo = "Jacuzzi y sauna"
+    elif nombre:
+        tipo = nombre.capitalize()
+    else:
+        tipo = "Sin tipo"
+    return TipoCuarto(seccion, tipo[:40], jacuzzi, sauna)
+
+
+def tipo_mayoritario(tarifas: list[str]) -> TipoCuarto | None:
+    """El tipo que más se repite: una renta suelta con otra tarifa (cortesía,
+    cambio de cuarto) no cambia lo que el cuarto es."""
+    if not tarifas:
+        return None
+    conteo: dict[str, int] = {}
+    for t in tarifas:
+        conteo[t] = conteo.get(t, 0) + 1
+    return tipo_de_tarifa(max(conteo, key=lambda t: (conteo[t], t)))

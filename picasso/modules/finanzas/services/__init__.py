@@ -12,6 +12,7 @@ from .ingresos_service import (
     dias_entre,
 )
 from .kairos_cliente import ClienteKairos, KairosError, credenciales
+from .kairos_html import TipoCuarto, tipo_de_tarifa, tipo_mayoritario
 from .reporte_pdf import DatosReporte, construir_finanzas
 
 __all__ = [
@@ -25,9 +26,12 @@ __all__ = [
     "KairosError",
     "ResultadoImportacion",
     "Sucursal",
+    "TipoCuarto",
     "ahora",
     "construir_finanzas",
     "credenciales",
     "dias_entre",
     "hoy",
+    "tipo_de_tarifa",
+    "tipo_mayoritario",
 ]

@@ -25,6 +25,7 @@ from ..models import (
     FuenteRead,
     GastoActualizar,
     GastoCrear,
+    GastoEliminar,
     GastoRead,
     ImportarIngresos,
     IngresoDiaRead,
@@ -255,6 +256,7 @@ async def listar_gastos(
     categoria: str | None = Query(None, max_length=20),
     buscar: str | None = Query(None, max_length=60),
     incluir_anulados: bool = Query(False),
+    papelera: bool = Query(False, description="Solo los eliminados"),
     pagina: int | None = Query(None, ge=1, description="Sin ella, hasta 500 gastos"),
     por_pagina: int = Query(20, ge=1, le=100),
     *,
@@ -274,6 +276,7 @@ async def listar_gastos(
         categoria=categoria,
         buscar=buscar,
         incluir_anulados=incluir_anulados,
+        papelera=papelera,
     )
     # El total del filtro completo, para paginar sin perder la suma del periodo.
     response.headers["X-Total-Count"] = str(total)
@@ -404,6 +407,29 @@ async def anular_gasto(
     service: GastosService = Depends(gastos),
 ) -> GastoRead:
     return await service.anular(actor, gasto_id)
+
+
+@router.post(
+    "/gastos/{gasto_id}/eliminar", response_model=GastoRead, summary="Mandar a la papelera"
+)
+async def eliminar_gasto(
+    gasto_id: int,
+    pedido: GastoEliminar,
+    actor: Actor = Depends(get_actor),
+    service: GastosService = Depends(gastos),
+) -> GastoRead:
+    return await service.eliminar(actor, gasto_id, pedido)
+
+
+@router.post(
+    "/gastos/{gasto_id}/restaurar", response_model=GastoRead, summary="Sacar de la papelera"
+)
+async def restaurar_gasto(
+    gasto_id: int,
+    actor: Actor = Depends(get_actor),
+    service: GastosService = Depends(gastos),
+) -> GastoRead:
+    return await service.restaurar(actor, gasto_id)
 
 
 @router.post("/gastos/{gasto_id}/archivos", response_model=GastoRead, summary="Subir comprobante")

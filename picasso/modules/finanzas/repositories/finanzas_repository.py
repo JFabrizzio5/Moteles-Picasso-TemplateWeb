@@ -23,6 +23,9 @@ from ..models import (
     Renta,
 )
 
+#: Lo que cuenta en sumas, gráficas y auditoría: ni anulado ni en la papelera.
+CUENTA = (Gasto.estado != "anulado", Gasto.eliminado_en.is_(None))
+
 
 class FinanzasRepository:
     def __init__(self, session: AsyncSession) -> None:
@@ -123,10 +126,15 @@ class FinanzasRepository:
 
     # -- gastos -----------------------------------------------------------------
 
-    async def gasto(self, gasto_id: int) -> Gasto:
+    async def gasto(self, gasto_id: int, *, eliminado: bool = False) -> Gasto:
+        """Un gasto vivo o, con `eliminado=True`, uno que está en la papelera."""
         fila = await self.session.get(Gasto, gasto_id)
-        if fila is None:
-            raise NotFoundError("Ese gasto no existe.")
+        if fila is None or (fila.eliminado_en is not None) != eliminado:
+            raise NotFoundError(
+                "Ese gasto está en la papelera."
+                if fila is not None and not eliminado
+                else "Ese gasto no existe."
+            )
         return fila
 
     @staticmethod
@@ -143,8 +151,12 @@ class FinanzasRepository:
         texto: str | None = None,
         incluir_anulados: bool = False,
         solo_pendientes: bool = False,
+        papelera: bool = False,
     ) -> Any:
         """Los mismos filtros para la página, su conteo y la exportación."""
+        query = query.where(
+            Gasto.eliminado_en.is_not(None) if papelera else Gasto.eliminado_en.is_(None)
+        )
         if ids is not None:
             query = query.where(Gasto.id.in_(list(ids)))
         if sucursal_id is not None:
@@ -192,7 +204,7 @@ class FinanzasRepository:
     ) -> dict[date, Decimal]:
         query = (
             select(Gasto.fecha, func.sum(Gasto.importe))
-            .where(Gasto.fecha >= desde, Gasto.fecha <= hasta, Gasto.estado != "anulado")
+            .where(Gasto.fecha >= desde, Gasto.fecha <= hasta, *CUENTA)
             .group_by(Gasto.fecha)
         )
         if sucursal_id is not None:
@@ -212,7 +224,7 @@ class FinanzasRepository:
     ) -> dict[int, tuple[int, Decimal]]:
         query = (
             select(Gasto.sucursal_id, func.count(), func.coalesce(func.sum(Gasto.importe), 0))
-            .where(Gasto.fecha >= desde, Gasto.fecha <= hasta, Gasto.estado != "anulado")
+            .where(Gasto.fecha >= desde, Gasto.fecha <= hasta, *CUENTA)
             .group_by(Gasto.sucursal_id)
         )
         if sucursal_id is not None:
@@ -249,7 +261,7 @@ class FinanzasRepository:
         query = (
             select(GastoIncidencia.incidencia_id, func.count(), func.sum(Gasto.importe))
             .join(Gasto, Gasto.id == GastoIncidencia.gasto_id)
-            .where(Gasto.estado != "anulado")
+            .where(*CUENTA)
             .group_by(GastoIncidencia.incidencia_id)
         )
         if sucursal_id is not None:
@@ -290,7 +302,7 @@ class FinanzasRepository:
         query = (
             select(Gasto, GastoPartida)
             .join(GastoPartida, GastoPartida.gasto_id == Gasto.id)
-            .where(Gasto.fecha >= desde, Gasto.fecha <= hasta, Gasto.estado != "anulado")
+            .where(Gasto.fecha >= desde, Gasto.fecha <= hasta, *CUENTA)
         )
         if sucursal_id is not None:
             query = query.where(Gasto.sucursal_id == sucursal_id)

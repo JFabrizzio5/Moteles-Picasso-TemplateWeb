@@ -30,6 +30,7 @@ from ..repositories import FinanzasRepository
 from ..validations import exigir_finanzas, rango, sucursal_visible
 from .comun import ahora, hoy
 from .kairos_cliente import ClienteKairos, KairosError
+from .kairos_html import TipoCuarto, tipo_mayoritario
 
 log = logging.getLogger("picasso.finanzas")
 
@@ -203,6 +204,33 @@ class ImportadorKairos:
             resultado.errores.append(fuente.ultimo_error)
             log.warning("Kairos %s (historial): %s", fuente.sucursal_clave, e)
         return resultado
+
+    async def tipos_de_cuarto(
+        self, fuente: FuenteKairos, *, dias: int = 14, muestras: int = 2
+    ) -> dict[str, TipoCuarto]:
+        """Cada cuarto que se rentó en los últimos `dias` y qué tipo es.
+
+        Kairos no tiene un catálogo de cuartos a la vista móvil: el tipo sale de
+        la tarifa con que se rentó cada uno. Se piden `muestras` rentas por
+        cuarto (no todas) para no cargarle la línea al motel.
+        """
+        ayer = hoy() - timedelta(days=1)
+        tarifas: dict[str, list[str]] = {}
+        async with self.fabrica(fuente) as cliente:
+            for atras in range(dias):
+                ventas = await cliente.ventas(ayer - timedelta(days=atras))
+                for r in ventas.rentas:
+                    vistas = tarifas.setdefault(r.habitacion, [])
+                    if len(vistas) >= muestras or not r.marca:
+                        continue
+                    tarifa = await cliente.tarifa_de_renta(r.habitacion, r.marca)
+                    if tarifa:
+                        vistas.append(tarifa)
+        return {
+            numero: tipo
+            for numero, lista in tarifas.items()
+            if (tipo := tipo_mayoritario(lista)) is not None
+        }
 
 
 async def _esperar(valor: object) -> None:

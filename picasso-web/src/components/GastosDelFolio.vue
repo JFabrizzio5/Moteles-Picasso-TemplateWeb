@@ -97,7 +97,7 @@ onMounted(cargar)
     </div>
 
     <GastoHoja v-if="hoja === 'nuevo'" :folio="datosFolio" @cerrar="hoja = null" @guardado="guardado" />
-    <GastoHoja v-else-if="hoja?.gasto" :gasto="hoja.gasto" @cerrar="hoja = null" @guardado="guardado" />
+    <GastoHoja v-else-if="hoja?.gasto" :gasto="hoja.gasto" @cerrar="hoja = null" @guardado="guardado" @eliminado="guardado" />
     <Hoja v-else-if="hoja === 'ligar'" titulo="Ligar un gasto" :etiqueta="folio.folio" @cerrar="hoja = null">
       <p class="mb-3 text-sm text-[var(--texto-2)]">Gastos de la misma sucursal que todavía no están en este folio.</p>
       <ul v-if="sueltos.length" class="divide-y divide-[var(--linea)]">

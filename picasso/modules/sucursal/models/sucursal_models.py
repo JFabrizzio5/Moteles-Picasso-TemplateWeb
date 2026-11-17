@@ -42,6 +42,8 @@ class HabitacionRead(BaseModel):
     tiene_sauna: bool
     tiene_terraza: bool
     activa: bool
+    tipo: str | None = None
+    seccion: str | None = None
     equipo_ids: list[int] = Field(default_factory=list)
 
 
@@ -51,6 +53,8 @@ class HabitacionCreate(BaseModel):
     tiene_alberca: bool = False
     tiene_sauna: bool = False
     tiene_terraza: bool = False
+    tipo: str | None = Field(default=None, max_length=40)
+    seccion: str | None = Field(default=None, max_length=10)
 
 
 class HabitacionUpdate(BaseModel):
@@ -59,6 +63,26 @@ class HabitacionUpdate(BaseModel):
     tiene_sauna: bool | None = None
     tiene_terraza: bool | None = None
     activa: bool | None = None
+    tipo: str | None = Field(default=None, max_length=40)
+    seccion: str | None = Field(default=None, max_length=10)
+
+
+class CuartoSincronizar(BaseModel):
+    """Un cuarto como lo conoce Kairos: número, tipo y lo que trae."""
+
+    numero: str = Field(min_length=1, max_length=10)
+    tipo: str = Field(max_length=40)
+    seccion: str | None = Field(default=None, max_length=10)
+    tiene_jacuzzi: bool
+    tiene_sauna: bool
+
+
+class Sincronizacion(BaseModel):
+    nuevos: list[str] = Field(default_factory=list)
+    actualizados: list[str] = Field(default_factory=list)
+    sin_cambio: int = 0
+    #: Están en Picasso y Kairos no los rentó en el periodo: no se tocan.
+    solo_en_picasso: list[str] = Field(default_factory=list)
 
 
 class EquipoRead(BaseModel):

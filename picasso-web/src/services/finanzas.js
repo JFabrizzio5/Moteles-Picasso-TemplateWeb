@@ -24,6 +24,9 @@ export const ligarFolio = (id, incidenciaId) => datos(api.post(`/gastos/${id}/in
 export const desligarFolio = (id, incidenciaId) => datos(api.delete(`/gastos/${id}/incidencias/${incidenciaId}`))
 export const costosFolios = (params) => datos(api.get('/gastos/costos-folios', { params }))
 export const anularGasto = (id) => datos(api.post(`/gastos/${id}/anular`))
+/** A la papelera, con el motivo: deja de contar en todo, pero queda el rastro. */
+export const eliminarGasto = (id, motivo) => datos(api.post(`/gastos/${id}/eliminar`, { motivo }))
+export const restaurarGasto = (id) => datos(api.post(`/gastos/${id}/restaurar`))
 export const quitarComprobante = (id, archivoId) => datos(api.delete(`/gastos/${id}/archivos/${archivoId}`))
 
 export function subirComprobante(id, archivo) {

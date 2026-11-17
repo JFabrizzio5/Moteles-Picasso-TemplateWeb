@@ -245,6 +245,10 @@ class GastoRead(BaseModel):
     creado_en: datetime
     partidas: list[PartidaRead] = []
     archivos: list[ArchivoRead] = []
+    #: Solo en la papelera.
+    eliminado_en: datetime | None = None
+    eliminado_por_nombre: str | None = None
+    motivo_eliminacion: str | None = None
 
 
 # -- análisis para auditar ------------------------------------------------------
@@ -288,6 +292,12 @@ class AnalisisGastos(BaseModel):
     por_persona: list[GastoPorPersona]
     por_categoria: list[GastoPorCategoria]
     por_articulo: list[GastoPorArticulo]
+
+
+class GastoEliminar(BaseModel):
+    """Mandar un gasto a la papelera: siempre con el motivo, para que se entienda después."""
+
+    motivo: str = Field(min_length=5, max_length=300)
 
 
 class ExportarContabilidad(BaseModel):

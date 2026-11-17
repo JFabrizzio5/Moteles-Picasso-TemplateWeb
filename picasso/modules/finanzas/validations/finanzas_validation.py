@@ -96,6 +96,14 @@ def exigir_gasto_de(actor: Actor, sucursal_id: int) -> None:
         raise ForbiddenError("Ese gasto es de otra sucursal.")
 
 
+def exigir_puede_eliminar(actor: Actor, exportado: bool) -> None:
+    """Ya en contabilidad, solo administración o propietarios lo sacan."""
+    if exportado and not actor.ve_todas:
+        raise ForbiddenError(
+            "Ese gasto ya se mandó a contabilidad: pídele a administración que lo elimine."
+        )
+
+
 def exigir_editable(estado: str) -> None:
     if estado == "anulado":
         raise ValidationError("El gasto está anulado: ya no se cambia.")

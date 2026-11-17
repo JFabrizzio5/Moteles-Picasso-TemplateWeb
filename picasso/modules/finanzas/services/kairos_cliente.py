@@ -26,6 +26,7 @@ from .kairos_html import (
     fecha_kairos,
     leer_resumen,
     leer_serie_ventas,
+    leer_tarifa_de_renta,
     leer_ventas,
 )
 
@@ -140,6 +141,11 @@ class ClienteKairos:
             return leer_ventas(r.text)
         except KairosNoEntendido as e:
             raise KairosError(str(e)) from e
+
+    async def tarifa_de_renta(self, habitacion: str, marca: str) -> str | None:
+        """La tarifa de una renta (su detalle, el que se abre con la «i» en Kairos)."""
+        r = await self._get("MuestraVenta", {"habitacion": habitacion, "fecha": marca})
+        return leer_tarifa_de_renta(r.text)
 
     async def rentas_por_dia(self, desde: date, hasta: date) -> dict[date, int]:
         """Cuántas rentas hubo cada día, de la gráfica de ventas (JSON, un año por vuelta)."""

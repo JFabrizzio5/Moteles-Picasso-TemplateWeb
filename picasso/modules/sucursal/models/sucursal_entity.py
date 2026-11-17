@@ -42,6 +42,10 @@ class Habitacion(Base, TimestampMixin, TenantMixin):
     tiene_sauna: Mapped[bool] = mapped_column(default=False)
     tiene_terraza: Mapped[bool] = mapped_column(default=False)
     activa: Mapped[bool] = mapped_column(default=True)
+    #: Lo que dice la tarifa de Kairos: «Suite», «Jacuzzi», «Jacuzzi y sauna»…
+    tipo: Mapped[str | None] = mapped_column(String(40), default=None)
+    #: «motel» (por horas, con cochera) u «hotel» (la torre). También de Kairos.
+    seccion: Mapped[str | None] = mapped_column(String(10), default=None)
 
 
 class Personal(Base, TimestampMixin, TenantMixin):

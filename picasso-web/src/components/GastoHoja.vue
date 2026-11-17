@@ -18,7 +18,7 @@ const props = defineProps({
   /** Para registrarlo desde un folio: { id, folio, titulo, sucursal_id, habitacion_numero }. */
   folio: { type: Object, default: null },
 })
-const emit = defineEmits(['cerrar', 'guardado'])
+const emit = defineEmits(['cerrar', 'guardado', 'eliminado'])
 const perfil = usePerfilStore()
 const avisos = useToast()
 
@@ -101,6 +101,23 @@ const arrastrando = ref(false)
 function soltar(e) {
   arrastrando.value = false
   archivos.value = [...archivos.value, ...(e.dataTransfer?.files ?? [])]
+}
+
+// Papelera: el gasto deja de contar en todo, pero queda quién lo eliminó y por qué.
+const eliminando = ref(false)
+const motivo = ref('')
+const bloqueadoPorExportado = computed(() => Boolean(g?.exportado_en) && !perfil.veTodas)
+async function eliminar() {
+  guardando.value = true
+  try {
+    const r = await finanzas.eliminarGasto(g.id, motivo.value.trim())
+    avisos.success(`${r.folio} se fue a la papelera. Administración lo puede restaurar.`)
+    emit('eliminado', r)
+  } catch (e) {
+    avisos.error(mensajeError(e))
+  } finally {
+    guardando.value = false
+  }
 }
 
 async function guardar() {
@@ -306,6 +323,40 @@ async function guardar() {
         {{ guardando ? 'Guardando…' : g ? 'Guardar cambios' : `Registrar ${pesos(total)}` }}
       </button>
       <p v-if="!partidasListas" class="text-center text-[12px] text-[var(--texto-3)]">Cada cosa lleva nombre, cantidad y precio.</p>
+
+      <!-- Papelera: solo para un gasto que ya existe. -->
+      <div v-if="g" class="border-t border-[var(--linea)] pt-4">
+        <p v-if="bloqueadoPorExportado" class="text-[13px] text-[var(--texto-3)]">
+          Este gasto ya se mandó a contabilidad. Si hay que quitarlo, pídeselo a administración.
+        </p>
+        <button v-else-if="!eliminando" class="boton boton-suave boton-chico w-full text-[var(--falla)]" @click="eliminando = true">
+          <Icono :path="mdiDeleteOutline" :size="18" /> Eliminar este gasto
+        </button>
+        <div v-else class="rounded-[14px] border border-[var(--falla)] p-4">
+          <p class="text-sm font-semibold">¿Por qué se elimina?</p>
+          <p class="mt-1 text-[12.5px] text-[var(--texto-3)]">
+            Se va a la papelera: deja de contar en listas, reportes y exportes, pero queda quién lo eliminó y el motivo.
+          </p>
+          <textarea
+            v-model="motivo"
+            rows="2"
+            maxlength="300"
+            class="campo mt-3"
+            aria-label="Motivo para eliminar"
+            placeholder="Lo capturé dos veces, era de otra sucursal…"
+          />
+          <div class="mt-3 flex gap-2">
+            <button class="boton boton-suave boton-chico flex-1" :disabled="guardando" @click="eliminando = false">Cancelar</button>
+            <button
+              class="boton boton-alerta boton-chico flex-1"
+              :disabled="guardando || motivo.trim().length < 5"
+              @click="eliminar"
+            >
+              Mandar a la papelera
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </Hoja>
 </template>

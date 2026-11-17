@@ -4,8 +4,13 @@ Modular layout: one package per concern, each re-exporting its public names.
 
 ## Responsibility
 
-<!-- One paragraph: what this module owns. If you cannot write it in one
-     paragraph, the module is doing two jobs. -->
+Ingresos leídos de Kairos (cada noche, solo lectura) y gastos capturados en
+Picasso cosa por cosa, ligados a folios de incidencia y exportados a contabilidad.
+Un gasto capturado por error va a la **papelera** con su motivo: deja de contar en
+todo (listas, sumas, auditoría, PDF, exportes) pero queda en la base con quién lo
+eliminó y cuándo, y se puede restaurar. La condición de «lo que cuenta» vive en
+`repositories.CUENTA`. Kairos también da el tipo de cada cuarto (por la tarifa con
+que se rentó); `tasks.importar_cuartos` lo pasa al módulo `sucursal`.
 
 
 ## Fields

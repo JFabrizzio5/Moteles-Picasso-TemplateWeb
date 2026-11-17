@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from .sucursal_entity import Equipo, Habitacion, HabitacionEquipo, Personal, Sucursal
 from .sucursal_models import (
+    CuartoSincronizar,
     EquipoCreate,
     EquipoRead,
     EquiposDeHabitacion,
@@ -14,11 +15,13 @@ from .sucursal_models import (
     PerfilRead,
     PersonalCreate,
     PersonalRead,
+    Sincronizacion,
     SucursalRead,
     SucursalUpdate,
 )
 
 __all__ = [
+    "CuartoSincronizar",
     "Equipo",
     "EquipoCreate",
     "EquipoRead",
@@ -33,6 +36,7 @@ __all__ = [
     "Personal",
     "PersonalCreate",
     "PersonalRead",
+    "Sincronizacion",
     "Sucursal",
     "SucursalRead",
     "SucursalUpdate",

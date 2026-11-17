@@ -25,6 +25,7 @@ from ..models import (
     GastoActualizar,
     GastoArchivo,
     GastoCrear,
+    GastoEliminar,
     GastoIncidencia,
     GastoPartida,
     GastoPorArticulo,
@@ -41,6 +42,7 @@ from ..validations import (
     exigir_editable,
     exigir_finanzas,
     exigir_gasto_de,
+    exigir_puede_eliminar,
     importe_partida,
     liga_de_incidencia,
     no_en_el_futuro,
@@ -174,6 +176,9 @@ class GastosService:
             estado=g.estado,
             exportado_en=g.exportado_en,
             creado_en=g.created_at,
+            eliminado_en=g.eliminado_en,
+            eliminado_por_nombre=g.eliminado_por_nombre,
+            motivo_eliminacion=g.motivo_eliminacion,
             partidas=[PartidaRead.model_validate(p, from_attributes=True) for p in partidas],
             archivos=[
                 ArchivoRead(
@@ -199,6 +204,7 @@ class GastosService:
         categoria: str | None,
         buscar: str | None,
         incluir_anulados: bool,
+        papelera: bool = False,
         pagina: int | None = None,
         por_pagina: int = 20,
     ) -> tuple[list[GastoRead], int, Decimal]:
@@ -213,7 +219,8 @@ class GastosService:
             sin_incidencia=sin_incidencia,
             categoria=categoria,
             texto=buscar,
-            incluir_anulados=incluir_anulados,
+            incluir_anulados=incluir_anulados or papelera,
+            papelera=papelera,
         )
         if pagina is None:
             filas = await self.repo.gastos(**filtros)
@@ -320,6 +327,32 @@ class GastosService:
         exigir_gasto_de(actor, g.sucursal_id)
         exigir_editable(g.estado)
         g.estado = "anulado"
+        await self.repo.session.flush()
+        return (await self.leer([g]))[0]
+
+    async def eliminar(self, actor: Actor, gasto_id: int, pedido: GastoEliminar) -> GastoRead:
+        """A la papelera: deja de contar en todo, pero queda quién, cuándo y por qué."""
+        g = await self.repo.gasto(gasto_id)
+        exigir_gasto_de(actor, g.sucursal_id)
+        exigir_puede_eliminar(actor, g.exportado_en is not None)
+        motivo = " ".join(pedido.motivo.split())
+        if len(motivo) < 5:
+            raise ValidationError("Escribe por qué se elimina (al menos 5 letras).")
+        g.eliminado_en = ahora()
+        g.eliminado_por_id = actor.user_id
+        g.eliminado_por_nombre = actor.nombre
+        g.motivo_eliminacion = motivo[:300]
+        await self.repo.session.flush()
+        return (await self.leer([g]))[0]
+
+    async def restaurar(self, actor: Actor, gasto_id: int) -> GastoRead:
+        """Sacarlo de la papelera tal como estaba (folios, partidas y comprobantes)."""
+        g = await self.repo.gasto(gasto_id, eliminado=True)
+        exigir_gasto_de(actor, g.sucursal_id)
+        g.eliminado_en = None
+        g.eliminado_por_id = None
+        g.eliminado_por_nombre = None
+        g.motivo_eliminacion = None
         await self.repo.session.flush()
         return (await self.leer([g]))[0]
 

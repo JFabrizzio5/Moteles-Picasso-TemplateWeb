@@ -5,6 +5,8 @@
   historial un tramo por noche.
 - `finanzas.importar`: lo encola la pantalla de administración para volver a
   leer un rango a mano.
+- `finanzas.importar_cuartos`: da de alta los cuartos de cada motel con su tipo
+  (Suite, Jacuzzi, Jacuzzi y sauna…), sacado de las tarifas con que se rentaron.
 
 Lo corre `jfast worker` (scheduler = true en jfast.toml). Un Kairos que no
 responde no detiene a los demás: queda anotado en su fuente y se reintenta la
@@ -29,6 +31,7 @@ from .services import (
     ImportadorKairos,
     KairosError,
     Sucursal,
+    TipoCuarto,
     ahora,
     credenciales,
     dias_entre,
@@ -113,3 +116,60 @@ async def importar(payload: dict[str, Any], session: TaskSession) -> None:
             r.dias,
             f" — {r.errores}" if r.errores else "",
         )
+
+
+async def sincronizar_cuartos(
+    session: TaskSession, clave: str, tipos: dict[str, TipoCuarto]
+) -> sucursal_publica.SincronizacionDTO | None:
+    """Pasa a Picasso los cuartos leídos de Kairos (alta y corrección, nunca baja)."""
+    sucursal = next(
+        (s for s in await sucursal_publica.sucursales(session, tenant_id=None) if s.clave == clave),
+        None,
+    )
+    if sucursal is None:
+        return None
+    return await sucursal_publica.sincronizar_habitaciones(
+        session,
+        tenant_id=None,
+        sucursal_id=sucursal.id,
+        cuartos=[
+            sucursal_publica.CuartoKairosDTO(
+                numero=numero,
+                tipo=t.tipo,
+                seccion=t.seccion,
+                tiene_jacuzzi=t.tiene_jacuzzi,
+                tiene_sauna=t.tiene_sauna,
+            )
+            for numero, t in tipos.items()
+        ],
+    )
+
+
+@task("finanzas.importar_cuartos")
+async def importar_cuartos(payload: dict[str, Any], session: TaskSession) -> None:
+    listo = await _importador(session)
+    if listo is None:
+        return
+    repo, importador = listo
+    claves = set(payload.get("claves") or [])
+    for fuente in await repo.fuentes(solo_activas=True):
+        if claves and fuente.sucursal_clave not in claves:
+            continue
+        try:
+            tipos = await importador.tipos_de_cuarto(
+                fuente, dias=int(payload.get("dias", 14)), muestras=int(payload.get("muestras", 2))
+            )
+        except KairosError as e:
+            log.warning("Kairos %s (cuartos): %s", fuente.sucursal_clave, e)
+            continue
+        r = await sincronizar_cuartos(session, fuente.sucursal_clave, tipos)
+        await session.commit()
+        if r is not None:
+            log.info(
+                "Kairos %s: %s cuartos nuevos, %s corregidos, %s igual; solo en Picasso: %s",
+                fuente.sucursal_clave,
+                len(r.nuevos),
+                len(r.actualizados),
+                r.sin_cambio,
+                ", ".join(r.solo_en_picasso) or "ninguno",
+            )
